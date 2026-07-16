@@ -1,16 +1,13 @@
 name: Publish to npm
 
-# Publishes on every GitHub Release. Uses npm Trusted Publishing (OIDC) - no
-# tokens stored. Configure the trusted publisher once on npmjs.com for the
-# "scrapeunblocker" package pointing at this repo + workflow (publish.yml).
+# Publishes on every GitHub Release using an npm token stored as the NPM_TOKEN
+# repository secret. Create an "Automation" (or granular read+write) token at
+# https://www.npmjs.com/settings/scrapeunblocker/tokens and add it under
+# Settings -> Secrets and variables -> Actions -> New repository secret.
 
 on:
   release:
     types: [published]
-
-permissions:
-  contents: read
-  id-token: write   # required for provenance + trusted publishing
 
 jobs:
   publish:
@@ -21,8 +18,8 @@ jobs:
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
-      # Trusted publishing needs a recent npm.
-      - run: npm install -g npm@latest
       - run: npm install
       - run: npm run build
-      - run: npm publish --provenance --access public
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

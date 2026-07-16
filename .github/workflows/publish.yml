@@ -1,13 +1,18 @@
 name: Publish to npm
 
-# Publishes on every GitHub Release using an npm token stored as the NPM_TOKEN
-# repository secret. Create an "Automation" (or granular read+write) token at
-# https://www.npmjs.com/settings/scrapeunblocker/tokens and add it under
-# Settings -> Secrets and variables -> Actions -> New repository secret.
+# Publishes on every GitHub Release using npm Trusted Publishing (OIDC) - no
+# token stored, nothing to expire. Configure the trusted publisher once on the
+# package settings page (npmjs.com/package/scrapeunblocker -> Settings ->
+# Trusted Publisher): GitHub Actions, org ScrapeUnblocker, repo
+# scrapeunblocker-node, workflow publish.yml.
 
 on:
   release:
     types: [published]
+
+permissions:
+  contents: read
+  id-token: write   # required for provenance + trusted publishing
 
 jobs:
   publish:
@@ -18,8 +23,8 @@ jobs:
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
+      # Trusted publishing needs a recent npm (>= 11.5).
+      - run: npm install -g npm@latest
       - run: npm install
       - run: npm run build
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --provenance --access public

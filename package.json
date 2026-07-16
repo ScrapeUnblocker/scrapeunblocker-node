@@ -1,0 +1,67 @@
+{
+  "name": "scrapeunblocker",
+  "version": "0.1.0",
+  "description": "Official Node.js client for the ScrapeUnblocker web scraping API - JavaScript-rendered pages that bypass Cloudflare, DataDome, PerimeterX, Akamai and more.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "web scraping",
+    "scraping api",
+    "anti-bot",
+    "proxy",
+    "cloudflare",
+    "datadome",
+    "captcha",
+    "crawler",
+    "scraper",
+    "skyscanner",
+    "skyscanner scrape",
+    "skyscanner scrape api",
+    "skyscanner scraper",
+    "skyscanner api",
+    "scrape skyscanner",
+    "flights api",
+    "hotels api",
+    "car hire",
+    "travel data",
+    "serp api"
+  ],
+  "author": "ScrapeUnblocker <support@scrapeunblocker.com>",
+  "license": "MIT",
+  "homepage": "https://scrapeunblocker.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ScrapeUnblocker/scrapeunblocker-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ScrapeUnblocker/scrapeunblocker-node/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}

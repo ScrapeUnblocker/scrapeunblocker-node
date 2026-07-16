@@ -1,0 +1,28 @@
+name: Publish to npm
+
+# Publishes on every GitHub Release. Uses npm Trusted Publishing (OIDC) - no
+# tokens stored. Configure the trusted publisher once on npmjs.com for the
+# "scrapeunblocker" package pointing at this repo + workflow (publish.yml).
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write   # required for provenance + trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+      # Trusted publishing needs a recent npm.
+      - run: npm install -g npm@latest
+      - run: npm install
+      - run: npm run build
+      - run: npm publish --provenance --access public

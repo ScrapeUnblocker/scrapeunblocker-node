@@ -79,6 +79,15 @@ const fresh = await su.getParsed(url, { refreshRules: true, rulesHint: "price is
 const serp = await su.serp("web scraping api", { pagesToCheck: 2, proxyCountry: "US" });
 ```
 
+## Google Local (Maps)
+
+```ts
+const local = await su.googleLocal("coffee shops in chicago", { proxyCountry: "US", gl: "us" });
+for (const biz of (local as any).results) {
+  console.log(biz.name, biz.rating, biz.reviews, biz.address);
+}
+```
+
 ## Cookies and the serving proxy
 
 ```ts

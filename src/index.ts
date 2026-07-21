@@ -21,4 +21,5 @@ export type {
   ParsedPage,
   PageResult,
   SerpOptions,
+  GoogleLocalOptions,
 } from "./types.js";

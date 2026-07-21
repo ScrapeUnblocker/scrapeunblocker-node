@@ -86,6 +86,17 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("pages_to_check=2");
   });
 
+  it("googleLocal targets /maps/google-local", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+    const out = await client().googleLocal("coffee shops in chicago", { proxyCountry: "US", gl: "us" });
+    expect(out).toEqual({ results: [] });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/maps/google-local`);
+    expect(url).toContain("keyword=coffee");
+    expect(url).toContain("proxy_country=US");
+    expect(url).toContain("gl=us");
+  });
+
   it("getImage returns bytes", async () => {
     const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
     mockFetch(new Response(bytes, { status: 200 }));

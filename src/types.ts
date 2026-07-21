@@ -61,3 +61,13 @@ export interface SerpOptions {
   waitAfterLoad?: number;
   captchaPause?: number;
 }
+
+/** Options for {@link ScrapeUnblockerClient.googleLocal}. */
+export interface GoogleLocalOptions {
+  /** Exit-IP country (ISO-2, e.g. "US"). Local results are location-sensitive. */
+  proxyCountry?: string;
+  /** Google UI language (e.g. "en", "de"). */
+  hl?: string;
+  /** Google country of search (ISO-2 lowercase, e.g. "us"). */
+  gl?: string;
+}

@@ -6,6 +6,7 @@ import type {
   ParsedPage,
   PageResult,
   SerpOptions,
+  GoogleLocalOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -13,7 +14,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -199,6 +200,22 @@ export class ScrapeUnblockerClient {
       pages_to_check: options.pagesToCheck ?? 1,
       wait_after_load: options.waitAfterLoad || undefined,
       captcha_pause: options.captchaPause || undefined,
+    });
+  }
+
+  /**
+   * Search Google Local (Maps) and return the businesses as JSON.
+   *
+   * Returns up to ~20 businesses, each with name, rating, reviews, price,
+   * category, address, hours and a top review snippet. Local results are
+   * location-sensitive - set `proxyCountry` (and optionally `gl`) to target a market.
+   */
+  async googleLocal(keyword: string, options: GoogleLocalOptions = {}): Promise<unknown> {
+    return this.postJson("/maps/google-local", {
+      keyword,
+      proxy_country: options.proxyCountry,
+      hl: options.hl,
+      gl: options.gl,
     });
   }
 

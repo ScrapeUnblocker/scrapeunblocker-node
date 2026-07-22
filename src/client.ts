@@ -7,6 +7,7 @@ import type {
   PageResult,
   SerpOptions,
   GoogleLocalOptions,
+  OopbuySearchOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -14,7 +15,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -216,6 +217,23 @@ export class ScrapeUnblockerClient {
       proxy_country: options.proxyCountry,
       hl: options.hl,
       gl: options.gl,
+    });
+  }
+
+  /**
+   * Search Oopbuy (1688 / Taobao / official) and return the products as JSON.
+   *
+   * Returns product listings (spu, title, price, monthly sales, image, url)
+   * for a generic keyword. Brand keywords are rejected with HTTP 422.
+   */
+  async oopbuySearch(keyword: string, options: OopbuySearchOptions = {}): Promise<unknown> {
+    return this.postJson("/goods/oopbuy-search", {
+      keyword,
+      channel: options.channel,
+      page: options.page,
+      page_size: options.pageSize,
+      sort: options.sort,
+      proxy_country: options.proxyCountry,
     });
   }
 

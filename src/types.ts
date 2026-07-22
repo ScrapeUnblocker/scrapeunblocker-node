@@ -71,3 +71,17 @@ export interface GoogleLocalOptions {
   /** Google country of search (ISO-2 lowercase, e.g. "us"). */
   gl?: string;
 }
+
+/** Options for {@link ScrapeUnblockerClient.oopbuySearch}. */
+export interface OopbuySearchOptions {
+  /** Marketplace channel: "1688" (default), "taobao" or "official". */
+  channel?: string;
+  /** Result page number. Default 1. */
+  page?: number;
+  /** Results per page. Default 20, max 60. */
+  pageSize?: number;
+  /** Sort order: "default", "price_asc", "price_desc" or "best_selling". */
+  sort?: string;
+  /** Exit-IP country (ISO-2, e.g. "US"). */
+  proxyCountry?: string;
+}

@@ -22,4 +22,5 @@ export type {
   PageResult,
   SerpOptions,
   GoogleLocalOptions,
+  OopbuySearchOptions,
 } from "./types.js";

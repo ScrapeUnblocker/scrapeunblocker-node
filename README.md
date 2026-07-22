@@ -88,6 +88,24 @@ for (const biz of (local as any).results) {
 }
 ```
 
+## Oopbuy product search
+
+Search 1688, Taobao or Oopbuy official listings as JSON:
+
+```ts
+const goods = await su.oopbuySearch("wireless earbuds", {
+  channel: "1688",     // "1688" (default), "taobao" or "official"
+  page: 1,
+  pageSize: 20,        // max 60
+  sort: "best_selling", // "default", "price_asc", "price_desc" or "best_selling"
+});
+for (const item of (goods as any).results) {
+  console.log(item.title, item.price, item.monthSold, item.url);
+}
+```
+
+Brand keywords (e.g. "nike") are rejected with HTTP 422 (`InvalidRequestError` family).
+
 ## Cookies and the serving proxy
 
 ```ts

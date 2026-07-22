@@ -97,6 +97,26 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("gl=us");
   });
 
+  it("oopbuySearch targets /goods/oopbuy-search", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+    const out = await client().oopbuySearch("wireless earbuds", {
+      channel: "taobao",
+      page: 2,
+      pageSize: 40,
+      sort: "price_asc",
+      proxyCountry: "US",
+    });
+    expect(out).toEqual({ results: [] });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/goods/oopbuy-search`);
+    expect(url).toContain("keyword=wireless");
+    expect(url).toContain("channel=taobao");
+    expect(url).toContain("page=2");
+    expect(url).toContain("page_size=40");
+    expect(url).toContain("sort=price_asc");
+    expect(url).toContain("proxy_country=US");
+  });
+
   it("getImage returns bytes", async () => {
     const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
     mockFetch(new Response(bytes, { status: 200 }));

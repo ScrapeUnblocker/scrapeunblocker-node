@@ -15,7 +15,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.3";
+const VERSION = "0.1.6";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 

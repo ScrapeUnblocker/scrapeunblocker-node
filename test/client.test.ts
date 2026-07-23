@@ -1,10 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ScrapeUnblockerClient,
+  APIError,
+  AuthenticationError,
   BlockedError,
+  BrowserTimeoutError,
+  CreditLimitExceededError,
   InvalidRequestError,
+  NoSubscriptionError,
+  NotFoundError,
+  PaymentFailedError,
+  PaymentRequiredError,
+  QuotaExceededError,
   RateLimitError,
+  UnsupportedContentError,
   UpstreamOutageError,
+  ValidationError,
 } from "../src/index.js";
 
 const BASE = "https://api.scrapeunblocker.com";
@@ -135,15 +146,55 @@ describe("ScrapeUnblockerClient", () => {
 
   it.each([
     [400, InvalidRequestError],
+    [401, AuthenticationError],
+    [402, PaymentRequiredError],
     [403, BlockedError],
+    [404, NotFoundError],
+    [408, BrowserTimeoutError],
+    [415, UnsupportedContentError],
+    [422, ValidationError],
     [429, RateLimitError],
     [503, UpstreamOutageError],
+    [418, APIError],
   ])("maps HTTP %i to the right error", async (status, ErrorClass) => {
     mockFetch(new Response("nope", { status }));
     await expect(client({ maxRetries: 0 }).getPageSource("https://example.com")).rejects.toBeInstanceOf(
       ErrorClass,
     );
   });
+
+  it.each([
+    ["Quota exceeded\n", QuotaExceededError],
+    ["Credit limit exceeded\n", CreditLimitExceededError],
+    ["Payment failed - update payment method\n", PaymentFailedError],
+    ["something new we do not know yet", PaymentRequiredError],
+  ])("maps the 402 body %j to the right error", async (body, ErrorClass) => {
+    mockFetch(new Response(body, { status: 402 }));
+    const promise = client({ maxRetries: 0 }).getPageSource("https://example.com");
+    await expect(promise).rejects.toBeInstanceOf(ErrorClass);
+    await expect(promise).rejects.toBeInstanceOf(PaymentRequiredError);
+  });
+
+  it.each([
+    ["No valid subscription\n", NoSubscriptionError],
+    ["Unauthorized\n", AuthenticationError],
+  ])("maps the 401 body %j to the right error", async (body, ErrorClass) => {
+    mockFetch(new Response(body, { status: 401 }));
+    const promise = client({ maxRetries: 0 }).getPageSource("https://example.com");
+    await expect(promise).rejects.toBeInstanceOf(ErrorClass);
+    await expect(promise).rejects.toBeInstanceOf(AuthenticationError);
+  });
+
+  it.each([[401], [402]])(
+    "does not retry HTTP %i - it clears on a key or billing change, not a retry",
+    async (status) => {
+      const fetchFn = mockFetch(new Response("Quota exceeded", { status }));
+      await expect(
+        client({ maxRetries: 3 }).getPageSource("https://example.com"),
+      ).rejects.toBeInstanceOf(APIError);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it("retries a 503 then succeeds", async () => {
     const fetchFn = mockFetch(

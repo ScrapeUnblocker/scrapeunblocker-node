@@ -104,7 +104,7 @@ for (const item of (goods as any).results) {
 }
 ```
 
-Brand keywords (e.g. "nike") are rejected with HTTP 422 (`InvalidRequestError` family).
+Oopbuy trademark-blocks brand keywords (e.g. "nike") at its own backend. Those come back as a successful `200` with `keywordRejected: true` and an empty `results` array - Oopbuy's own genuine response, not an error.
 
 ## Cookies and the serving proxy
 
@@ -139,10 +139,16 @@ const cars = await su.skyscanner.carhire({ pickup: "Madrid", pickup_datetime: "2
 
 ## Error handling
 
-Non-2xx responses reject with typed errors, all subclasses of `ScrapeUnblockerError`. Transient failures (429, 502, 503, 504 and network errors) are retried automatically with exponential backoff.
+Non-2xx responses reject with typed errors, all subclasses of `ScrapeUnblockerError`.
 
 ```ts
-import { ScrapeUnblockerClient, BlockedError, RateLimitError, UpstreamOutageError } from "scrapeunblocker";
+import {
+  ScrapeUnblockerClient,
+  BlockedError,
+  PaymentRequiredError,
+  RateLimitError,
+  UpstreamOutageError,
+} from "scrapeunblocker";
 
 const su = new ScrapeUnblockerClient();
 try {
@@ -150,6 +156,8 @@ try {
 } catch (err) {
   if (err instanceof BlockedError) {
     // 403: the target blocked every bypass path (not billed)
+  } else if (err instanceof PaymentRequiredError) {
+    // 402: quota, credit limit, or a failed payment - fix billing
   } else if (err instanceof RateLimitError) {
     // 429: slow down
   } else if (err instanceof UpstreamOutageError) {
@@ -160,14 +168,53 @@ try {
 
 | Error | Status | Meaning |
 |---|---|---|
-| `InvalidRequestError` | 400 | Bad URL or unsupported scheme |
-| `AuthenticationError` | 401 | Missing or invalid API key |
+| `InvalidRequestError` | 400 | Bad URL, unsupported scheme, or the API key header was not sent |
+| `AuthenticationError` | 401 | Key not recognised - typo, stray whitespace, or a rotated key |
+| `NoSubscriptionError` | 401 | Key is fine, but the account has no active plan |
+| `PaymentRequiredError` | 402 | Billing block - base class for the three below |
+| `QuotaExceededError` | 402 | The plan's requests for this period are used up |
+| `CreditLimitExceededError` | 402 | Unpaid balance is past the account's credit limit |
+| `PaymentFailedError` | 402 | A card payment was declined three times |
 | `BlockedError` | 403 | Blocked by bot protection on every path |
+| `NotFoundError` | 404 | Page loaded but held no image (`getImage` only) |
+| `BrowserTimeoutError` | 408 | Our browser run timed out before the page was ready |
+| `UnsupportedContentError` | 415 | The URL serves something other than HTML |
+| `ValidationError` | 422 | Missing or wrong-typed parameter; `body` holds the `detail` array |
 | `RateLimitError` | 429 | Too many requests |
 | `UpstreamOutageError` | 503 | The target origin is down |
-| `ServerError` | 5xx | Unexpected server error |
-| `ScrapeTimeoutError` | - | Request exceeded the timeout |
+| `ServerError` | 5xx | Unexpected server error, including a 504 upstream timeout |
+| `ScrapeTimeoutError` | - | This client gave up locally before the API answered |
 | `ConnectionError` | - | Could not reach the API |
+
+Transient failures (429, 502, 503, 504 and network errors) are retried automatically with exponential backoff. A 401 or 402 is never retried - it clears when the key or the billing state changes, not on another attempt. Neither is billed or counted against your quota, because the request is refused before anything is scraped.
+
+### Billing errors (402)
+
+The three billing blocks share a status code and differ only in their message, so the client throws a dedicated error for each:
+
+```ts
+import {
+  CreditLimitExceededError,
+  PaymentFailedError,
+  QuotaExceededError,
+} from "scrapeunblocker";
+
+try {
+  await su.getPageSource("https://example.com");
+} catch (err) {
+  if (err instanceof QuotaExceededError) {
+    // plan quota (plus any overage allowance) is used up for this period
+  } else if (err instanceof CreditLimitExceededError) {
+    // unpaid balance passed the account credit limit
+  } else if (err instanceof PaymentFailedError) {
+    // card declined three times - update the payment method
+  }
+}
+```
+
+When more than one applies, the most serious wins: failed payment outranks credit limit, which outranks quota. All three lift by themselves once the billing state changes - access returns within about a minute, and the API key stays the same. One catch worth knowing: subscribing to a new plan does **not** clear `PaymentFailedError`, because the old unpaid invoice stays open until it is paid.
+
+Full details for every status code: [developers.scrapeunblocker.com/errors](https://developers.scrapeunblocker.com/errors).
 
 ## Configuration
 

@@ -47,7 +47,7 @@
   ],
   "author": "ScrapeUnblocker <support@scrapeunblocker.com>",
   "license": "MIT",
-  "homepage": "https://scrapeunblocker.com",
+  "homepage": "https://scrapeunblocker.com?utm_source=npm&utm_medium=integration&utm_campaign=node-sdk",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ScrapeUnblocker/scrapeunblocker-node.git"

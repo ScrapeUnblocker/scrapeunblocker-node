@@ -128,6 +128,33 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("proxy_country=US");
   });
 
+  it("ebaySearch targets /marketplace/ebay-search", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ results: [], exactMatches: true }), { status: 200 }),
+    );
+    const out = await client().ebaySearch("iphone 13", {
+      marketplace: "ebay.de",
+      condition: "used",
+      sort: "newly_listed",
+      minPrice: 100,
+      maxPrice: 300,
+      pageSize: 120,
+    });
+    expect(out).toEqual({ results: [], exactMatches: true });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/marketplace/ebay-search`);
+    expect(url).toContain("keyword=iphone");
+    expect(url).toContain("marketplace=ebay.de");
+    expect(url).toContain("condition=used");
+    expect(url).toContain("sort=newly_listed");
+    expect(url).toContain("min_price=100");
+    expect(url).toContain("max_price=300");
+    expect(url).toContain("page_size=120");
+    // Unset optional filters must not be sent at all.
+    expect(url).not.toContain("seller=");
+    expect(url).not.toContain("free_shipping=");
+  });
+
   it("getImage returns bytes", async () => {
     const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
     mockFetch(new Response(bytes, { status: 200 }));

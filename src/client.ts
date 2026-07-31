@@ -8,6 +8,7 @@ import type {
   SerpOptions,
   GoogleLocalOptions,
   OopbuySearchOptions,
+  EbaySearchOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -15,7 +16,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.7";
+const VERSION = "0.1.8";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -233,6 +234,35 @@ export class ScrapeUnblockerClient {
       page: options.page,
       page_size: options.pageSize,
       sort: options.sort,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Search eBay and return the listings as JSON.
+   *
+   * Each listing carries title, numeric price and currency, condition (with a
+   * normalised `conditionCode`), seller username and feedback, shipping cost,
+   * sold/watcher/bid counts, image and a clean item URL.
+   *
+   * When eBay finds no exact match it still serves a page of loosely related
+   * suggestions; the response then sets `exactMatches` to `false`, so check
+   * that field before using the listings.
+   */
+  async ebaySearch(keyword: string, options: EbaySearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/ebay-search", {
+      keyword,
+      marketplace: options.marketplace,
+      page: options.page,
+      page_size: options.pageSize,
+      condition: options.condition,
+      sort: options.sort,
+      listing_type: options.listingType,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
+      free_shipping: options.freeShipping || undefined,
+      seller: options.seller,
+      category: options.category,
       proxy_country: options.proxyCountry,
     });
   }

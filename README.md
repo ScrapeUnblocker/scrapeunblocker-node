@@ -106,6 +106,27 @@ for (const item of (goods as any).results) {
 
 Oopbuy trademark-blocks brand keywords (e.g. "nike") at its own backend. Those come back as a successful `200` with `keywordRejected: true` and an empty `results` array - Oopbuy's own genuine response, not an error.
 
+## eBay search
+
+Listings from any of the 19 regional eBay marketplaces as JSON:
+
+```ts
+const items = await su.ebaySearch("iphone 13", {
+  marketplace: "ebay.com",
+  condition: "used",
+  sort: "newly_listed",
+});
+
+if (items.exactMatches) {
+  for (const item of items.results) {
+    console.log(item.title, item.price, item.currency, item.condition);
+    console.log("  seller:", item.seller?.username, item.seller?.feedbackPercent);
+  }
+}
+```
+
+`exactMatches` is `false` when eBay found nothing for the keyword and answered with its own loosely-related suggestions instead, so check it before using the listings.
+
 ## Cookies and the serving proxy
 
 ```ts

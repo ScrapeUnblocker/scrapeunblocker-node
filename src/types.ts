@@ -73,6 +73,33 @@ export interface GoogleLocalOptions {
 }
 
 /** Options for {@link ScrapeUnblockerClient.oopbuySearch}. */
+export interface EbaySearchOptions {
+  /** Regional eBay site, e.g. "ebay.com" (default), "ebay.de", "ebay.co.uk". */
+  marketplace?: string;
+  /** Result page number. Default 1. */
+  page?: number;
+  /** Listings per page: 60 (default), 120 or 240. */
+  pageSize?: number;
+  /** "new", "open_box", "refurbished", "used" or "for_parts". */
+  condition?: string;
+  /** "best_match" (default), "newly_listed", "ending_soon", "price_asc" or "price_desc". */
+  sort?: string;
+  /** "all" (default), "buy_it_now" or "auction". */
+  listingType?: string;
+  /** Lowest price to include, in the marketplace's currency. */
+  minPrice?: number;
+  /** Highest price to include, in the marketplace's currency. */
+  maxPrice?: number;
+  /** Keep only listings eBay marks as free delivery. */
+  freeShipping?: boolean;
+  /** Restrict the search to one seller's username. */
+  seller?: string;
+  /** eBay category id to search inside, e.g. "131090" for vehicle parts. */
+  category?: string;
+  /** Exit-IP country (ISO-2, e.g. "US"). */
+  proxyCountry?: string;
+}
+
 export interface OopbuySearchOptions {
   /** Marketplace channel: "1688" (default), "taobao" or "official". */
   channel?: string;

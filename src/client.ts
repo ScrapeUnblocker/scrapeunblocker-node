@@ -9,6 +9,8 @@ import type {
   GoogleLocalOptions,
   OopbuySearchOptions,
   EbaySearchOptions,
+  AmazonProductOptions,
+  AmazonSearchOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -16,7 +18,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.8";
+const VERSION = "0.1.9";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -263,6 +265,44 @@ export class ScrapeUnblockerClient {
       free_shipping: options.freeShipping || undefined,
       seller: options.seller,
       category: options.category,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one Amazon product by ASIN or URL and return it as JSON.
+   *
+   * Returns title, brand, numeric price and currency, list price and savings,
+   * availability, rating, review count, seller, feature bullets, categories and
+   * images. Prices come back in the marketplace's own currency: `proxyCountry`
+   * defaults to the marketplace's home country (amazon.com -> US), pinning the
+   * exit over the ISP pool. Pass either `asin` (with `marketplace`) or a `url`.
+   */
+  async amazonProduct(options: AmazonProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/amazon-product", {
+      asin: options.asin,
+      url: options.url,
+      marketplace: options.marketplace,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Search Amazon and return the result cards as JSON.
+   *
+   * Each card carries asin, title, numeric price and currency, list price,
+   * rating, review count, a clean product URL, image and the sponsored / prime
+   * flags. Fetch a card's full detail with {@link amazonProduct}. Prices are in
+   * the marketplace's own currency.
+   */
+  async amazonSearch(keyword: string, options: AmazonSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/amazon-search", {
+      keyword,
+      marketplace: options.marketplace,
+      page: options.page,
+      sort: options.sort,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
       proxy_country: options.proxyCountry,
     });
   }

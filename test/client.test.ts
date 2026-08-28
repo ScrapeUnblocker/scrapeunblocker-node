@@ -155,6 +155,41 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).not.toContain("free_shipping=");
   });
 
+  it("amazonProduct targets /marketplace/amazon-product", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ asin: "B0BSHF7WHW", price: 49.99 }), { status: 200 }),
+    );
+    const out = await client().amazonProduct({ asin: "B0BSHF7WHW", marketplace: "amazon.com" });
+    expect(out).toEqual({ asin: "B0BSHF7WHW", price: 49.99 });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/marketplace/amazon-product`);
+    expect(url).toContain("asin=B0BSHF7WHW");
+    expect(url).toContain("marketplace=amazon.com");
+    // Unset optional params must not be sent at all.
+    expect(url).not.toContain("url=");
+    expect(url).not.toContain("proxy_country=");
+  });
+
+  it("amazonSearch targets /marketplace/amazon-search", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ results: [], resultsCollected: 0 }), { status: 200 }),
+    );
+    const out = await client().amazonSearch("wireless headphones", {
+      marketplace: "amazon.de",
+      sort: "price_asc",
+      minPrice: 50,
+      maxPrice: 200,
+    });
+    expect(out).toEqual({ results: [], resultsCollected: 0 });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/marketplace/amazon-search`);
+    expect(url).toContain("keyword=wireless");
+    expect(url).toContain("marketplace=amazon.de");
+    expect(url).toContain("sort=price_asc");
+    expect(url).toContain("min_price=50");
+    expect(url).toContain("max_price=200");
+  });
+
   it("getImage returns bytes", async () => {
     const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
     mockFetch(new Response(bytes, { status: 200 }));

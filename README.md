@@ -106,6 +106,24 @@ for (const item of (goods as any).results) {
 
 Oopbuy trademark-blocks brand keywords (e.g. "nike") at its own backend. Those come back as a successful `200` with `keywordRejected: true` and an empty `results` array - Oopbuy's own genuine response, not an error.
 
+## Amazon
+
+Product and search data as JSON, priced in the marketplace's own currency:
+
+```ts
+// One product by ASIN (or { url: "https://www.amazon.de/dp/B0BSHF7WHW" })
+const product = await su.amazonProduct({ asin: "B0BSHF7WHW", marketplace: "amazon.com" });
+console.log(product.title, product.price, product.currency, product.rating);
+
+// Keyword search
+const results = await su.amazonSearch("wireless headphones", { sort: "price_asc" });
+for (const item of results.results) {
+  console.log(item.title, item.price, item.currency, item.asin);
+}
+```
+
+`proxyCountry` defaults to the marketplace's home country (`amazon.com` -> US, `amazon.de` -> DE), so prices come back in the right currency with no configuration.
+
 ## eBay search
 
 Listings from any of the 19 regional eBay marketplaces as JSON:

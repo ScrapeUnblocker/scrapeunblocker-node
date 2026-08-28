@@ -23,4 +23,7 @@ export type {
   SerpOptions,
   GoogleLocalOptions,
   OopbuySearchOptions,
+  EbaySearchOptions,
+  AmazonProductOptions,
+  AmazonSearchOptions,
 } from "./types.js";

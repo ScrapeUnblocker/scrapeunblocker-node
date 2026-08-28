@@ -100,6 +100,32 @@ export interface EbaySearchOptions {
   proxyCountry?: string;
 }
 
+export interface AmazonProductOptions {
+  /** 10-char ASIN, e.g. "B0BSHF7WHW" (books use their ISBN-10). */
+  asin?: string;
+  /** Full product URL instead of `asin`; the ASIN and marketplace are read from it. */
+  url?: string;
+  /** Regional Amazon site the ASIN belongs to. Default "amazon.com". */
+  marketplace?: string;
+  /** Exit-IP country (ISO-2). Defaults to the marketplace's home country. */
+  proxyCountry?: string;
+}
+
+export interface AmazonSearchOptions {
+  /** Regional Amazon site, e.g. "amazon.com" (default), "amazon.de". */
+  marketplace?: string;
+  /** Result page number. Default 1. */
+  page?: number;
+  /** "featured" (default), "price_asc", "price_desc", "avg_review" or "newest". */
+  sort?: string;
+  /** Lowest price to include, in the marketplace's currency. */
+  minPrice?: number;
+  /** Highest price to include, in the marketplace's currency. */
+  maxPrice?: number;
+  /** Exit-IP country (ISO-2). Defaults to the marketplace's home country. */
+  proxyCountry?: string;
+}
+
 export interface OopbuySearchOptions {
   /** Marketplace channel: "1688" (default), "taobao" or "official". */
   channel?: string;

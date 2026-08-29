@@ -11,6 +11,7 @@ import type {
   EbaySearchOptions,
   AmazonProductOptions,
   AmazonSearchOptions,
+  ListElementsResult,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -18,7 +19,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.1.9";
+const VERSION = "0.2.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -147,7 +148,31 @@ export class ScrapeUnblockerClient {
   }
 
   /** Fetch a URL and return the fully rendered HTML. */
-  async getPageSource(url: string, options: PageOptions = {}): Promise<string> {
+  async getPageSource(
+    url: string,
+    options?: PageOptions & { listElements?: false },
+  ): Promise<string>;
+  /**
+   * Fetch a URL with `listElements: true` and return the matched elements as
+   * JSON (`{ url, count, elements }`) instead of HTML.
+   */
+  async getPageSource(
+    url: string,
+    options: PageOptions & { listElements: true },
+  ): Promise<ListElementsResult>;
+  /**
+   * Fetch a URL and return the fully rendered HTML.
+   *
+   * Pass `steps` to drive the page in a real browser after it loads (click,
+   * type, scroll, wait for a selector); such a request runs once and is
+   * non-idempotent, and a failed step surfaces as a {@link ValidationError}
+   * (HTTP 422) whose `body` holds the `step_failed` JSON. Pass
+   * `listElements: true` to get `{ url, count, elements }` JSON instead of HTML.
+   */
+  async getPageSource(
+    url: string,
+    options: PageOptions = {},
+  ): Promise<string | ListElementsResult> {
     const response = await this.request("/getPageSource", {
       url,
       proxy_country: options.proxyCountry,
@@ -155,7 +180,12 @@ export class ScrapeUnblockerClient {
       method: options.method,
       value: options.value,
       method_timeout: options.methodTimeout,
+      steps: options.steps ? JSON.stringify(options.steps) : undefined,
+      list_elements: options.listElements ? true : undefined,
     });
+    if (options.listElements) {
+      return (await response.json()) as ListElementsResult;
+    }
     return response.text();
   }
 

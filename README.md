@@ -61,6 +61,62 @@ const html = await su.getPageSource("https://www.nordstrom.com/browse/women/clot
 });
 ```
 
+## Browser steps
+
+Drive the page in a real browser after it loads - click, type, scroll, or wait for content - by passing an ordered `steps` array. The client JSON-encodes it for you.
+
+```ts
+const html = await su.getPageSource("https://example.com/search", {
+  steps: [
+    { action: "wait_for", selector: "#search", timeout_ms: 5000 },
+    { action: "type", selector: "input[name=q]", value: "wireless earbuds", clear: true },
+    { action: "click", selector: "button[type=submit]" },
+    { action: "wait_for_text", value: "results" },
+    { action: "scroll", value: "bottom" },
+  ],
+});
+```
+
+Available actions:
+
+| Action | Fields |
+|---|---|
+| `wait_for` | `selector`, `selector_type?` (`css` \| `xPath` \| `className` \| `tagName`, default `css`), `timeout_ms?` |
+| `wait_for_text` | `value` (text), `timeout_ms?` |
+| `wait` | `value` (ms) |
+| `click` | `selector`, `selector_type?`, `timeout_ms?` |
+| `type` | `selector`, `selector_type?`, `value` (text), `clear?`, `timeout_ms?` |
+| `select` | `selector`, `selector_type?`, `value`, `timeout_ms?` |
+| `press_key` | `value` (`Enter`, `Tab`, `Escape`, `Backspace`, `Delete`, `Space`, `ArrowUp`/`Down`/`Left`/`Right`, `Home`, `End`, `PageUp`, `PageDown`) |
+| `scroll` | `value` (`"bottom"` or an integer pixel amount) |
+
+A request with `steps` runs once and is **non-idempotent**. If a step fails, the call rejects with a `ValidationError` (HTTP 422) whose `body` is the JSON `{ error: "step_failed", step_index, action, reason, selector, html }`:
+
+```ts
+import { ValidationError } from "scrapeunblocker";
+
+try {
+  await su.getPageSource(url, { steps: [{ action: "click", selector: "#missing" }] });
+} catch (err) {
+  if (err instanceof ValidationError) {
+    const detail = JSON.parse(err.body ?? "{}");
+    console.log(detail.step_index, detail.reason); // 0 "selector not found"
+  }
+}
+```
+
+## List elements
+
+Set `listElements: true` to get structured JSON - `{ url, count, elements }` - instead of HTML. The return type narrows automatically:
+
+```ts
+const { url, count, elements } = await su.getPageSource("https://example.com", {
+  listElements: true,
+  steps: [{ action: "wait_for", selector: ".card" }],
+});
+console.log(count, elements);
+```
+
 ## Get parsed JSON
 
 ```ts

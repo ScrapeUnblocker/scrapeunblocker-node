@@ -10,6 +10,119 @@ export interface ClientOptions {
   maxRetries?: number;
 }
 
+/** How a step's `selector` is interpreted. Defaults to "css". */
+export type SelectorType = "css" | "xPath" | "className" | "tagName";
+
+/** A key name accepted by the `press_key` browser step. */
+export type PressKey =
+  | "Enter"
+  | "Tab"
+  | "Escape"
+  | "Backspace"
+  | "Delete"
+  | "Space"
+  | "ArrowUp"
+  | "ArrowDown"
+  | "ArrowLeft"
+  | "ArrowRight"
+  | "Home"
+  | "End"
+  | "PageUp"
+  | "PageDown";
+
+/** Wait until an element matching `selector` is present. */
+export interface WaitForStep {
+  action: "wait_for";
+  selector: string;
+  selector_type?: SelectorType;
+  timeout_ms?: number;
+}
+
+/** Wait until the given text appears anywhere on the page. */
+export interface WaitForTextStep {
+  action: "wait_for_text";
+  /** The text to wait for. */
+  value: string;
+  timeout_ms?: number;
+}
+
+/** Wait a fixed number of milliseconds. */
+export interface WaitStep {
+  action: "wait";
+  /** Milliseconds to wait. */
+  value: number;
+}
+
+/** Click the first element matching `selector`. */
+export interface ClickStep {
+  action: "click";
+  selector: string;
+  selector_type?: SelectorType;
+  timeout_ms?: number;
+}
+
+/** Type text into an input, with human-like keystrokes. */
+export interface TypeStep {
+  action: "type";
+  selector: string;
+  selector_type?: SelectorType;
+  /** The text to type. */
+  value: string;
+  /** Clear the field before typing. */
+  clear?: boolean;
+  timeout_ms?: number;
+}
+
+/** Select an option in a `<select>` by value. */
+export interface SelectStep {
+  action: "select";
+  selector: string;
+  selector_type?: SelectorType;
+  /** The option value to select. */
+  value: string;
+  timeout_ms?: number;
+}
+
+/** Press a keyboard key. */
+export interface PressKeyStep {
+  action: "press_key";
+  value: PressKey;
+}
+
+/** Scroll to the bottom, or by a pixel amount. */
+export interface ScrollStep {
+  action: "scroll";
+  /** "bottom" or an integer pixel amount. */
+  value: "bottom" | number;
+}
+
+/**
+ * One ordered browser action, run in a real browser after the page loads.
+ *
+ * A request carrying `steps` runs once and is non-idempotent. If a step fails,
+ * the API answers HTTP 422 (surfaced as {@link ValidationError}) with a JSON
+ * body: `{ error: "step_failed", step_index, action, reason, selector, html }`.
+ */
+export type BrowserStep =
+  | WaitForStep
+  | WaitForTextStep
+  | WaitStep
+  | ClickStep
+  | TypeStep
+  | SelectStep
+  | PressKeyStep
+  | ScrollStep;
+
+/** The JSON returned by `getPageSource` when `listElements` is set. */
+export interface ListElementsResult {
+  /** The final page URL. */
+  url: string;
+  /** How many elements were returned. */
+  count: number;
+  /** The matched elements. */
+  elements: unknown[];
+}
+
 /** Common options for a page fetch. */
 export interface PageOptions {
   /** ISO country code to route through (e.g. "US"). */
@@ -22,6 +135,17 @@ export interface PageOptions {
   value?: string;
   /** Cap in seconds for the render-wait method. */
   methodTimeout?: number;
+  /**
+   * Ordered browser actions to run after the page loads (click, type, scroll,
+   * wait for a selector, ...). JSON-encoded into the `steps` query param.
+   * A request with steps runs once and is non-idempotent.
+   */
+  steps?: BrowserStep[];
+  /**
+   * Return JSON (`{ url, count, elements }`) instead of HTML. When true,
+   * `getPageSource` resolves to a {@link ListElementsResult}.
+   */
+  listElements?: boolean;
 }
 
 /** Options for {@link ScrapeUnblockerClient.getParsed}. */

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 (2026-08-29)
+
+- `getPageSource()` now accepts `steps`: an ordered array of browser actions run in a real browser after the page loads - `wait_for`, `wait_for_text`, `wait`, `click`, `type` (human-like), `select`, `press_key` and `scroll`. Pass a native array of step objects; the client JSON-encodes it into the `steps` query param. A request with steps runs once and is non-idempotent, and a failed step surfaces as a `ValidationError` (HTTP 422) whose `body` holds the `step_failed` JSON (`step_index`, `action`, `reason`, `selector`, `html`).
+- `getPageSource()` now accepts `listElements: true`, which returns `{ url, count, elements }` JSON instead of HTML. An overload types the call: `getPageSource(url, { listElements: true })` resolves to a `ListElementsResult`, every other call still resolves to `string`.
+- New exported types: `BrowserStep` (a discriminated union over the action objects) and its members, `SelectorType`, `PressKey`, and `ListElementsResult`.
+
+No breaking changes: `steps` and `listElements` are optional, and `getPageSource` without `listElements` keeps returning `string`.
+
 ## 0.1.9 (2026-08-28)
 
 - Added `amazonProduct()` and `amazonSearch()` for the new Amazon plugin. `amazonProduct({ asin | url })` returns one product - title, brand, numeric price and currency, list price and savings, availability, rating, review count, seller, feature bullets, categories and images. `amazonSearch(keyword, options)` returns a keyword search's cards - asin, title, price, list price, rating, review count, a clean product URL, image and the sponsored/prime flags - on any of 20 regional marketplaces.

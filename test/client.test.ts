@@ -71,6 +71,57 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).not.toContain("time_sleep");
   });
 
+  it("JSON-encodes browser steps into the steps query param", async () => {
+    const fetchFn = mockFetch(new Response("<html>done</html>", { status: 200 }));
+    const steps = [
+      { action: "wait_for", selector: "#results", timeout_ms: 5000 },
+      { action: "type", selector: "input[name=q]", value: "shoes", clear: true },
+      { action: "click", selector: "button[type=submit]" },
+      { action: "scroll", value: "bottom" },
+      { action: "press_key", value: "Enter" },
+    ] as const;
+    const html = await client().getPageSource("https://example.com", { steps: [...steps] });
+    expect(html).toBe("<html>done</html>");
+
+    const [url] = fetchFn.mock.calls[0];
+    const parsed = new URL(url as string);
+    const raw = parsed.searchParams.get("steps");
+    expect(raw).not.toBeNull();
+    expect(JSON.parse(raw as string)).toEqual(steps);
+  });
+
+  it("list_elements returns parsed JSON instead of HTML", async () => {
+    const payload = { url: "https://example.com", count: 2, elements: [{ text: "a" }, { text: "b" }] };
+    const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));
+    const result = await client().getPageSource("https://example.com", { listElements: true });
+    expect(result).toEqual(payload);
+    expect(result.count).toBe(2);
+    expect(result.elements).toHaveLength(2);
+
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain("list_elements=true");
+  });
+
+  it("surfaces a 422 step_failed as a ValidationError with the JSON body", async () => {
+    const body = JSON.stringify({
+      error: "step_failed",
+      step_index: 1,
+      action: "click",
+      reason: "selector not found",
+      selector: "#missing",
+      html: "<html></html>",
+    });
+    mockFetch(new Response(body, { status: 422 }));
+    const promise = client({ maxRetries: 0 }).getPageSource("https://example.com", {
+      steps: [{ action: "click", selector: "#missing" }],
+    });
+    await expect(promise).rejects.toBeInstanceOf(ValidationError);
+    await expect(promise).rejects.toMatchObject({ statusCode: 422 });
+    await promise.catch((err: ValidationError) => {
+      expect(JSON.parse(err.body as string).error).toBe("step_failed");
+    });
+  });
+
   it("getParsed returns a ParsedPage", async () => {
     const payload = { data: { page_type: "product", source: "schema.org", data: { price: 10 } } };
     const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));

@@ -144,6 +144,16 @@ for (const biz of (local as any).results) {
 }
 ```
 
+## Meta Ad Library
+
+Look up an advertiser's ads in the Meta (Facebook) Ad Library as JSON:
+
+```ts
+const ads = await client.metaAdLibrary("Nike", { country: "US" });
+```
+
+Scope the search with `country`, `activeStatus`, `mediaType` and cap the result with `maxAds`. Omitted options fall back to the API's own defaults.
+
 ## Oopbuy product search
 
 Search 1688, Taobao or Oopbuy official listings as JSON:

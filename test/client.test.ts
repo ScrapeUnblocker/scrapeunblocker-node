@@ -159,6 +159,24 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("gl=us");
   });
 
+  it("metaAdLibrary targets /ads/meta-ad-library", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ ads: [] }), { status: 200 }));
+    const out = await client().metaAdLibrary("Nike", {
+      country: "US",
+      activeStatus: "active",
+      mediaType: "image",
+      maxAds: 50,
+    });
+    expect(out).toEqual({ ads: [] });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/ads/meta-ad-library`);
+    expect(url).toContain("advertiser=Nike");
+    expect(url).toContain("country=US");
+    expect(url).toContain("active_status=active");
+    expect(url).toContain("media_type=image");
+    expect(url).toContain("max_ads=50");
+  });
+
   it("oopbuySearch targets /goods/oopbuy-search", async () => {
     const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
     const out = await client().oopbuySearch("wireless earbuds", {

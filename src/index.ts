@@ -22,6 +22,7 @@ export type {
   PageResult,
   SerpOptions,
   GoogleLocalOptions,
+  MetaAdLibraryOptions,
   OopbuySearchOptions,
   EbaySearchOptions,
   AmazonProductOptions,

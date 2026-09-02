@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 (2026-09-02)
+
+- Added `metaAdLibrary(advertiser, options)` for the new Meta Ad Library plugin (`POST /ads/meta-ad-library`). Pass the `advertiser` name and scope the lookup with `country`, `activeStatus`, `mediaType` and `maxAds`; omitted options fall back to the API's own defaults. Returns the advertiser's Meta/Facebook Ad Library ads as JSON.
+- New exported type: `MetaAdLibraryOptions`.
+
+No breaking changes.
+
 ## 0.2.0 (2026-08-29)
 
 - `getPageSource()` now accepts `steps`: an ordered array of browser actions run in a real browser after the page loads - `wait_for`, `wait_for_text`, `wait`, `click`, `type` (human-like), `select`, `press_key` and `scroll`. Pass a native array of step objects; the client JSON-encodes it into the `steps` query param. A request with steps runs once and is non-idempotent, and a failed step surfaces as a `ValidationError` (HTTP 422) whose `body` holds the `step_failed` JSON (`step_index`, `action`, `reason`, `selector`, `html`).

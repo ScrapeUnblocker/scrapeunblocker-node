@@ -196,6 +196,18 @@ export interface GoogleLocalOptions {
   gl?: string;
 }
 
+/** Options for {@link ScrapeUnblockerClient.metaAdLibrary}. */
+export interface MetaAdLibraryOptions {
+  /** ISO-2 country to scope the ad search to (e.g. "US"). */
+  country?: string;
+  /** Ad activity filter, e.g. "active" or "inactive" (maps to `active_status`). */
+  activeStatus?: string;
+  /** Media type filter, e.g. "image", "video" (maps to `media_type`). */
+  mediaType?: string;
+  /** Cap on how many ads to return (maps to `max_ads`). */
+  maxAds?: number;
+}
+
 /** Options for {@link ScrapeUnblockerClient.oopbuySearch}. */
 export interface EbaySearchOptions {
   /** Regional eBay site, e.g. "ebay.com" (default), "ebay.de", "ebay.co.uk". */

@@ -7,6 +7,7 @@ import type {
   PageResult,
   SerpOptions,
   GoogleLocalOptions,
+  MetaAdLibraryOptions,
   OopbuySearchOptions,
   EbaySearchOptions,
   AmazonProductOptions,
@@ -19,7 +20,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -250,6 +251,24 @@ export class ScrapeUnblockerClient {
       proxy_country: options.proxyCountry,
       hl: options.hl,
       gl: options.gl,
+    });
+  }
+
+  /**
+   * Look up an advertiser's ads in the Meta (Facebook) Ad Library and return
+   * them as JSON.
+   *
+   * Pass the `advertiser` name; scope the search with `country`, `activeStatus`,
+   * `mediaType` and cap the count with `maxAds`. Omitted options fall back to
+   * the API's own defaults.
+   */
+  async metaAdLibrary(advertiser: string, options: MetaAdLibraryOptions = {}): Promise<unknown> {
+    return this.postJson("/ads/meta-ad-library", {
+      advertiser,
+      country: options.country,
+      active_status: options.activeStatus,
+      media_type: options.mediaType,
+      max_ads: options.maxAds,
     });
   }
 

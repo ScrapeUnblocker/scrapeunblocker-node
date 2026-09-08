@@ -217,7 +217,9 @@ if (items.exactMatches) {
 const profile = await su.tiktokProfile("nasa", { maxVideos: 5 });     // exact stats + newest videos
 const video = await su.tiktokVideo("https://www.tiktok.com/@nasa/video/7665075736742530317", { includeTranscript: true });
 const tag = await su.tiktokHashtag("nasa", { maxVideos: 10 });
-console.log(profile.stats.followers, video.stats.plays, tag.stats.views);
+const results = await su.tiktokSearch("space telescope", { maxResults: 25 });   // TikTok's own ranking
+const comments = await su.tiktokComments("https://www.tiktok.com/@nasa/video/7665075736742530317", { maxComments: 40 });
+console.log(profile.stats.followers, video.stats.plays, tag.stats.views, results.resultsCollected, comments.totalComments);
 ```
 
 Profiles and hashtags list up to 10 videos in a couple of seconds from TikTok's server-rendered widget; ask for more (up to 200) and the real grid is scrolled in a browser session.

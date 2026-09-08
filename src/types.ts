@@ -301,3 +301,17 @@ export interface TikTokHashtagOptions {
   /** Exit-IP country (ISO-2). */
   proxyCountry?: string;
 }
+
+export interface TikTokSearchOptions {
+  /** Videos to return, 1-200. Default 20. */
+  maxResults?: number;
+  /** Exit-IP country (ISO-2) - the region TikTok ranks for. */
+  proxyCountry?: string;
+}
+
+export interface TikTokCommentsOptions {
+  /** Top-level comments to return, 1-500. Default 50. */
+  maxComments?: number;
+  /** Exit-IP country (ISO-2). */
+  proxyCountry?: string;
+}

@@ -30,6 +30,8 @@ export type {
   TikTokProfileOptions,
   TikTokVideoOptions,
   TikTokHashtagOptions,
+  TikTokSearchOptions,
+  TikTokCommentsOptions,
   SelectorType,
   PressKey,
   BrowserStep,

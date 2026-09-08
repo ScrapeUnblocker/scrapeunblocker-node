@@ -16,6 +16,8 @@ import type {
   TikTokProfileOptions,
   TikTokVideoOptions,
   TikTokHashtagOptions,
+  TikTokSearchOptions,
+  TikTokCommentsOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -156,6 +158,32 @@ export class ScrapeUnblockerClient {
     url: string,
     options?: PageOptions & { listElements?: false },
   ): Promise<string>;
+  /**
+   * Search TikTok videos by keyword. Runs in a browser session that clears
+   * TikTok's captcha, so `results` carry TikTok's own ranking (region via
+   * `proxyCountry`), each in the full {@link tiktokVideo} shape. 20-45 s.
+   */
+  async tiktokSearch(query: string, options: TikTokSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-search", {
+      query,
+      max_results: options.maxResults,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape the comments of a TikTok post (text, date, likes, reply count,
+   * author, creator flags, preloaded replies) plus `totalComments` and
+   * `hasMore`. Runs in a browser session that clears TikTok's captcha. 20-45 s.
+   */
+  async tiktokComments(url: string, options: TikTokCommentsOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-comments", {
+      url,
+      max_comments: options.maxComments,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
   /**
    * Scrape a public TikTok creator profile and its newest videos.
    *

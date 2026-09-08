@@ -365,4 +365,21 @@ describe("ScrapeUnblockerClient", () => {
     expect(u3).not.toContain("video_details=");
   });
 
+  it("tiktokSearch / tiktokComments target the TikTok plugin", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ query: "space", results: [] }), { status: 200 }),
+      new Response(JSON.stringify({ videoId: "1", comments: [] }), { status: 200 }),
+    );
+    const c = client();
+    expect(await c.tiktokSearch("space", { maxResults: 30, proxyCountry: "US" })).toEqual({ query: "space", results: [] });
+    expect(await c.tiktokComments("7665075736742530317", { maxComments: 100 })).toEqual({ videoId: "1", comments: [] });
+    const [u1] = fetchFn.mock.calls[0];
+    expect(u1).toContain(`${BASE}/social/tiktok-search`);
+    expect(u1).toContain("query=space");
+    expect(u1).toContain("max_results=30");
+    const [u2] = fetchFn.mock.calls[1];
+    expect(u2).toContain(`${BASE}/social/tiktok-comments`);
+    expect(u2).toContain("max_comments=100");
+  });
+
 });

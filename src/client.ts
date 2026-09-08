@@ -159,83 +159,6 @@ export class ScrapeUnblockerClient {
     options?: PageOptions & { listElements?: false },
   ): Promise<string>;
   /**
-   * Search TikTok videos by keyword. Runs in a browser session that clears
-   * TikTok's captcha, so `results` carry TikTok's own ranking (region via
-   * `proxyCountry`), each in the full {@link tiktokVideo} shape. 20-45 s.
-   */
-  async tiktokSearch(query: string, options: TikTokSearchOptions = {}): Promise<unknown> {
-    return this.postJson("/social/tiktok-search", {
-      query,
-      max_results: options.maxResults,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape the comments of a TikTok post (text, date, likes, reply count,
-   * author, creator flags, preloaded replies) plus `totalComments` and
-   * `hasMore`. Runs in a browser session that clears TikTok's captcha. 20-45 s.
-   */
-  async tiktokComments(url: string, options: TikTokCommentsOptions = {}): Promise<unknown> {
-    return this.postJson("/social/tiktok-comments", {
-      url,
-      max_comments: options.maxComments,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape a public TikTok creator profile and its newest videos.
-   *
-   * Returns the exact follower, following, like and video counts (TikTok shows
-   * rounded numbers and keeps exact ones underneath), bio, bio link, verified /
-   * private / organization / seller flags, avatar, and a `videos` array of the
-   * creator's newest posts - each in the full {@link tiktokVideo} shape. Up to
-   * 10 videos come from TikTok's server-rendered widget in seconds; asking for
-   * more (up to 200) scrolls the real grid in a browser session. No login.
-   */
-  async tiktokProfile(username: string, options: TikTokProfileOptions = {}): Promise<unknown> {
-    return this.postJson("/social/tiktok-profile", {
-      username,
-      max_videos: options.maxVideos,
-      video_details: options.videoDetails === false ? false : undefined,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape one TikTok video or photo post.
-   *
-   * Returns description, hashtags, mentions, language, publish date, exact
-   * `stats` (plays, likes, comments, shares, saves, reposts), the author with
-   * their stats, `video` (duration, size, codec, cover, play / download URLs,
-   * per-quality variants, subtitle tracks), `images` for photo posts, `music`,
-   * `flags`, content `labels` and location. With `includeTranscript` the
-   * subtitle track is downloaded and returned as text in `transcript`.
-   */
-  async tiktokVideo(url: string, options: TikTokVideoOptions = {}): Promise<unknown> {
-    return this.postJson("/social/tiktok-video", {
-      url,
-      include_transcript: options.includeTranscript || undefined,
-      transcript_language: options.transcriptLanguage,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape a TikTok hashtag: total views and videos plus its videos (up to
-   * 200), each in the full {@link tiktokVideo} shape.
-   */
-  async tiktokHashtag(hashtag: string, options: TikTokHashtagOptions = {}): Promise<unknown> {
-    return this.postJson("/social/tiktok-hashtag", {
-      hashtag,
-      max_videos: options.maxVideos,
-      video_details: options.videoDetails === false ? false : undefined,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
    * Fetch a URL with `listElements: true` and return the matched elements as
    * JSON (`{ url, count, elements }`) instead of HTML.
    */
@@ -446,4 +369,81 @@ export class ScrapeUnblockerClient {
     });
     return new Uint8Array(await response.arrayBuffer());
   }
+  /**
+   * Scrape a public TikTok creator profile and its newest videos.
+   *
+   * Returns the exact follower, following, like and video counts (TikTok shows
+   * rounded numbers and keeps exact ones underneath), bio, bio link, verified /
+   * private / organization / seller flags, avatar, and a `videos` array of the
+   * creator's newest posts - each in the full {@link tiktokVideo} shape. Up to
+   * 10 videos come from TikTok's server-rendered widget in seconds; asking for
+   * more (up to 200) scrolls the real grid in a browser session. No login.
+   */
+  async tiktokProfile(username: string, options: TikTokProfileOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-profile", {
+      username,
+      max_videos: options.maxVideos,
+      video_details: options.videoDetails === false ? false : undefined,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one TikTok video or photo post.
+   *
+   * Returns description, hashtags, mentions, language, publish date, exact
+   * `stats` (plays, likes, comments, shares, saves, reposts), the author with
+   * their stats, `video` (duration, size, codec, cover, play / download URLs,
+   * per-quality variants, subtitle tracks), `images` for photo posts, `music`,
+   * `flags`, content `labels` and location. With `includeTranscript` the
+   * subtitle track is downloaded and returned as text in `transcript`.
+   */
+  async tiktokVideo(url: string, options: TikTokVideoOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-video", {
+      url,
+      include_transcript: options.includeTranscript || undefined,
+      transcript_language: options.transcriptLanguage,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape a TikTok hashtag: total views and videos plus its videos (up to
+   * 200), each in the full {@link tiktokVideo} shape.
+   */
+  async tiktokHashtag(hashtag: string, options: TikTokHashtagOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-hashtag", {
+      hashtag,
+      max_videos: options.maxVideos,
+      video_details: options.videoDetails === false ? false : undefined,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Search TikTok videos by keyword. Runs in a browser session that clears
+   * TikTok's captcha, so `results` carry TikTok's own ranking (region via
+   * `proxyCountry`), each in the full {@link tiktokVideo} shape. 20-45 s.
+   */
+  async tiktokSearch(query: string, options: TikTokSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-search", {
+      query,
+      max_results: options.maxResults,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape the comments of a TikTok post (text, date, likes, reply count,
+   * author, creator flags, preloaded replies) plus `totalComments` and
+   * `hasMore`. Runs in a browser session that clears TikTok's captcha. 20-45 s.
+   */
+  async tiktokComments(url: string, options: TikTokCommentsOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-comments", {
+      url,
+      max_comments: options.maxComments,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
 }

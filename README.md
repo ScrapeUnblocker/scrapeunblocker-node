@@ -211,6 +211,17 @@ if (items.exactMatches) {
 
 `exactMatches` is `false` when eBay found nothing for the keyword and answered with its own loosely-related suggestions instead, so check it before using the listings.
 
+### TikTok
+
+```ts
+const profile = await su.tiktokProfile("nasa", { maxVideos: 5 });     // exact stats + newest videos
+const video = await su.tiktokVideo("https://www.tiktok.com/@nasa/video/7665075736742530317", { includeTranscript: true });
+const tag = await su.tiktokHashtag("nasa", { maxVideos: 10 });
+console.log(profile.stats.followers, video.stats.plays, tag.stats.views);
+```
+
+Profiles and hashtags list up to 10 videos in a couple of seconds from TikTok's server-rendered widget; ask for more (up to 200) and the real grid is scrolled in a browser session.
+
 ## Cookies and the serving proxy
 
 ```ts

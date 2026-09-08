@@ -274,3 +274,30 @@ export interface OopbuySearchOptions {
   /** Exit-IP country (ISO-2, e.g. "US"). */
   proxyCountry?: string;
 }
+
+export interface TikTokProfileOptions {
+  /** Newest videos to include, 0-200. Default 10. 0 = profile only. */
+  maxVideos?: number;
+  /** Read each widget-listed video's own page for exact engagement, music and media URLs. Default true. */
+  videoDetails?: boolean;
+  /** Exit-IP country (ISO-2); only for region-locked items. */
+  proxyCountry?: string;
+}
+
+export interface TikTokVideoOptions {
+  /** Also download the subtitle track and return it as plain text in `transcript`. */
+  includeTranscript?: boolean;
+  /** Preferred subtitle language when several exist, e.g. "eng-US" or "eng". */
+  transcriptLanguage?: string;
+  /** Exit-IP country (ISO-2). */
+  proxyCountry?: string;
+}
+
+export interface TikTokHashtagOptions {
+  /** Videos to include, 0-200. Default 10. 0 = totals only. */
+  maxVideos?: number;
+  /** Read each widget-listed video's own page for the full video shape. Default true. */
+  videoDetails?: boolean;
+  /** Exit-IP country (ISO-2). */
+  proxyCountry?: string;
+}

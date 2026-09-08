@@ -13,6 +13,9 @@ import type {
   AmazonProductOptions,
   AmazonSearchOptions,
   ListElementsResult,
+  TikTokProfileOptions,
+  TikTokVideoOptions,
+  TikTokHashtagOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -20,7 +23,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.2.1";
+const VERSION = "0.3.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -153,6 +156,57 @@ export class ScrapeUnblockerClient {
     url: string,
     options?: PageOptions & { listElements?: false },
   ): Promise<string>;
+  /**
+   * Scrape a public TikTok creator profile and its newest videos.
+   *
+   * Returns the exact follower, following, like and video counts (TikTok shows
+   * rounded numbers and keeps exact ones underneath), bio, bio link, verified /
+   * private / organization / seller flags, avatar, and a `videos` array of the
+   * creator's newest posts - each in the full {@link tiktokVideo} shape. Up to
+   * 10 videos come from TikTok's server-rendered widget in seconds; asking for
+   * more (up to 200) scrolls the real grid in a browser session. No login.
+   */
+  async tiktokProfile(username: string, options: TikTokProfileOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-profile", {
+      username,
+      max_videos: options.maxVideos,
+      video_details: options.videoDetails === false ? false : undefined,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one TikTok video or photo post.
+   *
+   * Returns description, hashtags, mentions, language, publish date, exact
+   * `stats` (plays, likes, comments, shares, saves, reposts), the author with
+   * their stats, `video` (duration, size, codec, cover, play / download URLs,
+   * per-quality variants, subtitle tracks), `images` for photo posts, `music`,
+   * `flags`, content `labels` and location. With `includeTranscript` the
+   * subtitle track is downloaded and returned as text in `transcript`.
+   */
+  async tiktokVideo(url: string, options: TikTokVideoOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-video", {
+      url,
+      include_transcript: options.includeTranscript || undefined,
+      transcript_language: options.transcriptLanguage,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape a TikTok hashtag: total views and videos plus its videos (up to
+   * 200), each in the full {@link tiktokVideo} shape.
+   */
+  async tiktokHashtag(hashtag: string, options: TikTokHashtagOptions = {}): Promise<unknown> {
+    return this.postJson("/social/tiktok-hashtag", {
+      hashtag,
+      max_videos: options.maxVideos,
+      video_details: options.videoDetails === false ? false : undefined,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
   /**
    * Fetch a URL with `listElements: true` and return the matched elements as
    * JSON (`{ url, count, elements }`) instead of HTML.

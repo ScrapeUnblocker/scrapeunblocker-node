@@ -336,4 +336,33 @@ describe("ScrapeUnblockerClient", () => {
     expect(html).toBe("recovered");
     expect(fetchFn).toHaveBeenCalledTimes(2);
   });
+  it("tiktokProfile / tiktokVideo / tiktokHashtag target the TikTok plugin", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ username: "nasa", videos: [] }), { status: 200 }),
+      new Response(JSON.stringify({ id: "7665075736742530317" }), { status: 200 }),
+      new Response(JSON.stringify({ hashtag: "nasa", videos: [] }), { status: 200 }),
+    );
+    const c = client();
+    const profile = await c.tiktokProfile("nasa", { maxVideos: 5, videoDetails: false });
+    const video = await c.tiktokVideo("7665075736742530317", { includeTranscript: true, transcriptLanguage: "eng" });
+    const tag = await c.tiktokHashtag("#nasa", { maxVideos: 0 });
+    expect(profile).toEqual({ username: "nasa", videos: [] });
+    expect(video).toEqual({ id: "7665075736742530317" });
+    expect(tag).toEqual({ hashtag: "nasa", videos: [] });
+    const [u1] = fetchFn.mock.calls[0];
+    expect(u1).toContain(`${BASE}/social/tiktok-profile`);
+    expect(u1).toContain("username=nasa");
+    expect(u1).toContain("max_videos=5");
+    expect(u1).toContain("video_details=false");
+    const [u2] = fetchFn.mock.calls[1];
+    expect(u2).toContain(`${BASE}/social/tiktok-video`);
+    expect(u2).toContain("include_transcript=true");
+    expect(u2).toContain("transcript_language=eng");
+    const [u3] = fetchFn.mock.calls[2];
+    expect(u3).toContain(`${BASE}/social/tiktok-hashtag`);
+    expect(u3).toContain("hashtag=%23nasa");
+    expect(u3).toContain("max_videos=0");
+    expect(u3).not.toContain("video_details=");
+  });
+
 });

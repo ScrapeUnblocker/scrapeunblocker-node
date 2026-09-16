@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 (2026-09-16)
+
+- Added `southwest.flights()` for the new Southwest Airlines plugin (`POST /flights/southwest-quotes`): returns the raw booking/shopping JSON for a route. Parameters: `origin`/`dest` (IATA codes), `depart_date`, optional `return_date` (omit for one-way), `adults` (1-8), `fare_type` (`"dollars"` or `"points"`), `proxy_country` and `max_attempts` (1-5).
+
+No breaking changes.
+
 ## 0.3.0 (2026-09-08)
 
 - Added `tiktokProfile()`, `tiktokVideo()`, `tiktokHashtag()`, `tiktokSearch()` and `tiktokComments()` for the new TikTok plugin: a creator's exact follower / like / video counts with their newest videos (up to 200), any video or photo post with exact plays, likes, comments, shares, saves and reposts, hashtags, music, play / download URLs, subtitle tracks and an optional transcript, a hashtag's total views and videos with its videos, keyword search in TikTok's own ranking, and the comments of any post. No login.

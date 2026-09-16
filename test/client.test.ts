@@ -275,6 +275,23 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("origin=London");
   });
 
+  it("southwest.flights posts to the plugin endpoint", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ trips: [] }), { status: 200 }));
+    const out = await client().southwest.flights({
+      origin: "DAL",
+      dest: "HOU",
+      depart_date: "2026-10-20",
+      return_date: "2026-10-27",
+    });
+    expect(out).toEqual({ trips: [] });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain("/flights/southwest-quotes");
+    expect(url).toContain("origin=DAL");
+    expect(url).toContain("dest=HOU");
+    expect(url).toContain("depart_date=2026-10-20");
+    expect(url).toContain("return_date=2026-10-27");
+  });
+
   it.each([
     [400, InvalidRequestError],
     [401, AuthenticationError],

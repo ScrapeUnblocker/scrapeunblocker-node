@@ -255,6 +255,20 @@ const hotels = await su.skyscanner.hotels({ destination: "Madrid", checkin: "202
 const cars = await su.skyscanner.carhire({ pickup: "Madrid", pickup_datetime: "2026-09-01T10:00", dropoff_datetime: "2026-09-03T10:00" });
 ```
 
+## Southwest plugin
+
+Southwest Airlines fares as raw booking JSON. Pass IATA airport codes and dates; leave `return_date` out for a one-way search:
+
+```ts
+const results = await su.southwest.flights({
+  origin: "DAL", dest: "HOU",
+  depart_date: "2026-10-20", return_date: "2026-10-27",
+  adults: 1, fare_type: "dollars", proxy_country: "US",
+});
+```
+
+Parameters: `origin` and `dest` (IATA codes), `depart_date` and optional `return_date` (`YYYY-MM-DD`; omit for one-way), `adults` (1-8, default 1), `fare_type` (`"dollars"` (default) or `"points"`), `proxy_country` (default `"US"`) and `max_attempts` (1-5, default 3).
+
 ## Error handling
 
 Non-2xx responses reject with typed errors, all subclasses of `ScrapeUnblockerError`.

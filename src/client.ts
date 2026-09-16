@@ -25,7 +25,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -69,6 +69,18 @@ class SkyscannerNamespace {
 }
 
 /**
+ * Southwest Airlines plugin endpoint. Returns the raw booking/shopping JSON for
+ * a route, taking the plugin's query parameters (origin, dest, depart_date, ...).
+ */
+class SouthwestNamespace {
+  constructor(private readonly client: ScrapeUnblockerClient) {}
+
+  flights(params: Params = {}): Promise<unknown> {
+    return this.client.postJson("/flights/southwest-quotes", params);
+  }
+}
+
+/**
  * Client for the ScrapeUnblocker API.
  *
  * @example
@@ -87,6 +99,9 @@ export class ScrapeUnblockerClient {
   /** Skyscanner plugin endpoints (flights, hotels, car hire). */
   readonly skyscanner: SkyscannerNamespace;
 
+  /** Southwest Airlines plugin endpoint (flights). */
+  readonly southwest: SouthwestNamespace;
+
   constructor(options: ClientOptions = {}) {
     const apiKey = options.apiKey ?? process.env.SCRAPEUNBLOCKER_KEY;
     if (!apiKey) {
@@ -100,6 +115,7 @@ export class ScrapeUnblockerClient {
     this.timeout = options.timeout ?? DEFAULT_TIMEOUT;
     this.maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
     this.skyscanner = new SkyscannerNamespace(this);
+    this.southwest = new SouthwestNamespace(this);
   }
 
   private async request(path: string, params: Params): Promise<Response> {

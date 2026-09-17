@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 (2026-09-17)
+
+- Added `googleImages()` for the new Google Images plugin (`POST /images/google-search`): returns Google Images results as JSON - each with the full-size `imageUrl` and its `sourceDomain`, plus the source page URL, title, source name, thumbnail URL, pixel dimensions and file size. Parameters: the keyword, plus optional `gl` (ISO-2 lowercase market), `maxResults` (1-100) and `proxyCountry` (ISO-2).
+
+No breaking changes.
+
 ## 0.4.0 (2026-09-16)
 
 - Added `southwest.flights()` for the new Southwest Airlines plugin (`POST /flights/southwest-quotes`): returns the raw booking/shopping JSON for a route. Parameters: `origin`/`dest` (IATA codes), `depart_date`, optional `return_date` (omit for one-way), `adults` (1-8), `fare_type` (`"dollars"` or `"points"`), `proxy_country` and `max_attempts` (1-5).

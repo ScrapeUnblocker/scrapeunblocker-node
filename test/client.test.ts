@@ -159,6 +159,18 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain("gl=us");
   });
 
+  it("googleImages targets /images/google-search", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+    const out = await client().googleImages("golden retriever puppy", { proxyCountry: "US", gl: "us" });
+    expect(out).toEqual({ results: [] });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain(`${BASE}/images/google-search`);
+    expect(url).toContain("q=golden");
+    expect(url).toContain("proxy_country=US");
+    expect(url).toContain("gl=us");
+    expect(url).not.toContain("max_results=");
+  });
+
   it("metaAdLibrary targets /ads/meta-ad-library", async () => {
     const fetchFn = mockFetch(new Response(JSON.stringify({ ads: [] }), { status: 200 }));
     const out = await client().metaAdLibrary("Nike", {

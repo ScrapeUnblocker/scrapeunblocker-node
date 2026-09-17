@@ -7,6 +7,7 @@ import type {
   PageResult,
   SerpOptions,
   GoogleLocalOptions,
+  GoogleImagesOptions,
   MetaAdLibraryOptions,
   OopbuySearchOptions,
   EbaySearchOptions,
@@ -25,7 +26,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -272,6 +273,23 @@ export class ScrapeUnblockerClient {
       proxy_country: options.proxyCountry,
       hl: options.hl,
       gl: options.gl,
+    });
+  }
+
+  /**
+   * Search Google Images and return the image results as JSON.
+   *
+   * Returns image results, each with the full-size `imageUrl` and its
+   * `sourceDomain`, plus the source page URL, title, source name, thumbnail
+   * URL, pixel dimensions and file size. Set `proxyCountry` (and optionally
+   * `gl`) to target a market, and `maxResults` to cap the count.
+   */
+  async googleImages(keyword: string, options: GoogleImagesOptions = {}): Promise<unknown> {
+    return this.postJson("/images/google-search", {
+      q: keyword,
+      proxy_country: options.proxyCountry,
+      gl: options.gl,
+      max_results: options.maxResults,
     });
   }
 

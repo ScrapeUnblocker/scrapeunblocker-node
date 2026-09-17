@@ -196,6 +196,16 @@ export interface GoogleLocalOptions {
   gl?: string;
 }
 
+/** Options for {@link ScrapeUnblockerClient.googleImages}. */
+export interface GoogleImagesOptions {
+  /** Exit-IP country (ISO-2, e.g. "US"). Image results can be location-sensitive. */
+  proxyCountry?: string;
+  /** Google country of search (ISO-2 lowercase, e.g. "us"). */
+  gl?: string;
+  /** Maximum number of image results to return (1-100, maps to `max_results`). */
+  maxResults?: number;
+}
+
 /** Options for {@link ScrapeUnblockerClient.metaAdLibrary}. */
 export interface MetaAdLibraryOptions {
   /** ISO-2 country to scope the ad search to (e.g. "US"). */

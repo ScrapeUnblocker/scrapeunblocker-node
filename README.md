@@ -144,6 +144,15 @@ for (const biz of (local as any).results) {
 }
 ```
 
+## Google Images
+
+```ts
+const images = await su.googleImages("golden retriever puppy", { proxyCountry: "US", gl: "us" });
+for (const img of (images as any).results) {
+  console.log(img.imageUrl, img.sourceDomain, img.title);
+}
+```
+
 ## Meta Ad Library
 
 Look up an advertiser's ads in the Meta (Facebook) Ad Library as JSON:

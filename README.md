@@ -147,7 +147,7 @@ for (const biz of (local as any).results) {
 ## Google Images
 
 ```ts
-const images = await su.googleImages("golden retriever puppy", { proxyCountry: "US", gl: "us" });
+const images = await su.googleImages("golden retriever puppy", { proxyCountry: "US", pages: 3 });
 for (const img of (images as any).results) {
   console.log(img.imageUrl, img.sourceDomain, img.title);
 }

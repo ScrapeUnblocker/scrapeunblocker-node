@@ -198,11 +198,13 @@ export interface GoogleLocalOptions {
 
 /** Options for {@link ScrapeUnblockerClient.googleImages}. */
 export interface GoogleImagesOptions {
-  /** Exit-IP country (ISO-2, e.g. "US"). Image results can be location-sensitive. */
+  /** Country to search from (ISO-2, e.g. "US"). The Google market follows it. */
   proxyCountry?: string;
-  /** Google country of search (ISO-2 lowercase, e.g. "us"). */
+  /** Result pages to fetch (1-5, ~100 results each). Each page fetched is billed as one request. */
+  pages?: number;
+  /** Optional Google market override (ISO-2 lowercase, e.g. "de"); unset = follows `proxyCountry`. */
   gl?: string;
-  /** Maximum number of image results to return (1-100, maps to `max_results`). */
+  /** Optional cap on the number of results (1-500, maps to `max_results`). */
   maxResults?: number;
 }
 

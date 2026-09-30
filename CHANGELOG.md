@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 (2026-09-30)
+
+- New `NoDataExtractedError` (extends `ValidationError`): thrown by `getParsed()` when the page rendered but no structured data could be extracted from it. The API answers 422 with `{"error": "no_data_extracted", "detail": ...}`; the error carries `detail`. The call is not billed and is never retried - use `getPageSource()` for the HTML. Before, this came back as a billed 200 with empty `data`.
+- A dead URL fetched with `getParsed()` throws `TargetNotFoundError` with `html` undefined (the body is the parsed-data JSON, on `.body`).
+
 ## 0.7.0 (2026-09-30)
 
 - New `TargetNotFoundError` (extends `NotFoundError`): thrown by `getPageSource()`, `getParsed()` and `getPageWithCookies()` when the target page itself answers 404 or 410. The API now passes the target's own status through instead of a 200, marked with the `X-Origin-Status` header. The error carries `originStatus`, the not-found page on `html` and `destinationUrl`. It is never retried, and the call is billed like any delivered page.

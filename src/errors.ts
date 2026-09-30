@@ -171,6 +171,24 @@ export class UnsupportedContentError extends APIError {}
 export class ValidationError extends APIError {}
 
 /**
+ * The page rendered but no structured data came out of it (HTTP 422).
+ *
+ * Thrown by `getParsed()` when the API loaded the page but could not extract
+ * any structured fields from it. The API answers 422 with a JSON body of
+ * `{ "error": "no_data_extracted", "detail": ... }`. The call is not billed and
+ * retrying returns the same answer; call `getPageSource()` for the HTML.
+ */
+export class NoDataExtractedError extends ValidationError {
+  /** The API's explanation from the response body. */
+  readonly detail?: string;
+
+  constructor(message: string, statusCode: number, body: string | undefined, detail?: string) {
+    super(message, statusCode, body);
+    this.detail = detail;
+  }
+}
+
+/**
  * The target site blocked every available bypass path (HTTP 403).
  * This is the target's anti-bot protection winning, not a bad request.
  * Blocked calls are not billed.
@@ -280,10 +298,35 @@ function targetNotFoundFor(
   );
 }
 
+/**
+ * `parsedData` answers 422 with `{ error: "no_data_extracted", detail }` when
+ * the page rendered but held no structured data. Anything else returns
+ * undefined so the general ValidationError applies.
+ */
+function noDataExtractedFor(status: number, body: string | undefined): NoDataExtractedError | undefined {
+  if (status !== 422) return undefined;
+  let data: unknown;
+  try {
+    data = JSON.parse(body ?? "");
+  } catch {
+    return undefined;
+  }
+  if (!data || typeof data !== "object" || Array.isArray(data)) return undefined;
+  const record = data as Record<string, unknown>;
+  if (record.error !== "no_data_extracted") return undefined;
+  const detail = typeof record.detail === "string" && record.detail ? record.detail : undefined;
+  let message =
+    detail ?? "The page was rendered, but no structured data could be extracted from it. Not billed.";
+  if (!message.toLowerCase().includes("not billed")) message = `${message} Not billed.`;
+  return new NoDataExtractedError(message, status, body, detail);
+}
+
 /** Build a typed error from an HTTP status code, response body and headers. */
 export function errorForStatus(status: number, body?: string, headers?: Headers): APIError {
   const targetError = targetNotFoundFor(status, body, headers);
   if (targetError) return targetError;
+  const noDataError = noDataExtractedFor(status, body);
+  if (noDataError) return noDataError;
 
   const snippet = (body ?? "").trim().replace(/\s+/g, " ").slice(0, 200);
   const base = BASE_MESSAGES[status] ?? `API returned HTTP ${status}`;

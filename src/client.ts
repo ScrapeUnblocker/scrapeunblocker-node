@@ -26,7 +26,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.7.0";
+const VERSION = "0.7.1";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -215,7 +215,14 @@ export class ScrapeUnblockerClient {
     return response.text();
   }
 
-  /** Fetch a URL and return structured JSON instead of HTML. */
+  /**
+   * Fetch a URL and return structured JSON instead of HTML.
+   *
+   * Throws {@link NoDataExtractedError} (not billed) when the page rendered but
+   * held no structured data - use `getPageSource()` for the HTML - and
+   * {@link TargetNotFoundError} (billed, `html` undefined) when the target page
+   * itself answered 404 or 410.
+   */
   async getParsed(url: string, options: ParsedOptions = {}): Promise<ParsedPage> {
     const response = await this.request("/getPageSource", {
       url,

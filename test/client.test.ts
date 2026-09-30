@@ -7,6 +7,7 @@ import {
   BrowserTimeoutError,
   CreditLimitExceededError,
   InvalidRequestError,
+  NoDataExtractedError,
   NoSubscriptionError,
   NotFoundError,
   PaymentFailedError,
@@ -367,6 +368,58 @@ describe("ScrapeUnblockerClient", () => {
     expect(err).toBeInstanceOf(TargetNotFoundError);
     expect(err.html).toBe("<html>gone</html>");
     expect(err.body).toBe(body);
+  });
+
+  it("leaves html undefined on a target 404 fetched with parsedData", async () => {
+    const body = JSON.stringify({ data: { page_type: "not_found", data: {} } });
+    mockFetch(new Response(body, { status: 404, headers: { "X-Origin-Status": "404" } }));
+    const err = (await client()
+      .getParsed("https://example.com/gone")
+      .catch((e: unknown) => e)) as TargetNotFoundError;
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    // The body is parsed-data JSON, not the target's page.
+    expect(err.html).toBeUndefined();
+    expect(err.body).toBe(body);
+    expect(err.originStatus).toBe(404);
+  });
+
+  it("throws NoDataExtractedError when parsedData finds nothing", async () => {
+    const body = JSON.stringify({
+      error: "no_data_extracted",
+      detail:
+        "The page was rendered, but no structured data could be extracted from it. " +
+        "Not billed. Call without parsed_data to get the HTML.",
+    });
+    const fetchFn = mockFetch(new Response(body, { status: 422 }));
+    const err = (await client()
+      .getParsed("https://example.com")
+      .catch((e: unknown) => e)) as NoDataExtractedError;
+    expect(err).toBeInstanceOf(NoDataExtractedError);
+    expect(err).toBeInstanceOf(ValidationError);
+    expect(err.statusCode).toBe(422);
+    expect(err.message).toContain("Not billed");
+    expect(err.detail).toMatch(/^The page was rendered/);
+    // Never retried: the same page yields the same result.
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("says not billed even when no_data_extracted has no detail", async () => {
+    mockFetch(new Response(JSON.stringify({ error: "no_data_extracted" }), { status: 422 }));
+    const err = (await client()
+      .getParsed("https://example.com")
+      .catch((e: unknown) => e)) as NoDataExtractedError;
+    expect(err).toBeInstanceOf(NoDataExtractedError);
+    expect(err.message).toContain("Not billed");
+    expect(err.detail).toBeUndefined();
+  });
+
+  it("keeps a plain 422 a ValidationError", async () => {
+    mockFetch(new Response(JSON.stringify({ detail: [{ loc: ["query", "url"] }] }), { status: 422 }));
+    const err = await client()
+      .getPageSource("https://example.com")
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ValidationError);
+    expect(err).not.toBeInstanceOf(NoDataExtractedError);
   });
 
   it("keeps an API 404 without X-Origin-Status a plain NotFoundError", async () => {

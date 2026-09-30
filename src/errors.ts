@@ -103,10 +103,50 @@ export class PaymentFailedError extends PaymentRequiredError {}
 export class InvalidRequestError extends APIError {}
 
 /**
- * The page loaded but the requested element was absent (HTTP 404).
- * Only `getImage()` raises this: the page rendered and held no `<img>` tag.
+ * Something the call asked for does not exist (HTTP 404).
+ *
+ * `getImage()` raises it when the page rendered but held no `<img>` tag, and
+ * plugin methods raise it when the item they look up does not exist. When the
+ * target page itself answered 404 or 410, the more specific
+ * {@link TargetNotFoundError} subclass is raised instead.
  */
 export class NotFoundError extends APIError {}
+
+/**
+ * The target page itself does not exist (HTTP 404 or 410).
+ *
+ * Raised by `getPageSource()` / `getParsed()` / `getPageWithCookies()` when
+ * the site you asked for answered 404 or 410 on its own. The API passes that
+ * status through and marks it with the `X-Origin-Status` header, which is how
+ * this is told apart from an API-side 404. It is the target's final answer,
+ * not a block, so it is never retried - and the call is billed, because the
+ * page was fetched and delivered.
+ */
+export class TargetNotFoundError extends NotFoundError {
+  /** The status the target answered with (404 or 410). */
+  readonly originStatus: number;
+  /**
+   * The target's own not-found page as served (can be empty), or `undefined`
+   * when the body is a parsed-data JSON payload.
+   */
+  readonly html?: string;
+  /** The URL the target answered for, when the API sent `X-Destination-URL`. */
+  readonly destinationUrl?: string;
+
+  constructor(
+    message: string,
+    statusCode: number,
+    body: string | undefined,
+    originStatus: number,
+    html?: string,
+    destinationUrl?: string,
+  ) {
+    super(message, statusCode, body);
+    this.originStatus = originStatus;
+    this.html = html;
+    this.destinationUrl = destinationUrl;
+  }
+}
 
 /**
  * The browser run did not finish in time on our side (HTTP 408).
@@ -202,8 +242,49 @@ function billingErrorFor(message: string, status: number, body?: string): APIErr
   return new PaymentRequiredError(message, status, body);
 }
 
-/** Build a typed error from an HTTP status code and response body. */
-export function errorForStatus(status: number, body?: string): APIError {
+/**
+ * The API passes a target's "page does not exist" answer through with its
+ * status and an `X-Origin-Status` header. A 404 without that header is the
+ * API's own (a plugin lookup, a missing element) and returns undefined so the
+ * general NotFoundError applies.
+ */
+function targetNotFoundFor(
+  status: number,
+  body: string | undefined,
+  headers: Headers | undefined,
+): TargetNotFoundError | undefined {
+  const origin = headers?.get("x-origin-status");
+  if ((status !== 404 && status !== 410) || !origin) return undefined;
+  const parsed = Number.parseInt(origin, 10);
+  const originStatus = Number.isNaN(parsed) ? status : parsed;
+  let html: string | undefined = body;
+  try {
+    const data: unknown = JSON.parse(body ?? "");
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      const page = (data as Record<string, unknown>).html;
+      html = typeof page === "string" ? page : undefined;
+    }
+  } catch {
+    // Not JSON: the body is the target's own page.
+  }
+  const message =
+    `Target page does not exist (HTTP ${originStatus}). This is the target's ` +
+    "own answer, not a block; the call is billed.";
+  return new TargetNotFoundError(
+    message,
+    status,
+    body,
+    originStatus,
+    html,
+    headers?.get("x-destination-url") ?? undefined,
+  );
+}
+
+/** Build a typed error from an HTTP status code, response body and headers. */
+export function errorForStatus(status: number, body?: string, headers?: Headers): APIError {
+  const targetError = targetNotFoundFor(status, body, headers);
+  if (targetError) return targetError;
+
   const snippet = (body ?? "").trim().replace(/\s+/g, " ").slice(0, 200);
   const base = BASE_MESSAGES[status] ?? `API returned HTTP ${status}`;
   const message = snippet ? `${base}: ${snippet}` : base;

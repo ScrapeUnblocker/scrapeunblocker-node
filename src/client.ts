@@ -26,7 +26,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.6.0";
+const VERSION = "0.7.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -158,7 +158,7 @@ export class ScrapeUnblockerClient {
 
       if (!response.ok) {
         const body = await response.text().catch(() => undefined);
-        throw errorForStatus(response.status, body);
+        throw errorForStatus(response.status, body, response.headers);
       }
       return response;
     }
@@ -191,6 +191,9 @@ export class ScrapeUnblockerClient {
    * non-idempotent, and a failed step surfaces as a {@link ValidationError}
    * (HTTP 422) whose `body` holds the `step_failed` JSON. Pass
    * `listElements: true` to get `{ url, count, elements }` JSON instead of HTML.
+   *
+   * Throws {@link TargetNotFoundError} when the target page itself answers
+   * 404 or 410 (billed; the not-found page is on `.html`).
    */
   async getPageSource(
     url: string,

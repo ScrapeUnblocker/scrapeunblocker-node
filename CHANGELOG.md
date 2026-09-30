@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 (2026-09-30)
+
+- New `TargetNotFoundError` (extends `NotFoundError`): thrown by `getPageSource()`, `getParsed()` and `getPageWithCookies()` when the target page itself answers 404 or 410. The API now passes the target's own status through instead of a 200, marked with the `X-Origin-Status` header. The error carries `originStatus`, the not-found page on `html` and `destinationUrl`. It is never retried, and the call is billed like any delivered page.
+- `errorForStatus()` takes the response headers as an optional third argument.
+
+Behaviour change: a dead target URL used to resolve with its not-found page as a normal string; it now throws `TargetNotFoundError`. `instanceof NotFoundError` still matches it. A 404 without `X-Origin-Status` is the API's own and stays a plain `NotFoundError`.
+
 ## 0.6.0 (2026-09-24)
 
 - `googleImages()` takes `pages` (1-5): fetch up to five Google Images result pages of ~100 results each in one call. Each page fetched is billed as one request; the response's `pagesFetched` says how many. The Google market now follows `proxyCountry` automatically, so `gl` is only an optional override, and `maxResults` is an optional cap up to 500.

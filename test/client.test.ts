@@ -13,6 +13,7 @@ import {
   PaymentRequiredError,
   QuotaExceededError,
   RateLimitError,
+  TargetNotFoundError,
   UnsupportedContentError,
   UpstreamOutageError,
   ValidationError,
@@ -330,6 +331,56 @@ describe("ScrapeUnblockerClient", () => {
     await expect(client({ maxRetries: 0 }).getPageSource("https://example.com")).rejects.toBeInstanceOf(
       ErrorClass,
     );
+  });
+
+  it.each([404, 410])("throws TargetNotFoundError when the target answers %i", async (status) => {
+    const fetchFn = mockFetch(
+      new Response("<html><h1>Not Found</h1></html>", {
+        status,
+        headers: {
+          "X-Origin-Status": String(status),
+          "X-Destination-URL": "https://example.com/gone",
+        },
+      }),
+    );
+    const err = await client()
+      .getPageSource("https://example.com/gone")
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    expect(err).toBeInstanceOf(NotFoundError);
+    const target = err as TargetNotFoundError;
+    expect(target.statusCode).toBe(status);
+    expect(target.originStatus).toBe(status);
+    expect(target.html).toBe("<html><h1>Not Found</h1></html>");
+    expect(target.destinationUrl).toBe("https://example.com/gone");
+    expect(target.message).toContain("billed");
+    // Never retried: the target's answer will not change.
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("exposes the html of a target 404 fetched with cookies", async () => {
+    const body = JSON.stringify({ html: "<html>gone</html>", cookies: [], proxy_address: "direct" });
+    mockFetch(new Response(body, { status: 404, headers: { "X-Origin-Status": "404" } }));
+    const err = (await client()
+      .getPageWithCookies("https://example.com/gone")
+      .catch((e: unknown) => e)) as TargetNotFoundError;
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    expect(err.html).toBe("<html>gone</html>");
+    expect(err.body).toBe(body);
+  });
+
+  it("keeps an API 404 without X-Origin-Status a plain NotFoundError", async () => {
+    mockFetch(new Response("nope", { status: 404 }));
+    const err = await client()
+      .getPageSource("https://example.com")
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(NotFoundError);
+    expect(err).not.toBeInstanceOf(TargetNotFoundError);
+  });
+
+  it("still returns the page for a legacy 200 carrying X-Origin-Status", async () => {
+    mockFetch(new Response("<html>gone</html>", { status: 200, headers: { "X-Origin-Status": "404" } }));
+    await expect(client().getPageSource("https://example.com/gone")).resolves.toBe("<html>gone</html>");
   });
 
   it.each([

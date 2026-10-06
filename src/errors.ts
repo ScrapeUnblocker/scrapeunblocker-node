@@ -171,12 +171,11 @@ export class UnsupportedContentError extends APIError {}
 export class ValidationError extends APIError {}
 
 /**
- * The page rendered but no structured data came out of it (HTTP 422).
+ * A 422 `{ "error": "no_data_extracted", "detail": ... }` answer.
  *
- * Thrown by `getParsed()` when the API loaded the page but could not extract
- * any structured fields from it. The API answers 422 with a JSON body of
- * `{ "error": "no_data_extracted", "detail": ... }`. The call is not billed and
- * retrying returns the same answer; call `getPageSource()` for the HTML.
+ * @deprecated The API no longer sends this 422: a page with no structured data
+ * now comes back from `getParsed()` as a result with `dataExtracted: false` and
+ * the rendered page on `html`. Kept so existing `instanceof` checks compile.
  */
 export class NoDataExtractedError extends ValidationError {
   /** The API's explanation from the response body. */
@@ -299,9 +298,9 @@ function targetNotFoundFor(
 }
 
 /**
- * `parsedData` answers 422 with `{ error: "no_data_extracted", detail }` when
- * the page rendered but held no structured data. Anything else returns
- * undefined so the general ValidationError applies.
+ * Legacy: a 422 `{ error: "no_data_extracted", detail }` (the API no longer
+ * sends it). Anything else returns undefined so the general ValidationError
+ * applies.
  */
 function noDataExtractedFor(status: number, body: string | undefined): NoDataExtractedError | undefined {
   if (status !== 422) return undefined;

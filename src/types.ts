@@ -166,6 +166,16 @@ export interface ParsedPage {
   source?: string;
   /** The extracted fields. */
   data: unknown;
+  /**
+   * `false` when the page rendered but no structured data could be extracted
+   * from it: `data` is empty and `html` holds the rendered page. The call is
+   * billed like `getPageSource()`.
+   */
+  dataExtracted: boolean;
+  /** The rendered page, sent only when `dataExtracted` is `false`. */
+  html?: string;
+  /** The API's explanation, sent only when `dataExtracted` is `false`. */
+  detail?: string;
   /** The full JSON payload as returned by the API. */
   raw: Record<string, unknown>;
 }

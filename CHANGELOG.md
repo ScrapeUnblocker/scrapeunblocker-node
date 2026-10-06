@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 (2026-10-06)
+
+- `getParsed()` on a page that rendered but held no structured data now resolves instead of throwing. The API answers this with a 200 again (billed like `getPageSource()`), and the result carries the new fields `dataExtracted: false`, `detail` (the API's explanation) and `html` (the rendered page). A normal parse has `dataExtracted: true` and no `html`. The same answer now covers a parser failure on the API side.
+- `NoDataExtractedError` is deprecated: the API no longer sends the 422 `no_data_extracted`. The class stays exported so existing `instanceof` checks compile.
+
+Behaviour change: code that caught `NoDataExtractedError` from `getParsed()` should check `result.dataExtracted` instead.
+
 ## 0.7.1 (2026-09-30)
 
 - New `NoDataExtractedError` (extends `ValidationError`): thrown by `getParsed()` when the page rendered but no structured data could be extracted from it. The API answers 422 with `{"error": "no_data_extracted", "detail": ...}`; the error carries `detail`. The call is not billed and is never retried - use `getPageSource()` for the HTML. Before, this came back as a billed 200 with empty `data`.

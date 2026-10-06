@@ -124,6 +124,7 @@ const result = await su.getParsed("https://www.walmart.com/ip/12345");
 console.log(result.pageType); // e.g. "product"
 console.log(result.source);   // how it was extracted
 console.log(result.data);     // the fields
+console.log(result.dataExtracted); // false when nothing could be extracted; then result.html holds the page
 
 // If a parse ever comes back wrong, force a fresh set of rules:
 const fresh = await su.getParsed(url, { refreshRules: true, rulesHint: "price is missing" });
@@ -322,7 +323,6 @@ try {
 | `BrowserTimeoutError` | 408 | Our browser run timed out before the page was ready |
 | `UnsupportedContentError` | 415 | The URL serves something other than HTML |
 | `ValidationError` | 422 | Missing or wrong-typed parameter; `body` holds the `detail` array |
-| `NoDataExtractedError` | 422 | `getParsed()`: the page rendered but held no structured data; carries `detail` (subclass of `ValidationError`, not billed) |
 | `RateLimitError` | 429 | Too many requests |
 | `UpstreamOutageError` | 503 | The target origin is down |
 | `ServerError` | 5xx | Unexpected server error, including a 504 upstream timeout |
@@ -353,27 +353,19 @@ try {
 
 With `getParsed()` the body is the parsed-data JSON (`{"data": {"page_type": "not_found", ...}}`), so `html` is `undefined` there; the raw JSON is on `.body`.
 
-### No structured data on the page (422)
+### No structured data on the page
 
-When `getParsed()` renders the page but can extract no structured data from it, the API answers 422 and the client throws `NoDataExtractedError`. The call is **not billed**, and retrying gives the same result - fetch the HTML with `getPageSource()` instead:
+When `getParsed()` renders the page but can extract no structured data from it, the API still answers 200: the result has `dataExtracted: false`, empty `data`, the API's explanation on `detail` and the rendered page on `html`. The call is billed like `getPageSource()`, since you get the page:
 
 ```ts
-import { ScrapeUnblockerClient, NoDataExtractedError } from "scrapeunblocker";
-
-const su = new ScrapeUnblockerClient();
-try {
-  const page = await su.getParsed("https://example.com/some-page");
-} catch (err) {
-  if (err instanceof NoDataExtractedError) {
-    console.log(err.detail); // the API's explanation
-    const html = await su.getPageSource("https://example.com/some-page");
-  } else {
-    throw err;
-  }
+const page = await su.getParsed("https://example.com/some-page");
+if (!page.dataExtracted) {
+  console.log(page.detail); // the API's explanation
+  const html = page.html;   // the rendered page - parse it yourself
 }
 ```
 
-`NoDataExtractedError` extends `ValidationError`, so `instanceof ValidationError` matches it too.
+`NoDataExtractedError` (for the 422 the API used to send here) is deprecated and no longer thrown; it stays exported so existing code compiles.
 
 Transient failures (429, 502, 503, 504 and network errors) are retried automatically with exponential backoff. A 401 or 402 is never retried - it clears when the key or the billing state changes, not on another attempt. Neither is billed or counted against your quota, because the request is refused before anything is scraped.
 

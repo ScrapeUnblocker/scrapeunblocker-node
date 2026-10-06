@@ -133,6 +133,9 @@ describe("ScrapeUnblockerClient", () => {
     });
     expect(result.pageType).toBe("product");
     expect(result.data).toEqual({ price: 10 });
+    expect(result.dataExtracted).toBe(true);
+    expect(result.html).toBeUndefined();
+    expect(result.detail).toBeUndefined();
 
     const [url] = fetchFn.mock.calls[0];
     expect(url).toContain("parsed_data=true");
@@ -383,7 +386,27 @@ describe("ScrapeUnblockerClient", () => {
     expect(err.originStatus).toBe(404);
   });
 
-  it("throws NoDataExtractedError when parsedData finds nothing", async () => {
+  it("returns the page with dataExtracted false when parsedData finds nothing", async () => {
+    const payload = {
+      data: { page_type: "unknown", data: {} },
+      data_extracted: false,
+      detail:
+        "The page was rendered, but no structured data could be extracted from it. " +
+        "The rendered HTML is in `html`.",
+      html: "<html><body>hello</body></html>",
+    };
+    const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));
+    const result = await client().getParsed("https://example.com");
+    expect(result.dataExtracted).toBe(false);
+    expect(result.pageType).toBe("unknown");
+    expect(result.data).toEqual({});
+    expect(result.html).toBe("<html><body>hello</body></html>");
+    expect(result.detail).toMatch(/^The page was rendered/);
+    expect(result.raw).toEqual(payload);
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("still maps a legacy 422 no_data_extracted to NoDataExtractedError", async () => {
     const body = JSON.stringify({
       error: "no_data_extracted",
       detail:
@@ -403,7 +426,7 @@ describe("ScrapeUnblockerClient", () => {
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
-  it("says not billed even when no_data_extracted has no detail", async () => {
+  it("says not billed even when a legacy no_data_extracted has no detail", async () => {
     mockFetch(new Response(JSON.stringify({ error: "no_data_extracted" }), { status: 422 }));
     const err = (await client()
       .getParsed("https://example.com")

@@ -26,7 +26,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.7.1";
+const VERSION = "0.8.0";
 
 type Params = Record<string, string | number | boolean | undefined | null>;
 
@@ -218,10 +218,10 @@ export class ScrapeUnblockerClient {
   /**
    * Fetch a URL and return structured JSON instead of HTML.
    *
-   * Throws {@link NoDataExtractedError} (not billed) when the page rendered but
-   * held no structured data - use `getPageSource()` for the HTML - and
-   * {@link TargetNotFoundError} (billed, `html` undefined) when the target page
-   * itself answered 404 or 410.
+   * When the page rendered but held no structured data, the result has
+   * `dataExtracted: false`, empty `data` and the rendered page on `html`
+   * (billed like `getPageSource()`). Throws {@link TargetNotFoundError}
+   * (billed, `html` undefined) when the target page itself answered 404 or 410.
    */
   async getParsed(url: string, options: ParsedOptions = {}): Promise<ParsedPage> {
     const response = await this.request("/getPageSource", {
@@ -238,6 +238,9 @@ export class ScrapeUnblockerClient {
       pageType: inner.page_type as string | undefined,
       source: inner.source as string | undefined,
       data: inner.data,
+      dataExtracted: payload.data_extracted !== false,
+      html: typeof payload.html === "string" ? payload.html : undefined,
+      detail: typeof payload.detail === "string" ? payload.detail : undefined,
       raw: payload,
     };
   }

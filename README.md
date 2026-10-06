@@ -122,7 +122,6 @@ console.log(count, elements);
 ```ts
 const result = await su.getParsed("https://www.walmart.com/ip/12345");
 console.log(result.pageType); // e.g. "product"
-console.log(result.source);   // how it was extracted
 console.log(result.data);     // the fields
 console.log(result.dataExtracted); // false when nothing could be extracted; then result.html holds the page
 

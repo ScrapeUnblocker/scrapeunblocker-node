@@ -5,6 +5,7 @@ import {
   AuthenticationError,
   BlockedError,
   BrowserTimeoutError,
+  BudgetExceededError,
   CreditLimitExceededError,
   InvalidRequestError,
   NoDataExtractedError,
@@ -462,6 +463,8 @@ describe("ScrapeUnblockerClient", () => {
   it.each([
     ["Quota exceeded\n", QuotaExceededError],
     ["Credit limit exceeded\n", CreditLimitExceededError],
+    ["User set budget exceeded\n", BudgetExceededError],
+    ["USER SET BUDGET EXCEEDED", BudgetExceededError],
     ["Payment failed - update payment method\n", PaymentFailedError],
     ["something new we do not know yet", PaymentRequiredError],
   ])("maps the 402 body %j to the right error", async (body, ErrorClass) => {

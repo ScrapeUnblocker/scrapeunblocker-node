@@ -298,7 +298,7 @@ try {
   if (err instanceof BlockedError) {
     // 403: the target blocked every bypass path (not billed)
   } else if (err instanceof PaymentRequiredError) {
-    // 402: quota, credit limit, or a failed payment - fix billing
+    // 402: quota, credit limit, your budget limit, or a failed payment - fix billing
   } else if (err instanceof RateLimitError) {
     // 429: slow down
   } else if (err instanceof UpstreamOutageError) {
@@ -312,9 +312,10 @@ try {
 | `InvalidRequestError` | 400 | Bad URL, unsupported scheme, or the API key header was not sent |
 | `AuthenticationError` | 401 | Key not recognised - typo, stray whitespace, or a rotated key |
 | `NoSubscriptionError` | 401 | Key is fine, but the account has no active plan |
-| `PaymentRequiredError` | 402 | Billing block - base class for the three below |
+| `PaymentRequiredError` | 402 | Billing block - base class for the four below |
 | `QuotaExceededError` | 402 | The plan's requests for this period are used up |
 | `CreditLimitExceededError` | 402 | Unpaid balance is past the account's credit limit |
+| `BudgetExceededError` | 402 | The monthly budget limit you set in your profile was reached |
 | `PaymentFailedError` | 402 | A card payment was declined three times |
 | `BlockedError` | 403 | Blocked by bot protection on every path |
 | `NotFoundError` | 404 | What you asked for does not exist - no image on the page (`getImage`), or a plugin lookup found nothing |
@@ -370,10 +371,11 @@ Transient failures (429, 502, 503, 504 and network errors) are retried automatic
 
 ### Billing errors (402)
 
-The three billing blocks share a status code and differ only in their message, so the client throws a dedicated error for each:
+The four billing blocks share a status code and differ only in their message, so the client throws a dedicated error for each:
 
 ```ts
 import {
+  BudgetExceededError,
   CreditLimitExceededError,
   PaymentFailedError,
   QuotaExceededError,
@@ -386,13 +388,17 @@ try {
     // plan quota (plus any overage allowance) is used up for this period
   } else if (err instanceof CreditLimitExceededError) {
     // unpaid balance passed the account credit limit
+  } else if (err instanceof BudgetExceededError) {
+    // the monthly budget limit you set in your profile is reached
   } else if (err instanceof PaymentFailedError) {
     // card declined three times - update the payment method
   }
 }
 ```
 
-When more than one applies, the most serious wins: failed payment outranks credit limit, which outranks quota. All three lift by themselves once the billing state changes - access returns within about a minute, and the API key stays the same. One catch worth knowing: subscribing to a new plan does **not** clear `PaymentFailedError`, because the old unpaid invoice stays open until it is paid.
+When more than one applies, the most serious wins: failed payment outranks credit limit, which outranks quota, which outranks your own budget limit. All four lift by themselves once the billing state changes - access returns within a minute or two, and the API key stays the same. One catch worth knowing: subscribing to a new plan does **not** clear `PaymentFailedError`, because the old unpaid invoice stays open until it is paid.
+
+`BudgetExceededError` is the spending cap you chose yourself: the monthly budget limit in your [profile](https://app.scrapeunblocker.com/dashboard/profile), in EUR excluding VAT. Spend is checked about once a minute, so it can go slightly past the limit before the block applies. It lifts when the next billing period starts, or once you raise or remove the limit.
 
 Full details for every status code: [docs.scrapeunblocker.com/errors](https://docs.scrapeunblocker.com/errors).
 

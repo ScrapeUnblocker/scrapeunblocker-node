@@ -49,15 +49,16 @@ export class NoSubscriptionError extends AuthenticationError {}
  * The account has a billing problem (HTTP 402).
  *
  * Credentials are fine - the request was stopped for a billing reason. There
- * are three, each raised as a dedicated subclass: {@link QuotaExceededError},
- * {@link CreditLimitExceededError} and {@link PaymentFailedError}. Catch this
- * base class to handle all three.
+ * are four, each raised as a dedicated subclass: {@link QuotaExceededError},
+ * {@link CreditLimitExceededError}, {@link BudgetExceededError} and
+ * {@link PaymentFailedError}. Catch this base class to handle all four.
  *
  * When more than one applies, the most serious wins: failed payment outranks
- * credit limit, which outranks quota. All three lift by themselves once the
- * billing state changes - access returns within roughly a minute, with no key
- * change needed. Like a 401, a 402 is refused before anything is scraped, so
- * it is never billed. Retrying is pointless; fix the billing state first.
+ * credit limit, which outranks quota, which outranks your own budget limit.
+ * All four lift by themselves once the billing state changes - access returns
+ * within a minute or two, with no key change needed. Like a 401, a 402 is
+ * refused before anything is scraped, so it is never billed. Retrying is
+ * pointless; fix the billing state first.
  */
 export class PaymentRequiredError extends APIError {}
 
@@ -81,6 +82,18 @@ export class QuotaExceededError extends PaymentRequiredError {}
  * usually clears itself within about a minute.
  */
 export class CreditLimitExceededError extends PaymentRequiredError {}
+
+/**
+ * The monthly budget limit you set yourself has been reached (HTTP 402).
+ *
+ * The limit is set in your profile at
+ * https://app.scrapeunblocker.com/dashboard/profile and is counted in EUR
+ * excluding VAT against the current billing period's spend. Spend is checked
+ * about once a minute, so it can go slightly past the limit before the block
+ * applies. The block lifts when the next billing period starts, or once you
+ * raise or remove the limit - no key change needed.
+ */
+export class BudgetExceededError extends PaymentRequiredError {}
 
 /**
  * A card payment has been declined three times (HTTP 402).
@@ -218,7 +231,7 @@ export class ConnectionError extends ScrapeUnblockerError {}
 const BASE_MESSAGES: Record<number, string> = {
   400: "Invalid request (bad URL, unsupported scheme, or missing API key header)",
   401: "Authentication failed - key not recognised, or account has no active plan",
-  402: "Billing block - quota exceeded, credit limit exceeded, or a failed payment",
+  402: "Billing block - quota exceeded, credit limit exceeded, your budget limit reached, or a failed payment",
   403: "Target blocked by bot protection on every bypass path",
   404: "Requested element not found on the page",
   408: "Browser run timed out before the page was ready",
@@ -242,7 +255,7 @@ function authErrorFor(message: string, status: number, body?: string): APIError 
 }
 
 /**
- * The three billing blocks share a status code and differ only in their
+ * The four billing blocks share a status code and differ only in their
  * plain-text body. An unrecognised body falls back to PaymentRequiredError.
  */
 function billingErrorFor(message: string, status: number, body?: string): APIError {
@@ -252,6 +265,9 @@ function billingErrorFor(message: string, status: number, body?: string): APIErr
   }
   if (text.includes("credit limit exceeded")) {
     return new CreditLimitExceededError(message, status, body);
+  }
+  if (text.includes("user set budget exceeded")) {
+    return new BudgetExceededError(message, status, body);
   }
   if (text.includes("payment failed")) {
     return new PaymentFailedError(message, status, body);

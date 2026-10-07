@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0 (2026-10-07)
+
+- New `BudgetExceededError` (extends `PaymentRequiredError`): thrown on the new 402 billing block `User set budget exceeded`, sent when the account reaches the monthly budget limit set in its profile (https://app.scrapeunblocker.com/dashboard/profile, EUR excluding VAT). It lifts when the next billing period starts, or once the limit is raised or removed. Like every 402 it is not billed and never retried. When several billing blocks apply, failed payment outranks credit limit, which outranks quota, which outranks the budget limit.
+- The generic 402 message now lists the budget limit among the billing blocks.
+
+No breaking changes: `instanceof PaymentRequiredError` still matches. Before, this body surfaced as a plain `PaymentRequiredError`.
+
 ## 0.8.0 (2026-10-06)
 
 - `getParsed()` on a page that rendered but held no structured data now resolves instead of throwing. The API answers this with a 200 again (billed like `getPageSource()`), and the result carries the new fields `dataExtracted: false`, `detail` (the API's explanation) and `html` (the rendered page). A normal parse has `dataExtracted: true` and no `html`. The same answer now covers a parser failure on the API side.

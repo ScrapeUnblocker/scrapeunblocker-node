@@ -788,6 +788,13 @@ export interface AldiAuCategoryOptions {
  */
 export interface AldiAuSpecialsOptions {
   /**
+   * mode=category: a category link (https://www.aldi.com.au/products/dairy-eggs-
+   * fridge/milk/k/1111111160) or its key ('1111111160'; '1588161425841179' = Lower Prices).
+   * mode=specials: the Special Buys drop - its date ('2026-10-14') or link
+   * (https://www.aldi.com.au/special-buys/2026-10-14); blank = the current drop.
+   */
+  category?: string;
+  /**
    * mode=specials: one theme of the drop, e.g. 'Gardening' (see `promotions[].themes`).
    */
   theme?: string;
@@ -2301,11 +2308,6 @@ export interface CapterraReviewsOptions {
  */
 export interface CapterraSearchOptions {
   /**
-   * 1-based review page to start from: 25 reviews per page, at most 100 (Capterra's limit per
-   * product). Use the `nextPage` of a previous response to continue. API default: 1.
-   */
-  page?: number;
-  /**
    * How many reviews to collect across pages (1-500, default 25); each page fetched is one billed
    * unit. With mode=search, how many products (1-20, default 20; one page).
    */
@@ -2607,11 +2609,6 @@ export interface AppStoreReviewsOptions {
    * Default: the country in an app URL, else 'us'.
    */
   country?: string;
-  /**
-   * Listing language for mode=app / mode=search, e.g. 'fr' or 'fr-CA' (for countries whose store has
-   * several languages). Default: the store's own.
-   */
-  lang?: string;
   /**
    * mode=search: apps to return (1-200). mode=reviews: reviews to collect (1-500); Apple serves 50
    * per page and at most 10 pages per country, each page billed as one request. API default: 50.
@@ -3391,7 +3388,7 @@ export abstract class PluginMethods {
    * 'https://www.tiktok.com/shop/product/led-face-mask'). Either this or `category`.
    * Calls `POST /social/tiktok-shop-search`.
    */
-  tiktokShopSearch(q: string, options: TiktokShopSearchOptions = {}): Promise<unknown> {
+  tiktokShopSearch(q?: string, options: TiktokShopSearchOptions = {}): Promise<unknown> {
     return this.postJson("/social/tiktok-shop-search", {
       q: q,
       category: options.category,
@@ -3804,6 +3801,7 @@ export abstract class PluginMethods {
   aldiAuSpecials(options: AldiAuSpecialsOptions = {}): Promise<unknown> {
     return this.postJson("/groceries/aldi-au", {
       mode: "specials",
+      category: options.category,
       theme: options.theme,
       sort: options.sort,
       page: options.page,
@@ -5023,7 +5021,6 @@ export abstract class PluginMethods {
     return this.postJson("/reviews/capterra", {
       mode: "search",
       query: query,
-      page: options.page,
       max_results: options.maxResults,
       proxy_country: options.proxyCountry,
     });
@@ -5401,7 +5398,6 @@ export abstract class PluginMethods {
       mode: "reviews",
       app_id: appId,
       country: options.country,
-      lang: options.lang,
       max_results: options.maxResults,
       sort: options.sort,
       page: options.page,

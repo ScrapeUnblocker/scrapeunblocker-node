@@ -27,7 +27,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.10.0";
+const VERSION = "0.10.1";
 
 type Params = PluginParams;
 
@@ -335,7 +335,8 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * Search Oopbuy (1688 / Taobao / official) and return the products as JSON.
    *
    * Returns product listings (spu, title, price, monthly sales, image, url)
-   * for a generic keyword. Brand keywords are rejected with HTTP 422.
+   * for a generic keyword. A brand keyword returns 200 with
+   * `keywordRejected: true` and no products.
    */
   async oopbuySearch(keyword: string, options: OopbuySearchOptions = {}): Promise<unknown> {
     return this.postJson("/goods/oopbuy-search", {
@@ -383,8 +384,8 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * Returns title, brand, numeric price and currency, list price and savings,
    * availability, rating, review count, seller, feature bullets, categories and
    * images. Prices come back in the marketplace's own currency: `proxyCountry`
-   * defaults to the marketplace's home country (amazon.com -> US), pinning the
-   * exit over the ISP pool. Pass either `asin` (with `marketplace`) or a `url`.
+   * defaults to the marketplace's home country (amazon.com -> US). Pass either
+   * `asin` (with `marketplace`) or a `url`.
    */
   async amazonProduct(options: AmazonProductOptions = {}): Promise<unknown> {
     return this.postJson("/marketplace/amazon-product", {

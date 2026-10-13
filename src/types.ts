@@ -198,7 +198,7 @@ export interface SerpOptions {
 
 /** Options for {@link ScrapeUnblockerClient.googleLocal}. */
 export interface GoogleLocalOptions {
-  /** Exit-IP country (ISO-2, e.g. "US"). Local results are location-sensitive. */
+  /** Proxy country (ISO-2, e.g. "US"). Local results are location-sensitive. */
   proxyCountry?: string;
   /** Google UI language (e.g. "en", "de"). */
   hl?: string;
@@ -254,7 +254,7 @@ export interface EbaySearchOptions {
   seller?: string;
   /** eBay category id to search inside, e.g. "131090" for vehicle parts. */
   category?: string;
-  /** Exit-IP country (ISO-2, e.g. "US"). */
+  /** Proxy country (ISO-2, e.g. "US"). */
   proxyCountry?: string;
 }
 
@@ -265,7 +265,7 @@ export interface AmazonProductOptions {
   url?: string;
   /** Regional Amazon site the ASIN belongs to. Default "amazon.com". */
   marketplace?: string;
-  /** Exit-IP country (ISO-2). Defaults to the marketplace's home country. */
+  /** Proxy country (ISO-2). Defaults to the marketplace's home country. */
   proxyCountry?: string;
 }
 
@@ -280,7 +280,7 @@ export interface AmazonSearchOptions {
   minPrice?: number;
   /** Highest price to include, in the marketplace's currency. */
   maxPrice?: number;
-  /** Exit-IP country (ISO-2). Defaults to the marketplace's home country. */
+  /** Proxy country (ISO-2). Defaults to the marketplace's home country. */
   proxyCountry?: string;
 }
 
@@ -293,7 +293,7 @@ export interface OopbuySearchOptions {
   pageSize?: number;
   /** Sort order: "default", "price_asc", "price_desc" or "best_selling". */
   sort?: string;
-  /** Exit-IP country (ISO-2, e.g. "US"). */
+  /** Proxy country (ISO-2, e.g. "US"). */
   proxyCountry?: string;
 }
 
@@ -302,7 +302,7 @@ export interface TikTokProfileOptions {
   maxVideos?: number;
   /** Read each widget-listed video's own page for exact engagement, music and media URLs. Default true. */
   videoDetails?: boolean;
-  /** Exit-IP country (ISO-2); only for region-locked items. */
+  /** Proxy country (ISO-2); only for region-locked items. */
   proxyCountry?: string;
 }
 
@@ -311,7 +311,7 @@ export interface TikTokVideoOptions {
   includeTranscript?: boolean;
   /** Preferred subtitle language when several exist, e.g. "eng-US" or "eng". */
   transcriptLanguage?: string;
-  /** Exit-IP country (ISO-2). */
+  /** Proxy country (ISO-2). */
   proxyCountry?: string;
 }
 
@@ -320,20 +320,20 @@ export interface TikTokHashtagOptions {
   maxVideos?: number;
   /** Read each widget-listed video's own page for the full video shape. Default true. */
   videoDetails?: boolean;
-  /** Exit-IP country (ISO-2). */
+  /** Proxy country (ISO-2). */
   proxyCountry?: string;
 }
 
 export interface TikTokSearchOptions {
   /** Videos to return, 1-200. Default 20. */
   maxResults?: number;
-  /** Exit-IP country (ISO-2) - the region TikTok ranks for. */
+  /** Proxy country (ISO-2) - the region TikTok ranks for. */
   proxyCountry?: string;
 }
 
 export interface TikTokCommentsOptions {
   /** Top-level comments to return, 1-500. Default 50. */
   maxComments?: number;
-  /** Exit-IP country (ISO-2). */
+  /** Proxy country (ISO-2). */
   proxyCountry?: string;
 }

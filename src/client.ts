@@ -1,4 +1,5 @@
 import { errorForStatus, ConnectionError, ScrapeTimeoutError } from "./errors.js";
+import { PluginMethods, type PluginParams } from "./plugins.js";
 import type {
   ClientOptions,
   PageOptions,
@@ -26,15 +27,17 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.9.0";
+const VERSION = "0.10.0";
 
-type Params = Record<string, string | number | boolean | undefined | null>;
+type Params = PluginParams;
 
 function buildQuery(params: Params): string {
   const q = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      q.append(key, String(value));
+    if (value === undefined || value === null) continue;
+    // A list is a repeated parameter (stars=4&stars=5), as the API reads it.
+    for (const item of Array.isArray(value) ? value : [value]) {
+      q.append(key, String(item));
     }
   }
   return q.toString();
@@ -91,7 +94,7 @@ class SouthwestNamespace {
  * const html = await su.getPageSource("https://example.com");
  * ```
  */
-export class ScrapeUnblockerClient {
+export class ScrapeUnblockerClient extends PluginMethods {
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly timeout: number;
@@ -104,6 +107,7 @@ export class ScrapeUnblockerClient {
   readonly southwest: SouthwestNamespace;
 
   constructor(options: ClientOptions = {}) {
+    super();
     const apiKey = options.apiKey ?? process.env.SCRAPEUNBLOCKER_KEY;
     if (!apiKey) {
       throw new Error(

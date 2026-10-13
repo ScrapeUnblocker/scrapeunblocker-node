@@ -14,6 +14,7 @@
 export { ScrapeUnblockerClient } from "./client.js";
 export { ScrapeUnblockerClient as Client } from "./client.js";
 export * from "./errors.js";
+export * from "./plugins.js";
 export type {
   ClientOptions,
   PageOptions,

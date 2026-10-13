@@ -129,6 +129,48 @@ console.log(result.dataExtracted); // false when nothing could be extracted; the
 const fresh = await su.getParsed(url, { refreshRules: true, rulesHint: "price is missing" });
 ```
 
+## Plugins
+
+Ready-made scrapers for specific sites that return structured JSON. Each
+method takes the plugin's main input as its first argument(s) and everything
+else in one options object (camelCase keys); options you leave out are not
+sent, so the API's own defaults apply. Every parameter is documented on the
+[plugin pages](https://docs.scrapeunblocker.com/plugins/overview?utm_source=npm&utm_medium=integration&utm_campaign=node-sdk).
+
+```ts
+const products = await su.targetSearch("coffee maker", { sort: "price_low", maxResults: 48 });
+const milk = await su.woolworthsProduct("888137");                  // one product, with nutrition
+const trends = await su.googleTrends(["coffee", "tea"], { geo: "US" }); // a list is sent comma-separated
+const reviews = await su.trustpilotReviews("www.nike.com", { stars: [4, 5] });
+const jobs = await su.careerSiteJobs("https://jobs.ashbyhq.com/ramp", { keyword: "engineer" });
+```
+
+<!-- plugin-methods:start -->
+| Category | Methods |
+| --- | --- |
+| Travel | `skyscanner.flights`, `skyscanner.hotels`, `skyscanner.carhire`, `bookingHotels`, `bookingReviews`, `airbnbSearch`, `airbnbRoom`, `airbnbReviews`, `tripadvisorList`, `tripadvisorReviews` |
+| Google | `googleLocal`, `googleImages`, `mapsPlaceDetails`, `googleTrends`, `googleShopping`, `googleJobs` |
+| Search engines | `bingSearch`, `bingImages`, `duckduckgoSearch`, `yahooSearch`, `yahooImages`, `braveSearch`, `braveImages` |
+| E-commerce | `amazonProduct`, `amazonSearch`, `amazonBestsellers`, `amazonReviews`, `walmartSearch`, `targetSearch`, `bestbuySearch`, `homedepotSearch`, `etsySearch`, `temuSearch`, `temuProduct`, `sheinSearch`, `zalandoSearch`, `aliexpressSearch`, `alibabaSearch`, `alibabaProduct`, `alibaba1688Search`, `alibaba1688Product`, `tiktokShopSearch`, `tiktokShopProduct`, `tiktokShopStore`, `oopbuySearch` |
+| Classifieds & Resale | `ebaySearch`, `vintedSearch`, `leboncoinSearch` |
+| Groceries | `woolworthsSearch`, `woolworthsCategory`, `woolworthsSpecials`, `woolworthsProduct`, `colesSearch`, `colesCategory`, `colesSpecials`, `colesProduct`, `aldiAuSearch`, `aldiAuCategory`, `aldiAuSpecials`, `aldiAuProduct` |
+| Real estate | `zillowSearch`, `zillowDetail`, `redfinSearch`, `redfinDetail`, `rightmoveSearch`, `idealistaSearch`, `idealistaDetail`, `immobilienscout24Search` |
+| Vehicles | `mobileDe`, `autoscout24Search` |
+| Jobs | `indeedJobs`, `glassdoorJobs`, `glassdoorReviews`, `glassdoorSalaries`, `naukriJobs`, `wellfoundJobs`, `wellfoundJob`, `wellfoundCompany`, `wellfoundCompanySearch`, `careerSiteJobs` |
+| Reviews & Companies | `trustpilotReviews`, `g2Reviews`, `g2Search`, `capterraReviews`, `capterraSearch`, `productHunt`, `crunchbaseCompany`, `crunchbaseSearch` |
+| Local & Maps | `yelpSearch`, `yelpBusiness`, `yelpReviews`, `naverPlaceSearch`, `naverPlaceDetails` |
+| Apps | `googlePlayApp`, `googlePlaySearch`, `appStoreApp`, `appStoreSearch`, `appStoreReviews` |
+| Video, Music & Communities | `youtubeChannel`, `youtubeSearch`, `youtubeComments`, `youtubeTranscript`, `spotifySearch`, `spotifyArtist`, `spotifyAlbum`, `spotifyTrack`, `spotifyPlaylist`, `telegramChannel`, `quoraQuestion`, `quoraProfile` |
+| SEO & Ads | `similarwebOverview`, `ahrefs`, `semrushOverview`, `metaAdLibrary` |
+<!-- plugin-methods:end -->
+
+Any plugin endpoint can also be called by path, with parameters named as the
+API names them (snake_case) - handy for an endpoint added after your SDK version:
+
+```ts
+const data = await su.plugin("/marketplace/target-search", { query: "tv", max_results: 24 });
+```
+
 ## Google search (SERP)
 
 ```ts
@@ -220,19 +262,6 @@ if (items.exactMatches) {
 
 `exactMatches` is `false` when eBay found nothing for the keyword and answered with its own loosely-related suggestions instead, so check it before using the listings.
 
-### TikTok
-
-```ts
-const profile = await su.tiktokProfile("nasa", { maxVideos: 5 });     // exact stats + newest videos
-const video = await su.tiktokVideo("https://www.tiktok.com/@nasa/video/7665075736742530317", { includeTranscript: true });
-const tag = await su.tiktokHashtag("nasa", { maxVideos: 10 });
-const results = await su.tiktokSearch("space telescope", { maxResults: 25 });   // TikTok's own ranking
-const comments = await su.tiktokComments("https://www.tiktok.com/@nasa/video/7665075736742530317", { maxComments: 40 });
-console.log(profile.stats.followers, video.stats.plays, tag.stats.views, results.resultsCollected, comments.totalComments);
-```
-
-Profiles and hashtags list up to 10 videos in a couple of seconds from TikTok's server-rendered widget; ask for more (up to 200) and the real grid is scrolled in a browser session.
-
 ## Cookies and the serving proxy
 
 ```ts
@@ -263,20 +292,6 @@ const flights = await su.skyscanner.flights({
 const hotels = await su.skyscanner.hotels({ destination: "Madrid", checkin: "2026-09-01", checkout: "2026-09-03" });
 const cars = await su.skyscanner.carhire({ pickup: "Madrid", pickup_datetime: "2026-09-01T10:00", dropoff_datetime: "2026-09-03T10:00" });
 ```
-
-## Southwest plugin
-
-Southwest Airlines fares as raw booking JSON. Pass IATA airport codes and dates; leave `return_date` out for a one-way search:
-
-```ts
-const results = await su.southwest.flights({
-  origin: "DAL", dest: "HOU",
-  depart_date: "2026-10-20", return_date: "2026-10-27",
-  adults: 1, fare_type: "dollars", proxy_country: "US",
-});
-```
-
-Parameters: `origin` and `dest` (IATA codes), `depart_date` and optional `return_date` (`YYYY-MM-DD`; omit for one-way), `adults` (1-8, default 1), `fare_type` (`"dollars"` (default) or `"points"`), `proxy_country` (default `"US"`) and `max_attempts` (1-5, default 3).
 
 ## Error handling
 

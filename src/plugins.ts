@@ -2673,25 +2673,6 @@ export interface YoutubeSearchOptions {
 }
 
 /**
- * Options for {@link PluginMethods.youtubeComments}.
- */
-export interface YoutubeCommentsOptions {
-  /**
-   * Comment order: top, newest. API default: top.
-   */
-  sort?: string;
-  /**
-   * How many comments to collect across pages (~20 per page). API default: 20.
-   */
-  maxResults?: number;
-  /**
-   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE') for the watch page. Defaults to
-   * US.
-   */
-  proxyCountry?: string;
-}
-
-/**
  * Options for {@link PluginMethods.youtubeTranscript}.
  */
 export interface YoutubeTranscriptOptions {
@@ -2816,97 +2797,6 @@ export interface SpotifyPlaylistOptions {
    * Country the request is sent from (ISO-2, e.g. 'DE', 'GB'). Spotify's market follows it, which
    * can change `playable` and search order; play counts are the same everywhere. Leave blank for
    * any.
-   */
-  proxyCountry?: string;
-}
-
-/**
- * Options for {@link PluginMethods.telegramChannel}.
- */
-export interface TelegramChannelOptions {
-  /**
-   * Posts to collect, newest first (1-500), paging back through the channel's history; each page
-   * fetched is billed as one request. Omit it for one page, billed once: the newest posts (a page
-   * has 20 message slots and an album fills one per photo, so it can hold fewer posts).
-   */
-  maxPosts?: number;
-  /**
-   * Only posts with an id below this one. Pass `nextBefore` of a previous response to continue where
-   * it stopped.
-   */
-  before?: number;
-  /**
-   * Stop at this post id: only posts with a higher id are returned.
-   */
-  after?: number;
-  /**
-   * Stop at this date: only posts published on or after it (YYYY-MM-DD or an ISO-8601 datetime, UTC
-   * when no offset is given).
-   */
-  since?: string;
-  /**
-   * Search inside the channel: only posts matching this text.
-   */
-  q?: string;
-  /**
-   * Return only this post (a post id of the channel).
-   */
-  postId?: number;
-  /**
-   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). Leave blank to let the API
-   * pick.
-   */
-  proxyCountry?: string;
-}
-
-/**
- * Options for {@link PluginMethods.quoraQuestion}.
- */
-export interface QuoraQuestionOptions {
-  /**
-   * Answers to return: 1-300 with mode=question (default 20), 0-200 with mode=profile (default 10; 0
-   * = profile only). Answers come 10 per page after the first few; each page is one billed unit.
-   */
-  maxAnswers?: number;
-  /**
-   * mode=question: also return the answers Quora shows from related questions (its 'All related'
-   * view, `relation`='related'). By default only answers to this question and to questions merged
-   * into it. API default: false.
-   */
-  includeRelated?: boolean;
-  /**
-   * Continue after a previous call: pass its `nextCursor`. Best-effort: each call is a new Quora
-   * visit and Quora re-ranks the list per visit, so a continuation can repeat or skip answers of
-   * earlier calls - dedupe by answer `id`. For a complete list ask for a larger `max_answers` in one
-   * call (up to 300).
-   */
-  cursor?: string;
-  /**
-   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). Leave blank for the countries
-   * chosen for the site.
-   */
-  proxyCountry?: string;
-}
-
-/**
- * Options for {@link PluginMethods.quoraProfile}.
- */
-export interface QuoraProfileOptions {
-  /**
-   * Answers to return: 1-300 with mode=question (default 20), 0-200 with mode=profile (default 10; 0
-   * = profile only). Answers come 10 per page after the first few; each page is one billed unit.
-   */
-  maxAnswers?: number;
-  /**
-   * Continue after a previous call: pass its `nextCursor`. Best-effort: each call is a new Quora
-   * visit and Quora re-ranks the list per visit, so a continuation can repeat or skip answers of
-   * earlier calls - dedupe by answer `id`. For a complete list ask for a larger `max_answers` in one
-   * call (up to 300).
-   */
-  cursor?: string;
-  /**
-   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). Leave blank for the countries
-   * chosen for the site.
    */
   proxyCountry?: string;
 }
@@ -5445,26 +5335,6 @@ export abstract class PluginMethods {
   }
 
   /**
-   * Scrape a YouTube video's comments.
-   *
-   * Returns a YouTube video's comments as JSON. For each comment: `commentId`, `author`,
-   * `authorChannelId`, `authorThumbnail`, `text`, `likeCount`, `publishedTimeText`, `replyCount`,
-   * and the `isPinned`, `isHearted`, `isAuthorVerified` and `isUploader` flags, plus the video
-   * `title` and total `commentCount`. Sort by `top` or `newest` and collect up to `max_results`
-   * across pages.
-   * @param video Video id (dQw4w9WgXcQ) or any YouTube video URL.
-   * Calls `POST /content/youtube-comments`.
-   */
-  youtubeComments(video: string, options: YoutubeCommentsOptions = {}): Promise<unknown> {
-    return this.postJson("/content/youtube-comments", {
-      video: video,
-      sort: options.sort,
-      max_results: options.maxResults,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
    * Get a YouTube video transcript.
    *
    * Returns a YouTube video's captions as JSON: timestamped `segments` (`start`, `dur`, `text`) and
@@ -5650,113 +5520,6 @@ export abstract class PluginMethods {
       id: id,
       offset: options.offset,
       max_results: options.maxResults,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape a public Telegram channel: info and posts.
-   *
-   * Reads a public Telegram channel's web preview. Returns `channel` (`username`, `title`,
-   * `description`, `avatar`, `verified`, `subscribers` and the other `counters`) and `posts`, newest
-   * first: `id`, `url`, `date` (ISO-8601 UTC), `text` (plain), `textHtml`, `views`, `author`
-   * (signature), `edited`, `forwardedFrom`, `replyTo`, `media` (photo / video / animation /
-   * round_video / voice / audio / document / sticker, with CDN `url`, `thumbnail`, `duration`),
-   * `poll`, `linkPreview`, `reactions` (a custom-emoji reaction has its `customEmojiId`, plus the
-   * standard `emoji` and `image` Telegram falls back to when the page shows that emoji anywhere),
-   * `buttons`, `links`, `hashtags` (the tags Telegram links; a bare '#7' is text) and `mentions`.
-   * One page (about 20 posts) by default; `max_posts` (up to 500) pages back through history;
-   * `before`, `after` and `since` bound the range, `q` searches inside the channel and `post_id`
-   * returns one post. `nextBefore` continues a capped answer. Only channels have a public preview:
-   * users, bots, groups and private channels answer 404. Billed one request per page fetched
-   * (`pagesFetched`).
-   * @param channel Public channel: username ('durov'), '@durov', or a t.me link
-   * ('https://t.me/durov', 'https://t.me/s/durov'). A post link ('https://t.me/durov/400') returns
-   * that one post.
-   * Calls `POST /social/telegram-channel`.
-   */
-  telegramChannel(channel: string, options: TelegramChannelOptions = {}): Promise<unknown> {
-    return this.postJson("/social/telegram-channel", {
-      channel: channel,
-      max_posts: options.maxPosts,
-      before: options.before,
-      after: options.after,
-      since: options.since,
-      q: options.q,
-      post_id: options.postId,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape Quora questions, answers and profiles.
-   *
-   * Given a Quora `question` (URL or slug), returns the `question` (`qid`, `title`, `url`,
-   * `answerCount`, `allRelatedCount`, `followerCount`, `commentCount`, `topics`) and its `answers`:
-   * `id`, `url`, `relation` (`answer`, `merged` for an answer to a question Quora merged into this
-   * one, `related` with `include_related=true`), the answered `question`, `author` (`name`, `uid`,
-   * `profileUrl`, `imageUrl`, `credential`, `isVerified`, `isAnonymous`), the full `text` with
-   * `images` and `links`, `upvotes`, `views`, `shares`, `comments`, `createdAt`, `updatedAt` and
-   * `isAiGenerated`; plus `relatedQuestions`. Answers are in Quora's own order, up to `max_answers`
-   * (10 per page after the first few), unique within a call. `nextCursor` as `cursor` continues,
-   * best-effort: Quora re-ranks the list on every visit, so a continuation can repeat or skip
-   * answers of earlier calls (dedupe by `id`); for a complete list ask for a larger `max_answers` in
-   * one call (up to 300). `mode=profile&profile=` returns a public `profile` (`name`, `headline`,
-   * `description`, follower / following / answer / question / post counts, `contentViews`,
-   * `credentials`, `knowsAbout`, `spaces`, `topWriterYears`, `joinedAt`) with its newest `answers`.
-   * No login: only what Quora shows an anonymous visitor - Quora's search is not available that way,
-   * and Quora lists only a profile's newest few dozen answers to logged-out visitors
-   * (`pagingStopped`: `quora_logged_out_limit`). `pagingStopped` otherwise names why paging ended
-   * early (`blocked`, `time`, `unavailable`). Billed one unit per page fetched (`pagesFetched`); a
-   * `cursor` continuation bills only its GraphQL pages.
-   * @param question Quora question URL (https://www.quora.com/What-is-the-best-way-to-learn-
-   * programming), an answer URL on it, or the question slug (What-is-the-best-way-to-learn-
-   * programming). Language editions such as es.quora.com are accepted as URLs. Required with
-   * mode=question.
-   * Calls `POST /social/quora`.
-   */
-  quoraQuestion(question: string, options: QuoraQuestionOptions = {}): Promise<unknown> {
-    return this.postJson("/social/quora", {
-      mode: "question",
-      question: question,
-      max_answers: options.maxAnswers,
-      include_related: options.includeRelated,
-      cursor: options.cursor,
-      proxy_country: options.proxyCountry,
-    });
-  }
-
-  /**
-   * Scrape Quora questions, answers and profiles.
-   *
-   * Given a Quora `question` (URL or slug), returns the `question` (`qid`, `title`, `url`,
-   * `answerCount`, `allRelatedCount`, `followerCount`, `commentCount`, `topics`) and its `answers`:
-   * `id`, `url`, `relation` (`answer`, `merged` for an answer to a question Quora merged into this
-   * one, `related` with `include_related=true`), the answered `question`, `author` (`name`, `uid`,
-   * `profileUrl`, `imageUrl`, `credential`, `isVerified`, `isAnonymous`), the full `text` with
-   * `images` and `links`, `upvotes`, `views`, `shares`, `comments`, `createdAt`, `updatedAt` and
-   * `isAiGenerated`; plus `relatedQuestions`. Answers are in Quora's own order, up to `max_answers`
-   * (10 per page after the first few), unique within a call. `nextCursor` as `cursor` continues,
-   * best-effort: Quora re-ranks the list on every visit, so a continuation can repeat or skip
-   * answers of earlier calls (dedupe by `id`); for a complete list ask for a larger `max_answers` in
-   * one call (up to 300). `mode=profile&profile=` returns a public `profile` (`name`, `headline`,
-   * `description`, follower / following / answer / question / post counts, `contentViews`,
-   * `credentials`, `knowsAbout`, `spaces`, `topWriterYears`, `joinedAt`) with its newest `answers`.
-   * No login: only what Quora shows an anonymous visitor - Quora's search is not available that way,
-   * and Quora lists only a profile's newest few dozen answers to logged-out visitors
-   * (`pagingStopped`: `quora_logged_out_limit`). `pagingStopped` otherwise names why paging ended
-   * early (`blocked`, `time`, `unavailable`). Billed one unit per page fetched (`pagesFetched`); a
-   * `cursor` continuation bills only its GraphQL pages.
-   * @param profile Quora profile URL (https://www.quora.com/profile/Adam-DAngelo) or profile slug
-   * (Adam-DAngelo). Required with mode=profile.
-   * Calls `POST /social/quora`.
-   */
-  quoraProfile(profile: string, options: QuoraProfileOptions = {}): Promise<unknown> {
-    return this.postJson("/social/quora", {
-      mode: "profile",
-      profile: profile,
-      max_answers: options.maxAnswers,
-      cursor: options.cursor,
       proxy_country: options.proxyCountry,
     });
   }

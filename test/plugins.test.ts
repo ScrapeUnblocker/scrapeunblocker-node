@@ -32,7 +32,7 @@ afterEach(() => {
 
 describe("plugin methods", () => {
   it("covers every public plugin endpoint", () => {
-    expect(pluginMethods.length).toBeGreaterThan(100);
+    expect(pluginMethods.length).toBeGreaterThan(90);
   });
 
   it.each(pluginMethods)("%s posts its positional arguments", async (name) => {

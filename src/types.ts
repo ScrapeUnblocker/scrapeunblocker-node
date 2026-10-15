@@ -216,6 +216,17 @@ export interface GoogleImagesOptions {
   gl?: string;
   /** Optional cap on the number of results (1-500, maps to `max_results`). */
   maxResults?: number;
+  /**
+   * Only images Google found within this recent period: "hour", "day", "week",
+   * "month" or "year" (maps to `time_range`). On a scheduled scan, set it to the
+   * interval between scans to get only the new images. Cannot be combined with
+   * `dateFrom` / `dateTo`.
+   */
+  timeRange?: string;
+  /** Only images Google found on or after this date, "YYYY-MM-DD" (maps to `date_from`). Works alone or with `dateTo`. */
+  dateFrom?: string;
+  /** Only images Google found on or before this date, "YYYY-MM-DD" (maps to `date_to`). Works alone or with `dateFrom`. */
+  dateTo?: string;
 }
 
 /** Options for {@link ScrapeUnblockerClient.metaAdLibrary}. */

@@ -193,7 +193,14 @@ const images = await su.googleImages("golden retriever puppy", { proxyCountry: "
 for (const img of (images as any).results) {
   console.log(img.imageUrl, img.sourceDomain, img.title);
 }
+
+// Only images Google found in the last day (for a daily scan of the same query)
+const newImages = await su.googleImages("eiffel tower", { proxyCountry: "US", timeRange: "day" });
+// Or a fixed window: dateFrom / dateTo (YYYY-MM-DD), each one optional
+const october = await su.googleImages("eiffel tower", { dateFrom: "2026-10-01", dateTo: "2026-10-07" });
 ```
+
+`timeRange` takes `hour`, `day`, `week`, `month` or `year` and cannot be combined with `dateFrom` / `dateTo`.
 
 ## Meta Ad Library
 

@@ -27,7 +27,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.11.1";
+const VERSION = "0.12.0";
 
 type Params = PluginParams;
 
@@ -301,7 +301,10 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * URL, pixel dimensions and file size. Set `proxyCountry` to target a market
    * (the Google market follows it; `gl` is an optional override), `pages` to
    * fetch up to five result pages (each billed as one request, see
-   * `pagesFetched`), and `maxResults` to cap the count.
+   * `pagesFetched`), and `maxResults` to cap the count. `timeRange` ("hour",
+   * "day", "week", "month", "year") or `dateFrom` / `dateTo` ("YYYY-MM-DD")
+   * keep only the images Google found in that period, e.g. the new ones since
+   * the last scheduled scan; the two forms cannot be combined.
    */
   async googleImages(keyword: string, options: GoogleImagesOptions = {}): Promise<unknown> {
     return this.postJson("/images/google-search", {
@@ -310,6 +313,9 @@ export class ScrapeUnblockerClient extends PluginMethods {
       pages: options.pages,
       gl: options.gl,
       max_results: options.maxResults,
+      time_range: options.timeRange,
+      date_from: options.dateFrom,
+      date_to: options.dateTo,
     });
   }
 

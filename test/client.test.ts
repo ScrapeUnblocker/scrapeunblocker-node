@@ -186,6 +186,24 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).not.toContain("gl=");
   });
 
+  it("googleImages maps timeRange to time_range", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+    await client().googleImages("eiffel tower", { proxyCountry: "US", timeRange: "day" });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain("time_range=day");
+    expect(url).not.toContain("date_from=");
+    expect(url).not.toContain("date_to=");
+  });
+
+  it("googleImages maps dateFrom/dateTo to date_from/date_to", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify({ results: [] }), { status: 200 }));
+    await client().googleImages("eiffel tower", { dateFrom: "2026-10-01", dateTo: "2026-10-07" });
+    const [url] = fetchFn.mock.calls[0];
+    expect(url).toContain("date_from=2026-10-01");
+    expect(url).toContain("date_to=2026-10-07");
+    expect(url).not.toContain("time_range=");
+  });
+
   it("metaAdLibrary targets /ads/meta-ad-library", async () => {
     const fetchFn = mockFetch(new Response(JSON.stringify({ ads: [] }), { status: 200 }));
     const out = await client().metaAdLibrary("Nike", {

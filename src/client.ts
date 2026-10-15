@@ -27,7 +27,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.11.0";
+const VERSION = "0.11.1";
 
 type Params = PluginParams;
 
@@ -416,7 +416,13 @@ export class ScrapeUnblockerClient extends PluginMethods {
     });
   }
 
-  /** Fetch an image URL through the bypass chain and return its bytes. */
+  /**
+   * Fetch an image and return its bytes exactly as the image host serves them -
+   * the original format (JPEG, PNG, WebP, AVIF, GIF, SVG, ...), nothing
+   * re-encoded. `url` must point at the image itself: a page URL throws
+   * {@link UnsupportedContentError}, and an image the host answers 404 or 410
+   * for throws {@link TargetNotFoundError}.
+   */
   async getImage(url: string, options: { proxyCountry?: string } = {}): Promise<Uint8Array> {
     const response = await this.request("/getImage", {
       url,

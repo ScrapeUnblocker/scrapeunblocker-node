@@ -293,6 +293,19 @@ describe("ScrapeUnblockerClient", () => {
     expect(Array.from(data)).toEqual([0x89, 0x50, 0x4e, 0x47]);
   });
 
+  it("getImage throws TargetNotFoundError for a dead image", async () => {
+    mockFetch(new Response(null, { status: 404, headers: { "X-Origin-Status": "404" } }));
+    const err = await client().getImage("https://example.com/gone.jpg").catch((e) => e);
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    expect((err as TargetNotFoundError).originStatus).toBe(404);
+  });
+
+  it("getImage throws UnsupportedContentError for a page URL", async () => {
+    mockFetch(new Response("The URL returned text/html, not an image.", { status: 415 }));
+    const err = await client().getImage("https://example.com/product/1").catch((e) => e);
+    expect(err).toBeInstanceOf(UnsupportedContentError);
+  });
+
   it("skyscanner.flights posts to the plugin endpoint", async () => {
     const fetchFn = mockFetch(new Response(JSON.stringify({ itineraries: [] }), { status: 200 }));
     const out = await client().skyscanner.flights({ origin: "London", dest: "Paris" });

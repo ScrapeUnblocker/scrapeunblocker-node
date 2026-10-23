@@ -360,3 +360,20 @@ export interface TikTokCommentsOptions {
   /** Proxy country (ISO-2). */
   proxyCountry?: string;
 }
+
+/**
+ * Options for `temuSearch`.
+ * @deprecated Temu's plugin is unlisted; kept for compatibility.
+ */
+export interface TemuSearchOptions {
+  /**
+   * Max product urls to return (one search page carries ~40). API default: 40.
+   */
+  limit?: number;
+  /**
+   * Result order, using Temu's own sort: `relevance` (default), `best_selling` (top sales), `recent`
+   * (most recent), `price_asc` (price low to high) or `price_desc` (price high to low). API default:
+   * relevance.
+   */
+  sort?: string;
+}

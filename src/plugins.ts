@@ -279,22 +279,6 @@ export interface ZalandoSearchOptions {
 }
 
 /**
- * Options for {@link PluginMethods.temuSearch}.
- */
-export interface TemuSearchOptions {
-  /**
-   * Max product urls to return (one search page carries ~40). API default: 40.
-   */
-  limit?: number;
-  /**
-   * Result order, using Temu's own sort: `relevance` (default), `best_selling` (top sales), `recent`
-   * (most recent), `price_asc` (price low to high) or `price_desc` (price high to low). API default:
-   * relevance.
-   */
-  sort?: string;
-}
-
-/**
  * Options for {@link PluginMethods.aliexpressSearch}.
  */
 export interface AliexpressSearchOptions {
@@ -430,6 +414,36 @@ export interface Alibaba1688ProductOptions {
 }
 
 /**
+ * Options for {@link PluginMethods.wishSearch}.
+ */
+export interface WishSearchOptions {
+  /**
+   * 1-based results page to start from (1-300, up to 30 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-300. Each page fetched is billed one unit. API default: 30.
+   */
+  maxResults?: number;
+  /**
+   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'GB', 'DE'). Wish shows the catalogue,
+   * prices and currency of that country. Default 'US' (prices in USD).
+   */
+  proxyCountry?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.wishProduct}.
+ */
+export interface WishProductOptions {
+  /**
+   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'GB', 'DE'). Wish shows the catalogue,
+   * prices and currency of that country. Default 'US' (prices in USD).
+   */
+  proxyCountry?: string;
+}
+
+/**
  * Options for {@link PluginMethods.tiktokShopSearch}.
  */
 export interface TiktokShopSearchOptions {
@@ -463,6 +477,106 @@ export interface TiktokShopStoreOptions {
    * Storefront products to return (0-20); 0 = store profile only. One page is read. API default: 20.
    */
   maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.shopeeSearch}.
+ */
+export interface ShopeeSearchOptions {
+  /**
+   * Shopee market: 'sg' (shopee.sg), 'id' (shopee.co.id), 'my' (shopee.com.my), 'th' (shopee.co.th),
+   * 'vn' (shopee.vn), 'ph' (shopee.ph), 'tw' (shopee.tw), 'br' (shopee.com.br). Default 'sg'. Prices
+   * are in that market's currency.
+   */
+  country?: string;
+  /**
+   * Only this shop's products (the number in a shop's links, e.g. 442800909). Without `q` it lists
+   * the shop.
+   */
+  shopId?: string;
+  /**
+   * A Shopee search or category link (e.g. https://shopee.sg/search?keyword=lego or
+   * https://shopee.sg/Cases-Covers-cat.11013350.11013434.11027839), used as it is; `q`, `country`,
+   * `shop_id`, `sort` and the price filters are then ignored.
+   */
+  url?: string;
+  /**
+   * Result order: relevance, sales, newest, price_asc, price_desc. API default: relevance.
+   */
+  sort?: string;
+  /**
+   * Lowest price, in the market's currency.
+   */
+  minPrice?: number;
+  /**
+   * Highest price, in the market's currency.
+   */
+  maxPrice?: number;
+  /**
+   * Products to return, 1-40 (one Shopee results page). API default: 40.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.shopeeProduct}.
+ */
+export interface ShopeeProductOptions {
+  /**
+   * Instead of `url`: the shop id (the first number after '-i.' in a product link).
+   */
+  shopId?: string;
+  /**
+   * Instead of `url`: the item id (the second number after '-i.').
+   */
+  itemId?: string;
+  /**
+   * With `shop_id` + `item_id`: Shopee market: 'sg' (shopee.sg), 'id' (shopee.co.id), 'my'
+   * (shopee.com.my), 'th' (shopee.co.th), 'vn' (shopee.vn), 'ph' (shopee.ph), 'tw' (shopee.tw), 'br'
+   * (shopee.com.br). Default 'sg'. Prices are in that market's currency.
+   */
+  country?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.taobaoSearch}.
+ */
+export interface TaobaoSearchOptions {
+  /**
+   * A Taobao category id, e.g. '50005050', or a category list link
+   * (https://www.taobao.com/list/category/50005050.htm). Returns the category's best sellers; sort
+   * and filters apply to keyword searches only.
+   */
+  category?: string;
+  /**
+   * Order: relevance, sales, price_asc, price_desc (price in yuan). API default: relevance.
+   */
+  sort?: string;
+  /**
+   * Only products at or above this many yuan (CNY).
+   */
+  priceMin?: number;
+  /**
+   * Only products at or below this many yuan (CNY).
+   */
+  priceMax?: number;
+  /**
+   * One brand or property filter, as the `filter` value of an option in `filterOptions` of an
+   * earlier answer, e.g. '20000-88634403'.
+   */
+  filter?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.taobaoProduct}.
+ */
+export interface TaobaoProductOptions {
+  /**
+   * Taobao or Tmall item link, e.g. 'https://item.taobao.com/item.htm?id=765833709683' or
+   * 'https://detail.tmall.com/item.htm?id=1081364414020' (world.taobao.com, mobile and overseas item
+   * links work too). Either item_id or url is required.
+   */
+  url?: string;
 }
 
 /**
@@ -826,6 +940,68 @@ export interface AldiAuProductOptions {
    * country, so the load spreads over all exits.
    */
   proxyCountry?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.smythsInventory}.
+ */
+export interface SmythsInventoryOptions {
+  /**
+   * mode=product and mode=details: ask for a bundle. A bundle page link sets it, and a code Smyths
+   * does not answer as a product is asked again as a bundle. API default: false.
+   */
+  bundle?: boolean;
+}
+
+/**
+ * Options for {@link PluginMethods.smythsDetails}.
+ */
+export interface SmythsDetailsOptions {
+  /**
+   * mode=product and mode=details: ask for a bundle. A bundle page link sets it, and a code Smyths
+   * does not answer as a product is asked again as a bundle. API default: false.
+   */
+  bundle?: boolean;
+}
+
+/**
+ * Options for {@link PluginMethods.smythsSearch}.
+ */
+export interface SmythsSearchOptions {
+  /**
+   * Listing order. search: relevance, bestsellers, price_asc, price_desc, rating_desc, newest (the
+   * first is the default). category: bestsellers, price_asc, price_desc, rating_desc, newest (the
+   * first is the default).
+   */
+  sort?: string;
+  /**
+   * 1-based listing page to start from (60 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-600. Each page fetched is billed one unit. API default: 60.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.smythsCategory}.
+ */
+export interface SmythsCategoryOptions {
+  /**
+   * Listing order. search: relevance, bestsellers, price_asc, price_desc, rating_desc, newest (the
+   * first is the default). category: bestsellers, price_asc, price_desc, rating_desc, newest (the
+   * first is the default).
+   */
+  sort?: string;
+  /**
+   * 1-based listing page to start from (60 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-600. Each page fetched is billed one unit. API default: 60.
+   */
+  maxResults?: number;
 }
 
 /**
@@ -1234,6 +1410,200 @@ export interface MapsPlaceDetailsOptions {
    * Include the decoded place core array under `raw`. API default: false.
    */
   raw?: boolean;
+}
+
+/**
+ * Options for {@link PluginMethods.googleHotels}.
+ */
+export interface GoogleHotelsOptions {
+  /**
+   * Check-in date, YYYY-MM-DD. Leave check_in and check_out empty for Google's default stay.
+   */
+  checkIn?: string;
+  /**
+   * Check-out date, YYYY-MM-DD (stays of up to 30 nights).
+   */
+  checkOut?: string;
+  /**
+   * Number of adults (1-10). API default: 2.
+   */
+  adults?: number;
+  /**
+   * Ages of the children, comma-separated, e.g. '7,10' (up to 6).
+   */
+  children?: string;
+  /**
+   * Price currency, ISO 4217 (USD, EUR, GBP, ...). API default: USD.
+   */
+  currency?: string;
+  /**
+   * Language of names, amenities and price formats, e.g. 'en', 'de', 'fr'. API default: en.
+   */
+  hl?: string;
+  /**
+   * Market (2-letter country). Google localizes the booking sites to it. API default: us.
+   */
+  gl?: string;
+  /**
+   * `nextPageToken` of a previous response, to continue where it stopped.
+   */
+  pageToken?: string;
+  /**
+   * Properties to collect (1-100). Google serves about 20 per page; each page is billed as one
+   * request. API default: 20.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.googleHotelsProperty}.
+ */
+export interface GoogleHotelsPropertyOptions {
+  /**
+   * Check-in date, YYYY-MM-DD. Leave check_in and check_out empty for Google's default stay.
+   */
+  checkIn?: string;
+  /**
+   * Check-out date, YYYY-MM-DD (stays of up to 30 nights).
+   */
+  checkOut?: string;
+  /**
+   * Number of adults (1-10). API default: 2.
+   */
+  adults?: number;
+  /**
+   * Ages of the children, comma-separated, e.g. '7,10' (up to 6).
+   */
+  children?: string;
+  /**
+   * Price currency, ISO 4217 (USD, EUR, GBP, ...). API default: USD.
+   */
+  currency?: string;
+  /**
+   * Language, e.g. 'en', 'de', 'fr'. API default: en.
+   */
+  hl?: string;
+  /**
+   * Market (2-letter country). Google localizes the booking sites to it. API default: us.
+   */
+  gl?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.googleNews}.
+ */
+export interface GoogleNewsOptions {
+  /**
+   * A section instead of a search: world, nation, business, technology, entertainment, sports,
+   * science, health, or top (the edition's headlines). A Google News topic id (the 'CAAq...' part of
+   * a news.google.com/topics/ URL) also works.
+   */
+  topic?: string;
+  /**
+   * Language of the Google News edition, e.g. 'en', 'en-GB', 'de', 'fr', 'pt-BR'. API default: en.
+   */
+  hl?: string;
+  /**
+   * Country of the Google News edition (2-letter code), e.g. 'us', 'gb', 'de'. API default: us.
+   */
+  gl?: string;
+  /**
+   * Only articles from the last period: '1h' to '720h', '1d', '7d', '2w', '1m', '1y'. Search (`q`)
+   * only.
+   */
+  when?: string;
+  /**
+   * Only articles published after this date (YYYY-MM-DD). Search only.
+   */
+  after?: string;
+  /**
+   * Only articles published before this date (YYYY-MM-DD). Search only.
+   */
+  before?: string;
+  /**
+   * Most articles to return, 1-250. Google News returns up to about 100 articles for a search and
+   * about 250 for a section; one call is billed one unit whatever the count. API default: 100.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.googleAdsTransparency}.
+ */
+export interface GoogleAdsTransparencyOptions {
+  /**
+   * Advertiser to pull ads for: a name (e.g. 'Nike') - resolved to the best-matching advertiser,
+   * reported in `advertisersUsed` (a single brand name no advertiser is named like falls back to its
+   * domain) - or an advertiser id ('AR16735076323512287233'). Comma-separate up to 10. Pass
+   * `advertiser` or `domain`.
+   */
+  advertiser?: string;
+  /**
+   * Website the ads point to, e.g. 'nike.com' (ads of every advertiser for that domain).
+   */
+  domain?: string;
+  /**
+   * Where the ads were shown: a 2-letter country code ('US', 'DE'), a comma list of them, or
+   * 'anywhere' (default).
+   */
+  region?: string;
+  /**
+   * Only ads shown on these platforms (comma list): search, youtube, maps, play, shopping.
+   */
+  platform?: string;
+  /**
+   * Only one ad format: text, image or video.
+   */
+  format?: string;
+  /**
+   * Only ads shown on or after this date (YYYY-MM-DD).
+   */
+  dateFrom?: string;
+  /**
+   * Only ads shown on or before this date (YYYY-MM-DD).
+   */
+  dateTo?: string;
+  /**
+   * Order of the ads: 'last_shown' (most recently shown first). API default: last_shown.
+   */
+  sort?: string;
+  /**
+   * Ads to collect, 1-1000. Pages of up to 100 are fetched as needed; each page is billed one unit.
+   * API default: 100.
+   */
+  maxResults?: number;
+  /**
+   * Continue a previous call: its `nextPageToken`.
+   */
+  pageToken?: string;
+  /**
+   * Add `details` per ad: regions shown with first/last date (plus impressions per platform for EU
+   * regions), EU reach, disclosed targeting and all preview variations. One unit per ad, for up to
+   * 300 ads per call. API default: false.
+   */
+  includeDetails?: boolean;
+  /**
+   * Add `preview` per ad: what it shows - headline, description and display URL of text ads, product
+   * title and merchant of shopping ads, image URLs, the YouTube video of video ads. One unit per ad
+   * that has a preview script, for up to 40 ads per call. Search text ads often exist only as an
+   * image (`imageUrl`). API default: false.
+   */
+  includePreview?: boolean;
+}
+
+/**
+ * Options for {@link PluginMethods.googleAdsTransparencyAdvertisers}.
+ */
+export interface GoogleAdsTransparencyAdvertisersOptions {
+  /**
+   * Count ads shown in these regions only: a 2-letter country code, a comma list, or 'anywhere'
+   * (default).
+   */
+  region?: string;
+  /**
+   * Most advertisers (and domains) to return, 1-50. API default: 10.
+   */
+  maxResults?: number;
 }
 
 /**
@@ -2165,6 +2535,74 @@ export interface CareerSiteJobsOptions {
 }
 
 /**
+ * Options for {@link PluginMethods.upworkJobs}.
+ */
+export interface UpworkJobsOptions {
+  /**
+   * hourly or fixed.
+   */
+  jobType?: string;
+  /**
+   * Experience level, comma list of: entry, intermediate, expert.
+   */
+  experience?: string;
+  /**
+   * Fixed-price budget in USD, comma list of ranges like '100-499', '1000-4999' or '5000-'.
+   */
+  budget?: string;
+  /**
+   * Hourly rate in USD, e.g. '25-50' or '40-'.
+   */
+  hourlyRate?: string;
+  /**
+   * Client's past hires, comma list of: 0, 1-9, 10-.
+   */
+  clientHires?: string;
+  /**
+   * part_time (under 30 hrs/week) or full_time.
+   */
+  workload?: string;
+  /**
+   * Project length, comma list of: week, month, semester, ongoing (under a month, 1-3 months, 3-6
+   * months, over 6 months).
+   */
+  duration?: string;
+  /**
+   * Client location, comma list of regions or countries as Upwork names them, e.g. 'Europe' or
+   * 'United States'.
+   */
+  location?: string;
+  /**
+   * Job category, comma list of names (Accounting & Consulting, Admin Support, Customer Service,
+   * Data Science & Analytics, Design & Creative, Engineering & Architecture, It & Networking, Legal,
+   * Sales & Marketing, Translation, Web, Mobile & Software Dev, Writing) or category ids.
+   */
+  category?: string;
+  /**
+   * Only contract-to-hire jobs. API default: false.
+   */
+  contractToHire?: boolean;
+  /**
+   * relevance (default with q) or recency (default without q).
+   */
+  sort?: string;
+  /**
+   * 0-based position of the first job, 0-4999 (Upwork shows signed-out visitors the first 5000
+   * results); `nextStart` continues. API default: 0.
+   */
+  start?: number;
+  /**
+   * Jobs to collect, 1-5000. Each results page (up to 50 jobs) is billed one unit. API default: 50.
+   */
+  maxResults?: number;
+  /**
+   * Add each job's page: proposals, client stats, qualifications. Up to 100 jobs; one more unit per
+   * job page fetched. API default: false.
+   */
+  details?: boolean;
+}
+
+/**
  * Options for {@link PluginMethods.trustpilotReviews}.
  */
 export interface TrustpilotReviewsOptions {
@@ -2682,7 +3120,7 @@ export interface YoutubeTranscriptOptions {
    */
   lang?: string;
   /**
-   * Output shape: segments, text. 'segments' returns timestamps; 'text' returns only the joined
+   * Output shape: text, segments. 'segments' returns timestamps; 'text' returns only the joined
    * plaintext. API default: segments.
    */
   format?: string;
@@ -3088,45 +3526,6 @@ export abstract class PluginMethods {
   }
 
   /**
-   * Search Temu by keyword.
-   *
-   * Searches Temu for `keyword` and returns the matching product urls (~40 per page). This is
-   * discovery only - fetch each url's data (name, price, rating, reviews, images) through `POST
-   * /goods/temu-product`. Use `sort` to pick Temu's own result order (relevance, best_selling,
-   * recent, price_asc, price_desc). Response time is typically ~2s.
-   * @param keyword Search phrase, e.g. 'kids toys' or 'phone case'.
-   * Calls `POST /goods/temu-search`.
-   */
-  temuSearch(keyword: string, options: TemuSearchOptions = {}): Promise<unknown> {
-    return this.postJson("/goods/temu-search", {
-      keyword: keyword,
-      limit: options.limit,
-      sort: options.sort,
-    });
-  }
-
-  /**
-   * Scrape a Temu product page.
-   *
-   * Fetches a single Temu product and returns it as JSON: `name`, `description`, `brand`, `sku`,
-   * `price`, `priceCurrency`, `availability`, `itemCondition`, `rating`, `reviewCount`,
-   * `variantGroupId`, `images`, `reviews` (per-review rating and date; Temu masks the review text
-   * and author name in this document) and `video` (a `{contentUrl, thumbnailUrl, uploadDate}` object
-   * when the product ships one, else null). Temu serves product data only to search-engine crawlers,
-   * so this reads the ld+json SEO document rather than a browser render. The url must be a product
-   * page (path ends in `-g-<id>.html`).
-   * @param url Full Temu product url, e.g. 'https://www.temu.com/xyz-g-601099512345678.html'. Must
-   * be a product page (its path ends in `-g-<id>.html`); search/category urls have no product data
-   * and are rejected.
-   * Calls `POST /goods/temu-product`.
-   */
-  temuProduct(url: string): Promise<unknown> {
-    return this.postJson("/goods/temu-product", {
-      url: url,
-    });
-  }
-
-  /**
    * Scrape AliExpress search results.
    *
    * Searches AliExpress for `keyword` and returns the products as JSON: `title`, product `url`,
@@ -3264,6 +3663,51 @@ export abstract class PluginMethods {
   }
 
   /**
+   * Scrape Wish product search.
+   *
+   * Searches Wish (wish.com) for `query` and returns `products`: `id`, `name`, `url`, `price`,
+   * `originalPrice` (crossed-out price, when discounted), `currency`, `priceText`, `priceUsd`
+   * (Wish's USD value, comparable across markets), `shipping`, `rating`, `ratingCount`, `numBought`,
+   * `inventory`, `colors`, `sizes`, `merchant` (`id`, `name`, `rating`, `ratingCount`, `feedback`,
+   * `country`), `originCountry`, `shipsFrom`, `tileText`, `isWishPick`, `position`, `image` and
+   * `thumbnail`, plus `totalResults` and `nextPage`. Wish shows the catalogue and prices of the
+   * request's country (`proxy_country`, default US). Collects up to `max_results` from `page` on,
+   * billed one unit per page.
+   * @param query What to search for, e.g. 'yoga mat' or 'phone case', or a wish.com/search/... link.
+   * Calls `POST /marketplace/wish-search`.
+   */
+  wishSearch(query: string, options: WishSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/wish-search", {
+      query: query,
+      page: options.page,
+      max_results: options.maxResults,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one Wish product.
+   *
+   * One Wish (wish.com) product as JSON: `id`, `name`, `url`, `price` (cheapest available variant),
+   * `originalPrice`, `currency`, `priceUsd`, `priceRange`, `shipping`, `inStock`, `rating`,
+   * `ratingCount`, `description`, `attributes`, `badges`, `images`, `merchant` (`id`, `name`,
+   * `handle`, `rating`, `ratingCount`, `tier`), `shipsFrom`, `shipsTo`, `deliveryEstimate`,
+   * `returnPolicy`, `variants` (`id`, `color`, `size`, `price`, `originalPrice`, `priceUsd`,
+   * `shipping`, `inventory`, `available`) and `topReviews` (`rating`, `comment`, `date`, `variant`,
+   * `upvotes`, `country`; no reviewer names). Prices are those of the request's country
+   * (`proxy_country`, default US). One unit per call.
+   * @param product A Wish product id ('5f96ad46b3f6480c7b9d7b52') or a product link
+   * (https://www.wish.com/product/..., /c/...).
+   * Calls `POST /marketplace/wish-product`.
+   */
+  wishProduct(product: string, options: WishProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/wish-product", {
+      product: product,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
    * Search TikTok Shop products by keyword or category.
    *
    * Lists TikTok Shop (US) products for a keyword (`q`) or a category (`category`, URL or id). Each
@@ -3332,6 +3776,120 @@ export abstract class PluginMethods {
     return this.postJson("/social/tiktok-shop-store", {
       store: store,
       max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape Shopee product search.
+   *
+   * Searches a Shopee market (Singapore, Indonesia, Malaysia, Thailand, Vietnam, Philippines, Taiwan
+   * or Brazil - `country`) for `q` and returns one page of results: up to 40 `products`, each with
+   * `position`, `itemId`, `shopId`, `name`, `url`, `image`, `price`, `originalPrice` (when Shopee
+   * shows the crossed-out price), `discountPercent`, `currency`, `rating` (average stars),
+   * `location` (where the seller ships from) and `labels` (promotion badges). `sort` orders the
+   * results, `min_price` / `max_price` filter them, `shop_id` keeps one shop's products (or lists
+   * the shop without `q`), and `url` takes a Shopee search or category link instead. Shopee shows
+   * one page per search, so run several sort orders or price ranges for more products. `price` is
+   * what Shopee shows a signed-out shopper, which can be a promotional or new-customer price (see
+   * `labels`). Not available: stock, units sold, rating counts and reviews (Shopee does not publish
+   * them on the pages these endpoints read). One unit per call.
+   * @param q What to search for, e.g. 'iphone case' or 'air fryer'. Optional with `shop_id`.
+   * Calls `POST /marketplace/shopee-search`.
+   */
+  shopeeSearch(q?: string, options: ShopeeSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/shopee-search", {
+      q: q,
+      country: options.country,
+      shop_id: options.shopId,
+      url: options.url,
+      sort: options.sort,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape one Shopee product.
+   *
+   * One Shopee product as JSON, from a product link (`url`) or `shop_id` + `item_id` + `country`:
+   * `title`, `price`, `originalPrice`, `discountPercent`, `currency`, `rating` (average stars),
+   * `labels`, `images`, `shopLocation` and `shop` (`name`, `username`, `url`, `rating`,
+   * `ratingCount`, `followers`, `itemCount`, `responseRatePercent`, `isOfficialShop`,
+   * `isPreferredPlusSeller`, `location`, `joinedAt`). With `dataLevel: full` it also has
+   * `description`, `brand`, `condition`, `categories`, `videos`, `variations` (option names),
+   * `models` (`modelId`, `name`), `attributes`, `isOfficialShop`, `isPreOrder`,
+   * `estimatedShippingDays` and `createdAt`; `dataLevel: meta` means Shopee showed only the
+   * product's title and main image (some markets), with price, rating and shop still included.
+   * `price` is what Shopee shows a signed-out shopper, which can be a promotional or new-customer
+   * price (see `labels`). Not available: stock, units sold, rating counts and reviews (Shopee does
+   * not publish them on the pages these endpoints read). One unit per call.
+   * @param url A Shopee product link, e.g. https://shopee.sg/Beats-
+   * iPhone-17-Case-i.442800909.40270108836 or https://shopee.co.id/product/1426163997/40581375446.
+   * Calls `POST /marketplace/shopee-product`.
+   */
+  shopeeProduct(url?: string, options: ShopeeProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/shopee-product", {
+      url: url,
+      shop_id: options.shopId,
+      item_id: options.itemId,
+      country: options.country,
+    });
+  }
+
+  /**
+   * Scrape Taobao / Tmall keyword or category listings.
+   *
+   * Returns the products Taobao lists for a keyword `q` (or a `category`) as JSON: `products`
+   * (`position`, `itemId`, `title`, `url`, `image`, `price` in yuan with `currency` CNY,
+   * `priceLabel` (Taobao's price tag, e.g. 优惠价), `localPrices` (the same price in the storefront's
+   * currency, HKD and TWD), `shopId`, `shopName`, `descriptionMatchScore`, `freeShipping`,
+   * `categoryId`, `rootCategoryId`, `sellingPoints`, `reviewHighlights`), `totalResults` (how many
+   * listings Taobao reports), and `filterOptions` (brand and property facets; pass an option's
+   * `filter` value back as `filter`). Sort by relevance, sales or price and filter by a yuan price
+   * range (products whose listed price falls outside it are left out and counted in
+   * `droppedOutsidePriceRange`). Taobao shows signed-out visitors only the first 20 products of a
+   * list, so one call returns up to 20 (narrow with price ranges and filters to reach more). When
+   * Taobao has no list for the keyword, the call answers with the list of the closest keyword Taobao
+   * itself suggests and says so: `keywordSubstituted` true and `matchedKeyword`. Text comes in
+   * Chinese as sellers write it. Companion to `/marketplace/taobao-product`. One unit per call.
+   * @param q Keyword, in Chinese or English, e.g. '手机壳', '连衣裙', 'phone case' (Chinese keywords match
+   * far more listings). A Taobao search or list link works too. Give `q` or `category`.
+   * Calls `POST /marketplace/taobao-search`.
+   */
+  taobaoSearch(q?: string, options: TaobaoSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/taobao-search", {
+      q: q,
+      category: options.category,
+      sort: options.sort,
+      price_min: options.priceMin,
+      price_max: options.priceMax,
+      filter: options.filter,
+    });
+  }
+
+  /**
+   * Scrape one Taobao / Tmall item.
+   *
+   * Returns one Taobao or Tmall item (by `item_id` or `url`) as JSON: `itemId`, `url`, `platform`
+   * (taobao / tmall), `title` (`titleTruncated` when Taobao shortens it, as it does for Tmall
+   * items), `price`, `originalPrice` and `priceMax` (for a price range) in yuan with `currency` CNY,
+   * `image`, `location` (ships from), `categoryId`, `rootCategoryId`, `categoryPath`,
+   * `freeShipping`, `paymentMethods`, `sellableLanguages`, `rating` (positive / neutral / negative
+   * split and counts; Taobao items only, Tmall does not publish it), `latestReview` (`rating`,
+   * `content`, `date`, `variant`, `hasMedia`, `followUps`; no reviewer identity, so no review photo
+   * or video URLs) and `shop` (`shopId`, `name`, `url`, `logo`, `sellerType` B = Tmall / C = Taobao,
+   * `creditLevel`, `openedAt`, `itemCount`, `scores` for description, service and delivery). This is
+   * what Taobao shows signed-out visitors: variants (SKUs), stock and monthly sales need a Taobao
+   * login and are not included. Companion to `/marketplace/taobao-search`. One unit per call.
+   * @param itemId Numeric Taobao or Tmall item id, e.g. '765833709683' (the `id` in
+   * item.taobao.com/item.htm?id=...).
+   * Calls `POST /marketplace/taobao-product`.
+   */
+  taobaoProduct(itemId?: string, options: TaobaoProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/taobao-product", {
+      item_id: itemId,
+      url: options.url,
     });
   }
 
@@ -3727,6 +4285,164 @@ export abstract class PluginMethods {
   }
 
   /**
+   * Smyths Toys UK product stock, price, details and listings.
+   *
+   * Smyths Toys UK (smythstoys.com) as JSON, in four modes. `mode=product` (the default when `code`
+   * is given) returns one product's stock and price as the JSON Smyths' own storefront reads
+   * (`/api/uk/en-gb/product/product-inventory`), unchanged: `code`, `type`, `prices` (`price`,
+   * `value`, `wasPrice`, `thenPrice`, `rrpPrice`, `discountedPercentage`), `hdSection` (home
+   * delivery: `stockStatus`, `stockMessage`, `isAvailableForDelivery`, `isPreOrder`,
+   * `expectedStockDate`, delivery messages), `ccSection` (click & collect: the same stock fields
+   * plus `storeName`, `deliveryMessage`, `storeClosed`), `ageSuitabilities`, `carrierType`,
+   * marketing messages and decals. `code` takes a product code (`225095`), a product or bundle page
+   * link or a product-inventory link; one product is one billed request. `mode=details&code=`
+   * returns the JSON Smyths' product page is built from (`/api/uk/en-gb/product`, a bundle's from
+   * `/api/uk/en-gb/b`), unchanged, one billed request: `name`, `brand`, `ean`, `description` (HTML),
+   * `webFeatures` (the key features list), the safety warnings `euWarning`, `safetyText`,
+   * `urgentSafetyTextHeading` and `urgentSafetyTextDescription`, `productImages` (the gallery:
+   * `thumbnail`, `original` and `zoom` per `galleryIndex`, videos as `youtubeUrl`), `prices`,
+   * `averageRating`, `numberOfReviews`, `breadcrumb`, `categoryHierarchy`, `ageSuitabilities`,
+   * `assemblyRequired` and more; a bundle adds `subProducts`. `url` and `breadcrumb` paths are
+   * relative to https://www.smythstoys.com/uk/en-gb. `mode=search&query=` and
+   * `mode=category&category=` find product codes: they return `products` (`code`, `name`, `url`,
+   * `prices` with the same fields, `currency`, `image`, `averageRating`, `productType` - `BUNDLE`
+   * for bundles - and `decals`) with `totalResults`, `totalPages` and `nextPage`, 60 per page; a
+   * category also returns its `title`, `breadcrumbs` and `subcategories` (`code`, `name`, `count`).
+   * Smyths' search returns its best 240 matches at most, a category every product it holds. Listings
+   * collect up to `max_results` from `page` on, billed one unit per page.
+   * @param code mode=product and mode=details: product code ('225095'), product or bundle page link,
+   * or product-inventory link.
+   * Calls `POST /marketplace/smyths-inventory`.
+   */
+  smythsInventory(code: string, options: SmythsInventoryOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/smyths-inventory", {
+      mode: "product",
+      code: code,
+      bundle: options.bundle,
+    });
+  }
+
+  /**
+   * Smyths Toys UK product stock, price, details and listings.
+   *
+   * Smyths Toys UK (smythstoys.com) as JSON, in four modes. `mode=product` (the default when `code`
+   * is given) returns one product's stock and price as the JSON Smyths' own storefront reads
+   * (`/api/uk/en-gb/product/product-inventory`), unchanged: `code`, `type`, `prices` (`price`,
+   * `value`, `wasPrice`, `thenPrice`, `rrpPrice`, `discountedPercentage`), `hdSection` (home
+   * delivery: `stockStatus`, `stockMessage`, `isAvailableForDelivery`, `isPreOrder`,
+   * `expectedStockDate`, delivery messages), `ccSection` (click & collect: the same stock fields
+   * plus `storeName`, `deliveryMessage`, `storeClosed`), `ageSuitabilities`, `carrierType`,
+   * marketing messages and decals. `code` takes a product code (`225095`), a product or bundle page
+   * link or a product-inventory link; one product is one billed request. `mode=details&code=`
+   * returns the JSON Smyths' product page is built from (`/api/uk/en-gb/product`, a bundle's from
+   * `/api/uk/en-gb/b`), unchanged, one billed request: `name`, `brand`, `ean`, `description` (HTML),
+   * `webFeatures` (the key features list), the safety warnings `euWarning`, `safetyText`,
+   * `urgentSafetyTextHeading` and `urgentSafetyTextDescription`, `productImages` (the gallery:
+   * `thumbnail`, `original` and `zoom` per `galleryIndex`, videos as `youtubeUrl`), `prices`,
+   * `averageRating`, `numberOfReviews`, `breadcrumb`, `categoryHierarchy`, `ageSuitabilities`,
+   * `assemblyRequired` and more; a bundle adds `subProducts`. `url` and `breadcrumb` paths are
+   * relative to https://www.smythstoys.com/uk/en-gb. `mode=search&query=` and
+   * `mode=category&category=` find product codes: they return `products` (`code`, `name`, `url`,
+   * `prices` with the same fields, `currency`, `image`, `averageRating`, `productType` - `BUNDLE`
+   * for bundles - and `decals`) with `totalResults`, `totalPages` and `nextPage`, 60 per page; a
+   * category also returns its `title`, `breadcrumbs` and `subcategories` (`code`, `name`, `count`).
+   * Smyths' search returns its best 240 matches at most, a category every product it holds. Listings
+   * collect up to `max_results` from `page` on, billed one unit per page.
+   * @param code mode=product and mode=details: product code ('225095'), product or bundle page link,
+   * or product-inventory link.
+   * Calls `POST /marketplace/smyths-inventory`.
+   */
+  smythsDetails(code: string, options: SmythsDetailsOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/smyths-inventory", {
+      mode: "details",
+      code: code,
+      bundle: options.bundle,
+    });
+  }
+
+  /**
+   * Smyths Toys UK product stock, price, details and listings.
+   *
+   * Smyths Toys UK (smythstoys.com) as JSON, in four modes. `mode=product` (the default when `code`
+   * is given) returns one product's stock and price as the JSON Smyths' own storefront reads
+   * (`/api/uk/en-gb/product/product-inventory`), unchanged: `code`, `type`, `prices` (`price`,
+   * `value`, `wasPrice`, `thenPrice`, `rrpPrice`, `discountedPercentage`), `hdSection` (home
+   * delivery: `stockStatus`, `stockMessage`, `isAvailableForDelivery`, `isPreOrder`,
+   * `expectedStockDate`, delivery messages), `ccSection` (click & collect: the same stock fields
+   * plus `storeName`, `deliveryMessage`, `storeClosed`), `ageSuitabilities`, `carrierType`,
+   * marketing messages and decals. `code` takes a product code (`225095`), a product or bundle page
+   * link or a product-inventory link; one product is one billed request. `mode=details&code=`
+   * returns the JSON Smyths' product page is built from (`/api/uk/en-gb/product`, a bundle's from
+   * `/api/uk/en-gb/b`), unchanged, one billed request: `name`, `brand`, `ean`, `description` (HTML),
+   * `webFeatures` (the key features list), the safety warnings `euWarning`, `safetyText`,
+   * `urgentSafetyTextHeading` and `urgentSafetyTextDescription`, `productImages` (the gallery:
+   * `thumbnail`, `original` and `zoom` per `galleryIndex`, videos as `youtubeUrl`), `prices`,
+   * `averageRating`, `numberOfReviews`, `breadcrumb`, `categoryHierarchy`, `ageSuitabilities`,
+   * `assemblyRequired` and more; a bundle adds `subProducts`. `url` and `breadcrumb` paths are
+   * relative to https://www.smythstoys.com/uk/en-gb. `mode=search&query=` and
+   * `mode=category&category=` find product codes: they return `products` (`code`, `name`, `url`,
+   * `prices` with the same fields, `currency`, `image`, `averageRating`, `productType` - `BUNDLE`
+   * for bundles - and `decals`) with `totalResults`, `totalPages` and `nextPage`, 60 per page; a
+   * category also returns its `title`, `breadcrumbs` and `subcategories` (`code`, `name`, `count`).
+   * Smyths' search returns its best 240 matches at most, a category every product it holds. Listings
+   * collect up to `max_results` from `page` on, billed one unit per page.
+   * @param query mode=search: what to search for, e.g. 'lego star wars'. Smyths returns its best 240
+   * matches at most - list a category to get every product of a range.
+   * Calls `POST /marketplace/smyths-inventory`.
+   */
+  smythsSearch(query: string, options: SmythsSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/smyths-inventory", {
+      mode: "search",
+      query: query,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Smyths Toys UK product stock, price, details and listings.
+   *
+   * Smyths Toys UK (smythstoys.com) as JSON, in four modes. `mode=product` (the default when `code`
+   * is given) returns one product's stock and price as the JSON Smyths' own storefront reads
+   * (`/api/uk/en-gb/product/product-inventory`), unchanged: `code`, `type`, `prices` (`price`,
+   * `value`, `wasPrice`, `thenPrice`, `rrpPrice`, `discountedPercentage`), `hdSection` (home
+   * delivery: `stockStatus`, `stockMessage`, `isAvailableForDelivery`, `isPreOrder`,
+   * `expectedStockDate`, delivery messages), `ccSection` (click & collect: the same stock fields
+   * plus `storeName`, `deliveryMessage`, `storeClosed`), `ageSuitabilities`, `carrierType`,
+   * marketing messages and decals. `code` takes a product code (`225095`), a product or bundle page
+   * link or a product-inventory link; one product is one billed request. `mode=details&code=`
+   * returns the JSON Smyths' product page is built from (`/api/uk/en-gb/product`, a bundle's from
+   * `/api/uk/en-gb/b`), unchanged, one billed request: `name`, `brand`, `ean`, `description` (HTML),
+   * `webFeatures` (the key features list), the safety warnings `euWarning`, `safetyText`,
+   * `urgentSafetyTextHeading` and `urgentSafetyTextDescription`, `productImages` (the gallery:
+   * `thumbnail`, `original` and `zoom` per `galleryIndex`, videos as `youtubeUrl`), `prices`,
+   * `averageRating`, `numberOfReviews`, `breadcrumb`, `categoryHierarchy`, `ageSuitabilities`,
+   * `assemblyRequired` and more; a bundle adds `subProducts`. `url` and `breadcrumb` paths are
+   * relative to https://www.smythstoys.com/uk/en-gb. `mode=search&query=` and
+   * `mode=category&category=` find product codes: they return `products` (`code`, `name`, `url`,
+   * `prices` with the same fields, `currency`, `image`, `averageRating`, `productType` - `BUNDLE`
+   * for bundles - and `decals`) with `totalResults`, `totalPages` and `nextPage`, 60 per page; a
+   * category also returns its `title`, `breadcrumbs` and `subcategories` (`code`, `name`, `count`).
+   * Smyths' search returns its best 240 matches at most, a category every product it holds. Listings
+   * collect up to `max_results` from `page` on, billed one unit per page.
+   * @param category mode=category: a category code ('SM060101') or a category page link
+   * (https://www.smythstoys.com/uk/en-gb/toys/action-figures-and-playsets/c/SM060101). The top
+   * categories are Toys SM0601, Baby SM0602, Outdoor SM0603 and Gaming & Tech SM0604; each listing
+   * names its subcategories.
+   * Calls `POST /marketplace/smyths-inventory`.
+   */
+  smythsCategory(category: string, options: SmythsCategoryOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/smyths-inventory", {
+      mode: "category",
+      category: category,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
    * Scrape Booking.com hotels.
    *
    * Searches Booking.com for `location` and returns the properties as JSON: `name`, `price` (with
@@ -3929,11 +4645,12 @@ export abstract class PluginMethods {
    * Scrape Google Shopping product listings.
    *
    * Runs the Google Shopping vertical (`udm=28`) for `q` and returns the product cards as JSON:
-   * `title`, `price`, `currency`, `originalPrice`, `discount`, `merchant`, `rating` and
-   * `reviewCount`. Set `proxy_country`/`gl` to target a market (prices/merchants are region-
-   * specific) and `min_price`/`max_price` to filter. One render returns the first page of products
-   * (v1). Note: Google Shopping exposes no per-product URL, so `url` is omitted and `image` is best-
-   * effort.
+   * `title`, `price`, `currency`, `currencyCode`, `originalPrice`, `discount`, `merchant`, `rating`,
+   * `reviewCount` and Google's own ids for the product (`productId`, `catalogId`, `offerId` - stable
+   * across searches, for tracking one product). Set `proxy_country`/`gl` to target a market
+   * (prices/merchants are region-specific) and `min_price`/`max_price` to filter. One render returns
+   * the first page of products (v1). Note: Google Shopping exposes no per-product URL, so `url` is
+   * omitted and `image` is best-effort.
    * @param q Product search term, e.g. 'wireless headphones'.
    * Calls `POST /goods/google-shopping`.
    */
@@ -4021,6 +4738,142 @@ export abstract class PluginMethods {
       gl: options.gl,
       proxy_country: options.proxyCountry,
       raw: options.raw,
+    });
+  }
+
+  /**
+   * Scrape Google Hotels search results (prices, ratings, amenities).
+   *
+   * Runs a Google Hotels search for `q` and returns the properties as JSON: `name`, `type` (hotel /
+   * vacation_rental), `propertyToken`, `price` for the stay (`perNight`, `perNightWithTaxes`,
+   * `total`, `totalWithTaxes`, `taxes`, Google's `display` string), `deal`, `rating`, `reviews`,
+   * `ratingsBreakdown`, `reviewTopics`, `hotelClass`, `stars`, `amenities`, `description`,
+   * `website`, `latitude`/`longitude`, `nearbyPlaces`, `thumbnail`, `images` and `mapsUrl`, plus the
+   * page's sponsored `ads`. A query naming one hotel returns just that hotel (`matchedProperty`).
+   * Set the stay with `check_in`/`check_out`, the party with `adults` and `children` (ages), and
+   * `currency`, `hl` (language) and `gl` (market). `applied` echoes the dates, currency and place
+   * Google actually used. Collect up to `max_results` across pages (each Google page is billed as
+   * one request, see `pagesFetched`); `nextPageToken` continues the list. Pass a `propertyToken` to
+   * `/travel/google-hotels-property` for every booking site's price.
+   * @param q What to search, as on Google Hotels: a place ('hotels in Paris', 'Lisbon'), an area or
+   * landmark, or a hotel name.
+   * Calls `POST /travel/google-hotels`.
+   */
+  googleHotels(q: string, options: GoogleHotelsOptions = {}): Promise<unknown> {
+    return this.postJson("/travel/google-hotels", {
+      q: q,
+      check_in: options.checkIn,
+      check_out: options.checkOut,
+      adults: options.adults,
+      children: options.children,
+      currency: options.currency,
+      hl: options.hl,
+      gl: options.gl,
+      page_token: options.pageToken,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape one Google Hotels property: prices from every booking site.
+   *
+   * Returns one property from Google Hotels as JSON, identified by the `property_token` of a
+   * `/travel/google-hotels` result: `offers` from every booking site Google lists for the stay
+   * (`provider`, `official` for the hotel's own site, `perNight`/`perNightWithTaxes`,
+   * `total`/`totalWithTaxes`, a Google `link` to book), `rooms` with room-level rates and free-
+   * cancellation deadlines where Google shows them, the lowest `price`, `address`, `phone`,
+   * `website`, `description` and `about`, `rating`, `reviews`, `ratingsBreakdown`, `reviewTopics`,
+   * `hotelClass`, `latitude`/`longitude`, `nearbyPlaces`, `images`, `placeId` and `mapsUrl`. Set the
+   * stay with `check_in`/`check_out`, the party with `adults`/`children`, and `currency`, `hl`,
+   * `gl`. Billed as one request.
+   * @param propertyToken `propertyToken` of a /travel/google-hotels result.
+   * Calls `POST /travel/google-hotels-property`.
+   */
+  googleHotelsProperty(propertyToken: string, options: GoogleHotelsPropertyOptions = {}): Promise<unknown> {
+    return this.postJson("/travel/google-hotels-property", {
+      property_token: propertyToken,
+      check_in: options.checkIn,
+      check_out: options.checkOut,
+      adults: options.adults,
+      children: options.children,
+      currency: options.currency,
+      hl: options.hl,
+      gl: options.gl,
+    });
+  }
+
+  /**
+   * Scrape Google News (search or section).
+   *
+   * Searches Google News for `q`, or lists a section with `topic` (world, nation, business,
+   * technology, entertainment, sports, science, health, top, or a topic id), and returns `articles`:
+   * `position`, `title`, `url` (the publisher's article URL), `source`, `sourceUrl`, `publishedAt`
+   * (ISO 8601 UTC), `imageUrl` (+ `imageWidth`/`imageHeight`), `authors`, `googleNewsId` and
+   * `googleNewsUrl`. Metadata only - no article text. Narrow a search with `when` (e.g. '1d') or
+   * `after`/`before` dates; pick the edition with `hl` and `gl`. Google News answers a search with
+   * up to about 100 articles (no paging - use date windows to go further back). One unit per call.
+   * @param q Search query, e.g. 'tesla' or '"web scraping"'. Google News operators work: quotes, OR,
+   * -word, site:reuters.com, intitle:. Pass either `q` or `topic`.
+   * Calls `POST /search/google-news`.
+   */
+  googleNews(q?: string, options: GoogleNewsOptions = {}): Promise<unknown> {
+    return this.postJson("/search/google-news", {
+      q: q,
+      topic: options.topic,
+      hl: options.hl,
+      gl: options.gl,
+      when: options.when,
+      after: options.after,
+      before: options.before,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape Google ads (Ads Transparency Center).
+   *
+   * Returns an advertiser's Google ads (Search, YouTube, Display, Shopping, Maps, Play) from the
+   * Google Ads Transparency Center for competitor analysis: per ad `creativeId`,
+   * `advertiserId`/`advertiserName`, `format` (text/image/video), `firstShown`, `lastShown`,
+   * `daysShown`, `matchedDomain`, the preview (`imageUrl` with size, or `previewUrl`),
+   * `googleCreativeId`, `googleCustomerId`, `adGroupId` and `adUrl`. Pick ads by `advertiser` (name
+   * or id) or `domain`; filter with `region`, `platform`, `format` and `date_from`/`date_to`.
+   * `include_details` adds per-region reach and targeting, `include_preview` the ad's texts and
+   * YouTube video. Collects up to `max_results` (continue with `page_token`); billed one unit per
+   * page of up to 100 ads, plus one per detail and per preview fetched (`callUnits`).
+   * Calls `POST /ads/google-ads-transparency`.
+   */
+  googleAdsTransparency(options: GoogleAdsTransparencyOptions = {}): Promise<unknown> {
+    return this.postJson("/ads/google-ads-transparency", {
+      advertiser: options.advertiser,
+      domain: options.domain,
+      region: options.region,
+      platform: options.platform,
+      format: options.format,
+      date_from: options.dateFrom,
+      date_to: options.dateTo,
+      sort: options.sort,
+      max_results: options.maxResults,
+      page_token: options.pageToken,
+      include_details: options.includeDetails,
+      include_preview: options.includePreview,
+    });
+  }
+
+  /**
+   * Look up Google advertisers (Ads Transparency Center).
+   *
+   * Finds advertisers on the Google Ads Transparency Center by name: `advertisers` (`advertiserId`
+   * to use with /ads/google-ads-transparency, `name`, `country`, `creativesMin`/`creativesMax` - how
+   * many ads they ran - and `verified`) and matching website `domains`. One unit per call.
+   * @param q Advertiser name or brand to look up, e.g. 'nike'.
+   * Calls `POST /ads/google-ads-transparency-advertisers`.
+   */
+  googleAdsTransparencyAdvertisers(q: string, options: GoogleAdsTransparencyAdvertisersOptions = {}): Promise<unknown> {
+    return this.postJson("/ads/google-ads-transparency-advertisers", {
+      q: q,
+      region: options.region,
+      max_results: options.maxResults,
     });
   }
 
@@ -4763,6 +5616,46 @@ export abstract class PluginMethods {
       limit: options.limit,
       include_description: options.includeDescription,
       proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape Upwork job posts.
+   *
+   * Searches Upwork jobs for `q` (or lists the newest jobs without it) and returns `jobs`: `id`,
+   * `ciphertext`, `url`, `title`, `description` (full text), `publishedAt`, `createdAt`,
+   * `renewedAt`, `jobType` (hourly / fixed), `hourlyMin`, `hourlyMax`, `budget` (fixed price),
+   * `currency`, `experienceLevel`, `duration`, `workload`, `skills`, plus `totalResults` and
+   * `nextStart`. Filter with `job_type`, `experience`, `budget`, `hourly_rate`, `client_hires`,
+   * `workload`, `duration`, `location`, `category`, `contract_to_hire`; sort by `relevance` or
+   * `recency`. `details=true` adds, per job: `proposals`, `interviewing`, `invitesSent`, `hired`,
+   * `positionsToHire`, `lastClientActivity`, `category`, `qualifications` and `client` (`country`,
+   * `city`, `timezone`, `paymentVerified`, `rating`, `reviews`, `totalSpent`, `hires`,
+   * `memberSince`; no client names). A private listing is marked `privateListing: true` without
+   * those fields. Upwork shows signed-out visitors the first 5000 results of a search. Billing: one
+   * unit per results page of up to 50 jobs, plus one per job page fetched with `details=true`
+   * (`callUnits`).
+   * @param q What to search for, e.g. 'python' or 'logo design'. Leave empty with sort=recency for
+   * the newest jobs.
+   * Calls `POST /jobs/upwork`.
+   */
+  upworkJobs(q?: string, options: UpworkJobsOptions = {}): Promise<unknown> {
+    return this.postJson("/jobs/upwork", {
+      q: q,
+      job_type: options.jobType,
+      experience: options.experience,
+      budget: options.budget,
+      hourly_rate: options.hourlyRate,
+      client_hires: options.clientHires,
+      workload: options.workload,
+      duration: options.duration,
+      location: options.location,
+      category: options.category,
+      contract_to_hire: options.contractToHire,
+      sort: options.sort,
+      start: options.start,
+      max_results: options.maxResults,
+      details: options.details,
     });
   }
 

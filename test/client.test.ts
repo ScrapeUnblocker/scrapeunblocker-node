@@ -649,4 +649,20 @@ describe("ScrapeUnblockerClient", () => {
     expect(u2).toContain("max_comments=100");
   });
 
+  it("temuSearch / temuProduct are kept for compatibility", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ urls: [] }), { status: 200 }),
+      new Response(JSON.stringify({ name: "Toy" }), { status: 200 }),
+    );
+    const c = client();
+    const productUrl = "https://www.temu.com/xyz-g-601099512345678.html";
+    expect(await c.temuSearch("kids toys", { limit: 10, sort: "best_selling" })).toEqual({ urls: [] });
+    expect(await c.temuProduct(productUrl)).toEqual({ name: "Toy" });
+    const [u1, init] = fetchFn.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(u1).toBe(`${BASE}/goods/temu-search?keyword=kids+toys&limit=10&sort=best_selling`);
+    const [u2] = fetchFn.mock.calls[1];
+    expect(u2).toBe(`${BASE}/goods/temu-product?url=${encodeURIComponent(productUrl)}`);
+  });
+
 });

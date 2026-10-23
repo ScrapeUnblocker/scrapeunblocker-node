@@ -114,3 +114,113 @@ describe("plugin methods", () => {
     expect(fetchFn.mock.calls[0][0]).toBe(`${BASE}/marketplace/target-search?query=tv`);
   });
 });
+
+describe("new plugin families", () => {
+  it("googleHotels / googleHotelsProperty", async () => {
+    const fetchFn = mockJson();
+    await su().googleHotels("hotels in Paris", { checkIn: "2026-11-02", checkOut: "2026-11-05", currency: "EUR" });
+    await su().googleHotelsProperty("ChkIqp", { adults: 1, children: "7,10" });
+    expect(fetchFn.mock.calls[0][0]).toContain(`${BASE}/travel/google-hotels?`);
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["q", "hotels in Paris"],
+      ["check_in", "2026-11-02"],
+      ["check_out", "2026-11-05"],
+      ["currency", "EUR"],
+    ]);
+    expect(fetchFn.mock.calls[1][0]).toContain(`${BASE}/travel/google-hotels-property?`);
+    expect(entries(query(fetchFn, 1))).toEqual([
+      ["property_token", "ChkIqp"],
+      ["adults", "1"],
+      ["children", "7,10"],
+    ]);
+  });
+
+  it("googleNews takes a query or a section", async () => {
+    const fetchFn = mockJson();
+    await su().googleNews("tesla", { when: "1d", maxResults: 50 });
+    await su().googleNews(undefined, { topic: "technology", gl: "gb" });
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["q", "tesla"],
+      ["when", "1d"],
+      ["max_results", "50"],
+    ]);
+    expect(entries(query(fetchFn, 1))).toEqual([
+      ["topic", "technology"],
+      ["gl", "gb"],
+    ]);
+  });
+
+  it("googleAdsTransparency / googleAdsTransparencyAdvertisers", async () => {
+    const fetchFn = mockJson();
+    await su().googleAdsTransparency({ domain: "nike.com", format: "video", includePreview: false });
+    await su().googleAdsTransparencyAdvertisers("nike", { maxResults: 5 });
+    expect(fetchFn.mock.calls[0][0]).toContain(`${BASE}/ads/google-ads-transparency?`);
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["domain", "nike.com"],
+      ["format", "video"],
+      ["include_preview", "false"],
+    ]);
+    expect(fetchFn.mock.calls[1][0]).toContain(`${BASE}/ads/google-ads-transparency-advertisers?`);
+    expect(entries(query(fetchFn, 1))).toEqual([
+      ["q", "nike"],
+      ["max_results", "5"],
+    ]);
+  });
+
+  it("shopeeSearch / shopeeProduct", async () => {
+    const fetchFn = mockJson();
+    await su().shopeeSearch("lego", { country: "my", sort: "sales", minPrice: 10 });
+    await su().shopeeProduct(undefined, { shopId: "442800909", itemId: "40270108836", country: "sg" });
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["q", "lego"],
+      ["country", "my"],
+      ["sort", "sales"],
+      ["min_price", "10"],
+    ]);
+    expect(fetchFn.mock.calls[1][0]).toContain(`${BASE}/marketplace/shopee-product?`);
+    expect(entries(query(fetchFn, 1))).toEqual([
+      ["shop_id", "442800909"],
+      ["item_id", "40270108836"],
+      ["country", "sg"],
+    ]);
+  });
+
+  it("taobaoSearch / taobaoProduct", async () => {
+    const fetchFn = mockJson();
+    await su().taobaoSearch("phone case", { sort: "sales", priceMax: 99.5, filter: "20000-88634403" });
+    await su().taobaoProduct(undefined, { url: "https://item.taobao.com/item.htm?id=765833709683" });
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["q", "phone case"],
+      ["sort", "sales"],
+      ["price_max", "99.5"],
+      ["filter", "20000-88634403"],
+    ]);
+    expect(entries(query(fetchFn, 1))).toEqual([["url", "https://item.taobao.com/item.htm?id=765833709683"]]);
+  });
+
+  it("upworkJobs without a query", async () => {
+    const fetchFn = mockJson();
+    await su().upworkJobs(undefined, { sort: "recency", jobType: "hourly", details: true });
+    expect(fetchFn.mock.calls[0][0]).toContain(`${BASE}/jobs/upwork?`);
+    expect(entries(query(fetchFn))).toEqual([
+      ["job_type", "hourly"],
+      ["sort", "recency"],
+      ["details", "true"],
+    ]);
+  });
+
+  it("smythsSearch / wishSearch", async () => {
+    const fetchFn = mockJson();
+    await su().smythsSearch("lego", { maxResults: 24 });
+    await su().wishSearch("phone case", { page: 2 });
+    expect(entries(query(fetchFn, 0))).toEqual([
+      ["mode", "search"],
+      ["query", "lego"],
+      ["max_results", "24"],
+    ]);
+    expect(entries(query(fetchFn, 1))).toEqual([
+      ["query", "phone case"],
+      ["page", "2"],
+    ]);
+  });
+});

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.0 (2026-10-23)
+
+- 16 new plugin methods on `ScrapeUnblockerClient`:
+  - Google: `googleHotels(q)` (Google Hotels search with stay prices, ratings and amenities), `googleHotelsProperty(propertyToken)` (one property's prices from every booking site), `googleNews(q)` (a search, or a section with the `topic` option), `googleAdsTransparency(options)` (an advertiser's ads from the Ads Transparency Center, picked with `advertiser` or `domain`) and `googleAdsTransparencyAdvertisers(q)` (advertiser lookup by name).
+  - E-commerce: `shopeeSearch(q)` and `shopeeProduct(url)` (Shopee in eight markets, `country` option), `taobaoSearch(q)` and `taobaoProduct(itemId)` (Taobao and Tmall), `smythsInventory(code)`, `smythsDetails(code)`, `smythsSearch(query)` and `smythsCategory(category)` (Smyths Toys UK), `wishSearch(query)` and `wishProduct(product)`.
+  - Jobs: `upworkJobs(q)`.
+  - Each method has its own exported options type (`GoogleHotelsOptions`, `ShopeeSearchOptions`, ...).
+- The first argument of `googleNews`, `shopeeSearch`, `shopeeProduct`, `taobaoSearch`, `taobaoProduct` and `upworkJobs` is optional, for calls that pass another input instead: `googleNews(undefined, { topic: "technology" })`, `shopeeProduct(undefined, { shopId, itemId })`, `taobaoProduct(undefined, { url })`, `upworkJobs(undefined, { sort: "recency" })` for the newest jobs.
+- `temuSearch` and `temuProduct` (and the `TemuSearchOptions` type) are deprecated: Temu's plugin is unlisted. They are kept for compatibility with the same signatures, now on `ScrapeUnblockerClient` itself instead of `PluginMethods`, and are no longer listed in the README.
+- `googleShopping` docs: result cards also carry `currencyCode` and Google's own product ids (`productId`, `catalogId`, `offerId`).
+
+No breaking changes.
+
 ## 0.13.0 (2026-10-23)
 
 - New `getMarkdown(url, options)` returns the rendered page as clean Markdown for LLMs, agents and RAG pipelines: headings, lists, tables, absolute links, images with their alt text and code blocks, without scripts, styles, navigation, footers, forms or hidden elements. It sends `markdown=true` to `/getPageSource` and is billed like an HTML call.

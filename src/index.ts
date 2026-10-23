@@ -34,6 +34,7 @@ export type {
   TikTokHashtagOptions,
   TikTokSearchOptions,
   TikTokCommentsOptions,
+  TemuSearchOptions,
   SelectorType,
   PressKey,
   BrowserStep,

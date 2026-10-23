@@ -21,6 +21,7 @@ import type {
   TikTokHashtagOptions,
   TikTokSearchOptions,
   TikTokCommentsOptions,
+  TemuSearchOptions,
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.scrapeunblocker.com";
@@ -28,7 +29,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.13.0";
+const VERSION = "0.14.0";
 
 type Params = PluginParams;
 
@@ -544,6 +545,34 @@ export class ScrapeUnblockerClient extends PluginMethods {
       url,
       max_comments: options.maxComments,
       proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Search Temu by keyword. Returns the matching product urls (about 40 per
+   * page); fetch each url's data with {@link temuProduct}.
+   * @deprecated Temu's plugin is unlisted; kept for compatibility.
+   * @param keyword Search phrase, e.g. 'kids toys' or 'phone case'.
+   * Calls `POST /goods/temu-search`.
+   */
+  temuSearch(keyword: string, options: TemuSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/goods/temu-search", {
+      keyword: keyword,
+      limit: options.limit,
+      sort: options.sort,
+    });
+  }
+
+  /**
+   * Scrape a Temu product page.
+   * @deprecated Temu's plugin is unlisted; kept for compatibility.
+   * @param url Full Temu product url, e.g. 'https://www.temu.com/xyz-g-601099512345678.html'. Must
+   * be a product page (its path ends in `-g-<id>.html`).
+   * Calls `POST /goods/temu-product`.
+   */
+  temuProduct(url: string): Promise<unknown> {
+    return this.postJson("/goods/temu-product", {
+      url: url,
     });
   }
 

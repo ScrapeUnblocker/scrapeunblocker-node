@@ -3,6 +3,7 @@ import { PluginMethods, type PluginParams } from "./plugins.js";
 import type {
   ClientOptions,
   PageOptions,
+  MarkdownOptions,
   ParsedOptions,
   ParsedPage,
   PageResult,
@@ -27,7 +28,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.12.0";
+const VERSION = "0.13.0";
 
 type Params = PluginParams;
 
@@ -216,6 +217,39 @@ export class ScrapeUnblockerClient extends PluginMethods {
     if (options.listElements) {
       return (await response.json()) as ListElementsResult;
     }
+    return response.text();
+  }
+
+  /**
+   * Fetch a URL and return the rendered page as clean Markdown.
+   *
+   * Built for LLMs, agents and RAG pipelines. The page is rendered in a real
+   * browser behind the same anti-bot bypass chain as `getPageSource()`, then
+   * converted to Markdown: headings, lists, tables, absolute links, images with
+   * their alt text and code blocks, without scripts, styles, navigation,
+   * footers, forms or hidden elements. Billed like an HTML call.
+   *
+   * `mainContentOnly` (default `true`) keeps only the page's main content,
+   * without navigation, the site header, footer and sidebars; pass `false` to
+   * convert the whole page. Takes the same `proxyCountry`, `timeSleep`,
+   * `method` / `value` / `methodTimeout` and `steps` options as
+   * `getPageSource()`.
+   *
+   * Throws {@link TargetNotFoundError} when the target page itself answers
+   * 404 or 410 (billed; the not-found page, as Markdown, is on `.html`).
+   */
+  async getMarkdown(url: string, options: MarkdownOptions = {}): Promise<string> {
+    const response = await this.request("/getPageSource", {
+      url,
+      markdown: true,
+      main_content_only: options.mainContentOnly === false ? false : undefined,
+      proxy_country: options.proxyCountry,
+      time_sleep: options.timeSleep,
+      method: options.method,
+      value: options.value,
+      method_timeout: options.methodTimeout,
+      steps: options.steps ? JSON.stringify(options.steps) : undefined,
+    });
     return response.text();
   }
 

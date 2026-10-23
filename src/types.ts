@@ -148,6 +148,18 @@ export interface PageOptions {
   listElements?: boolean;
 }
 
+/**
+ * Options for {@link ScrapeUnblockerClient.getMarkdown}: the page-fetch options
+ * of `getPageSource` (without `listElements`) plus `mainContentOnly`.
+ */
+export interface MarkdownOptions extends Omit<PageOptions, "listElements"> {
+  /**
+   * Keep only the page's main content, without navigation, the site header,
+   * footer and sidebars. Default `true`; pass `false` to convert the whole page.
+   */
+  mainContentOnly?: boolean;
+}
+
 /** Options for {@link ScrapeUnblockerClient.getParsed}. */
 export interface ParsedOptions {
   proxyCountry?: string;

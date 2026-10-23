@@ -125,6 +125,74 @@ describe("ScrapeUnblockerClient", () => {
     });
   });
 
+  const MARKDOWN = "# A Light in the Attic\n\n| Price | £51.77 |\n| --- | --- |\n";
+  const markdownResponse = (status = 200, body = MARKDOWN, headers: Record<string, string> = {}) =>
+    new Response(body, {
+      status,
+      headers: { "Content-Type": "text/markdown; charset=utf-8", ...headers },
+    });
+
+  it("getMarkdown sends markdown=true and returns the Markdown text", async () => {
+    const fetchFn = mockFetch(markdownResponse());
+    const out = await client().getMarkdown("https://example.com/book", { proxyCountry: "US" });
+    expect(out).toBe(MARKDOWN);
+
+    const [url, init] = fetchFn.mock.calls[0];
+    const parsed = new URL(url as string);
+    expect(`${parsed.origin}${parsed.pathname}`).toBe(`${BASE}/getPageSource`);
+    expect(parsed.searchParams.get("url")).toBe("https://example.com/book");
+    expect(parsed.searchParams.get("markdown")).toBe("true");
+    expect(parsed.searchParams.get("proxy_country")).toBe("US");
+    // The API keeps only the main content by default, so true is never sent.
+    expect(parsed.searchParams.has("main_content_only")).toBe(false);
+    // The other response formats cannot be combined with markdown.
+    for (const other of ["parsed_data", "get_cookies", "list_elements"]) {
+      expect(parsed.searchParams.has(other)).toBe(false);
+    }
+    expect(init.method).toBe("POST");
+    expect(init.headers["x-scrapeunblocker-key"]).toBe("test-key");
+  });
+
+  it("getMarkdown sends main_content_only=false only when it is false", async () => {
+    const fetchFn = mockFetch(markdownResponse(), markdownResponse());
+    await client().getMarkdown("https://example.com", { mainContentOnly: false });
+    await client().getMarkdown("https://example.com", { mainContentOnly: true });
+    const first = new URL(fetchFn.mock.calls[0][0] as string).searchParams;
+    const second = new URL(fetchFn.mock.calls[1][0] as string).searchParams;
+    expect(first.get("markdown")).toBe("true");
+    expect(first.get("main_content_only")).toBe("false");
+    expect(second.has("main_content_only")).toBe(false);
+  });
+
+  it("getMarkdown passes the render options and steps", async () => {
+    const fetchFn = mockFetch(markdownResponse());
+    const steps = [{ action: "click", selector: "#more" }] as const;
+    await client().getMarkdown("https://example.com", {
+      timeSleep: 2,
+      method: "css",
+      value: ".content",
+      methodTimeout: 10,
+      steps: [...steps],
+    });
+    const params = new URL(fetchFn.mock.calls[0][0] as string).searchParams;
+    expect(params.get("time_sleep")).toBe("2");
+    expect(params.get("method")).toBe("css");
+    expect(params.get("value")).toBe(".content");
+    expect(params.get("method_timeout")).toBe("10");
+    expect(JSON.parse(params.get("steps") as string)).toEqual(steps);
+  });
+
+  it("getMarkdown throws TargetNotFoundError carrying the Markdown page", async () => {
+    const fetchFn = mockFetch(markdownResponse(404, "# Not Found", { "X-Origin-Status": "404" }));
+    const err = (await client()
+      .getMarkdown("https://example.com/gone")
+      .catch((e: unknown) => e)) as TargetNotFoundError;
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    expect(err.originStatus).toBe(404);
+    expect(err.html).toBe("# Not Found");
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
   it("getParsed returns a ParsedPage", async () => {
     const payload = { data: { page_type: "product", source: "schema.org", data: { price: 10 } } };
     const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));

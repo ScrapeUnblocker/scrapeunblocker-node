@@ -18,6 +18,7 @@ export * from "./plugins.js";
 export type {
   ClientOptions,
   PageOptions,
+  MarkdownOptions,
   ParsedOptions,
   ParsedPage,
   PageResult,

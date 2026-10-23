@@ -61,6 +61,21 @@ const html = await su.getPageSource("https://www.nordstrom.com/browse/women/clot
 });
 ```
 
+## Markdown for LLMs
+
+Get the rendered page as clean Markdown instead of HTML, ready for an LLM prompt, an agent or a RAG pipeline. Headings, lists, tables, absolute links and images with their alt text are kept; scripts, styles, navigation, footers and forms are dropped. Billed like an HTML call.
+
+```ts
+const md = await su.getMarkdown("https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html");
+console.log(md); // "# A Light in the Attic\n\n£51.77\n..."
+
+// Only the main content by default (no navigation, site header, footer or sidebars).
+// Pass mainContentOnly: false to convert the whole page:
+const full = await su.getMarkdown("https://example.com", { mainContentOnly: false });
+```
+
+`getMarkdown()` takes the same `proxyCountry`, `timeSleep`, `method` / `value` / `methodTimeout` and `steps` options as `getPageSource()`. More in the [Markdown guide](https://docs.scrapeunblocker.com/guides/markdown?utm_source=npm&utm_medium=integration&utm_campaign=node-sdk).
+
 ## Browser steps
 
 Drive the page in a real browser after it loads - click, type, scroll, or wait for content - by passing an ordered `steps` array. The client JSON-encodes it for you.
@@ -345,7 +360,7 @@ try {
 | `NotFoundError` | 404 | What you asked for does not exist - a plugin lookup found nothing |
 | `TargetNotFoundError` | 404 / 410 | The target page itself does not exist; carries `originStatus`, `html`, `destinationUrl` (subclass of `NotFoundError`, billed) |
 | `BrowserTimeoutError` | 408 | Our browser run timed out before the page was ready |
-| `UnsupportedContentError` | 415 | The URL serves something other than HTML (`getPageSource`) or other than an image (`getImage`) |
+| `UnsupportedContentError` | 415 | The URL serves something other than HTML (`getPageSource`, `getMarkdown`) or other than an image (`getImage`) |
 | `ValidationError` | 422 | Missing or wrong-typed parameter; `body` holds the `detail` array |
 | `RateLimitError` | 429 | Too many requests |
 | `UpstreamOutageError` | 503 | The target origin is down |
@@ -375,7 +390,7 @@ try {
 
 `TargetNotFoundError` extends `NotFoundError`, so `instanceof NotFoundError` matches it too. A 404 without `X-Origin-Status` is the API's own and stays a plain `NotFoundError`.
 
-With `getParsed()` the body is the parsed-data JSON (`{"data": {"page_type": "not_found", ...}}`), so `html` is `undefined` there; the raw JSON is on `.body`.
+With `getParsed()` the body is the parsed-data JSON (`{"data": {"page_type": "not_found", ...}}`), so `html` is `undefined` there; the raw JSON is on `.body`. With `getMarkdown()` the not-found page on `.html` is Markdown.
 
 ### No structured data on the page
 

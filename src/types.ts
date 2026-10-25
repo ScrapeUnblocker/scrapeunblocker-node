@@ -205,6 +205,7 @@ export interface SerpOptions {
   proxyCountry?: string;
   pagesToCheck?: number;
   waitAfterLoad?: number;
+  /** @deprecated Kept for compatibility; the API ignores it. */
   captchaPause?: number;
 }
 

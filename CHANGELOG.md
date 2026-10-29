@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.0 (2026-10-30)
+
+- 29 new plugin methods on `ScrapeUnblockerClient`:
+  - E-commerce, new sites: `mediamarktSearch(query)` and `mediamarktProduct(productId)` (MediaMarkt in ten countries and Saturn), `cdiscountSearch(query)` and `cdiscountProduct(sku)`, `idealoSearch(query)` and `idealoOffers(productId)` (price comparison in six countries), `rakutenSearch(query)` and `rakutenProduct(options)` (Rakuten Ichiba, Japan), `indiamartSearch(query)` and `indiamartProduct(options)`, `bedbathandbeyondSearch(query)` and `bedbathandbeyondProduct(product)`, `petcoSearch(query)` and `petcoProduct(product)`, `neobitsProduct(product)`, `lowesSearch(query)` and `lowesProduct(productId)`, `menardsSearch(query)` and `menardsProduct(options)`, `graingerSearch(query)` and `graingerProduct(sku)`.
+  - Product pages next to existing searches: `walmartProduct(options)`, `ebayProduct(options)`, `etsyProduct(options)`, `bestbuyProduct(sku)`, `targetCategory(category)` and `targetProduct(tcin)`, `aliexpressProduct(productId)`.
+  - AI: `chatgpt(prompt)` (ChatGPT's answer with the sites it cites).
+- The first argument of the product methods that also take a link, and of the searches that also take a search link, is optional, for calls that pass the `url` option instead. `rakutenProduct`, `indiamartProduct`, `menardsProduct`, `walmartProduct`, `ebayProduct` and `etsyProduct` take options only (`productId` / `sku` / `itemId` / `listingId` or `url`).
+- Plugin doc comments no longer describe exit or proxy details (`exitProvider`); API responses no longer carry them.
+
+No breaking changes.
+
 ## 0.16.0 (2026-10-29)
 
 - Add `mapsReviews` (on `ScrapeUnblockerClient`): Google Maps reviews of a place in Google's sort orders (relevant, newest, highest, lowest) with exact ISO dates, original and translated text, authors, photos, owner replies and page tokens. `POST /maps/reviews`.

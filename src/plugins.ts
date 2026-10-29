@@ -181,6 +181,27 @@ export interface WalmartSearchOptions {
 }
 
 /**
+ * Options for {@link PluginMethods.walmartProduct}.
+ */
+export interface WalmartProductOptions {
+  /**
+   * Walmart item id - the number at the end of a product link, e.g. '18638703162' for
+   * walmart.com/ip/.../18638703162.
+   */
+  itemId?: string;
+  /**
+   * Instead of `item_id`: a walmart.com product link, e.g. https://www.walmart.com/ip/HP-15-6-inch-
+   * Laptop/18638703162.
+   */
+  url?: string;
+  /**
+   * Proxy country the request is sent from (ISO-2). Defaults to US: walmart.com refuses most other
+   * countries.
+   */
+  proxyCountry?: string;
+}
+
+/**
  * Options for {@link PluginMethods.targetSearch}.
  */
 export interface TargetSearchOptions {
@@ -205,6 +226,45 @@ export interface TargetSearchOptions {
    * pick.
    */
   proxyCountry?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.targetCategory}.
+ */
+export interface TargetCategoryOptions {
+  /**
+   * Order: relevance, price_low, price_high, rating, best_selling, newest. API default: relevance.
+   */
+  sort?: string;
+  /**
+   * 1-based page to start from (1-50, 24 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-240); each page fetched is billed as one request. API
+   * default: 24.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.targetProduct}.
+ */
+export interface TargetProductOptions {
+  /**
+   * Instead of `tcin`: a target.com product link, e.g. https://www.target.com/p/hamilton-beach-
+   * coffee-maker/-/A-52580270 (a `?preselect=` variant in the link is honoured).
+   */
+  url?: string;
+  /**
+   * Target store whose pickup and shelf stock is reported, e.g. '1375' (default 1375, Minneapolis
+   * Nicollet Mall).
+   */
+  storeId?: string;
+  /**
+   * US ZIP code shipping dates are quoted for (default 55403).
+   */
+  zip?: string;
 }
 
 /**
@@ -237,6 +297,17 @@ export interface BestbuySearchOptions {
    * pick.
    */
   proxyCountry?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.bestbuyProduct}.
+ */
+export interface BestbuyProductOptions {
+  /**
+   * Instead of `sku`: a bestbuy.com product link, e.g. https://www.bestbuy.com/product/hp-omnibook-
+   * x-flip/JJGQJRKGTJ/sku/6613868 or https://www.bestbuy.com/site/-/6613868.p?skuId=6613868.
+   */
+  url?: string;
 }
 
 /**
@@ -353,6 +424,27 @@ export interface EtsySearchOptions {
 }
 
 /**
+ * Options for {@link PluginMethods.etsyProduct}.
+ */
+export interface EtsyProductOptions {
+  /**
+   * Etsy listing number, e.g. '1702915637' (the number in etsy.com/listing/1702915637/...).
+   */
+  listingId?: string;
+  /**
+   * Instead of `listing_id`: an etsy.com listing link, e.g.
+   * https://www.etsy.com/listing/1702915637/solstice-mug.
+   */
+  url?: string;
+  /**
+   * Proxy country the request is sent from (ISO-2). Defaults to US. Etsy prices in the currency of
+   * the shopper location it assigns, which can differ from this country; `currency` and
+   * `shopperRegion` say which one a response used.
+   */
+  proxyCountry?: string;
+}
+
+/**
  * Options for {@link PluginMethods.sheinSearch}.
  */
 export interface SheinSearchOptions {
@@ -427,6 +519,28 @@ export interface AliexpressSearchOptions {
    * currency. Leave blank to let the API pick.
    */
   proxyCountry?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.aliexpressProduct}.
+ */
+export interface AliexpressProductOptions {
+  /**
+   * Instead of `product_id`: an AliExpress item link, e.g.
+   * https://www.aliexpress.com/item/1005010503016514.html (any storefront: .com, .us, de., fr. ...).
+   */
+  url?: string;
+  /**
+   * Ship-to country (ISO-2, e.g. 'US', 'DE', 'GB'). Shipping options, delivery times and whether the
+   * item is sold at all depend on it. API default: US.
+   */
+  country?: string;
+  /**
+   * Price currency, e.g. 'USD', 'EUR', 'GBP'. One of: USD, EUR, GBP, CAD, AUD, NZD, CHF, SEK, NOK,
+   * DKK, PLN, CZK, HUF, RON, BGN, TRY, ILS, AED, SAR, JPY, KRW, SGD, MYR, THB, IDR, PHP, VND, INR,
+   * BRL, MXN, CLP, COP, PEN, ZAR, UAH, KZT. API default: USD.
+   */
+  currency?: string;
 }
 
 /**
@@ -975,6 +1089,479 @@ export interface MagazineluizaProductOptions {
    * https://www.magazineluiza.com.br/notebook-acer-aspire-go/p/240354400/in/nota/.
    */
   url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.mediamarktSearch}.
+ */
+export interface MediamarktSearchOptions {
+  /**
+   * MediaMarkt shop: de, at, ch, nl, be, es, it, pl, hu, tr (default de; it = MediaWorld). API
+   * default: de.
+   */
+  country?: string;
+  /**
+   * mediamarkt (default) or saturn (Saturn Germany, with country=de). API default: mediamarkt.
+   */
+  banner?: string;
+  /**
+   * Site language where the shop has several: be = nl or fr, ch = de, fr or it. Default: the shop's
+   * first.
+   */
+  language?: string;
+  /**
+   * Result order: relevance, price_asc, price_desc, rating, bestseller, newest. API default:
+   * relevance.
+   */
+  sort?: string;
+  /**
+   * First results page to read (1-30). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-120. A page holds 12 products; each page is one unit. API
+   * default: 12.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.mediamarktProduct}.
+ */
+export interface MediamarktProductOptions {
+  /**
+   * A product link, e.g. https://www.mediamarkt.de/de/product/_apple-iphone-18-pro-max-256gb-
+   * silver-3071615.html. Used instead of `product_id`; its shop and language win over `country`,
+   * `banner` and `language`.
+   */
+  url?: string;
+  /**
+   * MediaMarkt shop: de, at, ch, nl, be, es, it, pl, hu, tr (default de; it = MediaWorld). API
+   * default: de.
+   */
+  country?: string;
+  /**
+   * mediamarkt (default) or saturn (Saturn Germany, with country=de). API default: mediamarkt.
+   */
+  banner?: string;
+  /**
+   * Site language where the shop has several: be = nl or fr, ch = de, fr or it. Default: the shop's
+   * first.
+   */
+  language?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.cdiscountSearch}.
+ */
+export interface CdiscountSearchOptions {
+  /**
+   * First Cdiscount results page to read (1-100). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-300. A page holds about 47 products; each page is one unit.
+   * API default: 47.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.cdiscountProduct}.
+ */
+export interface CdiscountProductOptions {
+  /**
+   * A Cdiscount product link, e.g. https://www.cdiscount.com/telephonie/telephone-mobile/apple-
+   * iphone-17-256gb-black/f-14404-ip17256black.html. Used instead of `sku`.
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.idealoSearch}.
+ */
+export interface IdealoSearchOptions {
+  /**
+   * idealo site: de, at, uk, fr, it, es (default de; uk = idealo.co.uk). API default: de.
+   */
+  country?: string;
+  /**
+   * Result order: relevance, price_asc (price_asc = cheapest first). API default: relevance.
+   */
+  sort?: string;
+  /**
+   * First idealo results page to read (1-100). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages, 1-300. A page holds 60 products; each page is one unit. API
+   * default: 60.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.idealoOffers}.
+ */
+export interface IdealoOffersOptions {
+  /**
+   * An idealo price comparison link, e.g.
+   * https://www.idealo.de/preisvergleich/OffersOfProduct/207643424_-iphone-17-apple.html. Used
+   * instead of `product_id`; its site sets the country.
+   */
+  url?: string;
+  /**
+   * idealo site: de, at, uk, fr, it, es (default de; uk = idealo.co.uk).
+   */
+  country?: string;
+  /**
+   * Offers to collect, 1-200. The first 20 come with the product; each further block of 20 is one
+   * more unit. API default: 20.
+   */
+  maxResults?: number;
+}
+
+/**
+ * Options for {@link PluginMethods.rakutenSearch}.
+ */
+export interface RakutenSearchOptions {
+  /**
+   * Order: relevance, price_low, price_high, newest, review_count, review_score. API default:
+   * relevance.
+   */
+  sort?: string;
+  /**
+   * 1-based results page to start from (1-150; Rakuten lets a search be paged through to 6750
+   * items). API default: 1.
+   */
+  page?: number;
+  /**
+   * Lowest price, in yen.
+   */
+  minPrice?: number;
+  /**
+   * Highest price, in yen.
+   */
+  maxPrice?: number;
+  /**
+   * Limit to one Rakuten genre (category) id, e.g. '100227' (food) - every result's `genreId` is
+   * one.
+   */
+  genreId?: string;
+  /**
+   * Items to collect across pages (1-450); Rakuten serves 45 per page and each page read is billed
+   * as one request. API default: 45.
+   */
+  maxResults?: number;
+  /**
+   * Instead of `query`: a Rakuten search link, e.g.
+   * https://search.rakuten.co.jp/search/mall/coffee/?s=2 (its keyword, genre, sort, page and price
+   * filter are used).
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.rakutenProduct}.
+ */
+export interface RakutenProductOptions {
+  /**
+   * The item as '<shopCode>/<itemCode>', e.g. 'dai-one/15-128-a' (the two path parts of an item
+   * link; search results give them as `shopCode` and `itemCode`).
+   */
+  productId?: string;
+  /**
+   * Instead of `product_id`: a Rakuten item link, e.g. https://item.rakuten.co.jp/dai-one/15-128-a/
+   * (a `variantId` in it is used).
+   */
+  url?: string;
+  /**
+   * SKU whose price and stock fill the top-level fields, e.g. 'r-sku00003161'; by default the item's
+   * lowest price and overall availability. Every SKU is listed in `variants` either way.
+   */
+  variantId?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.indiamartSearch}.
+ */
+export interface IndiamartSearchOptions {
+  /**
+   * 1-based results page to start from (1-2); 10 products a page. API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-20); IndiaMART serves 10 per page and shows 2 pages. Each
+   * page read is billed as one request. API default: 20.
+   */
+  maxResults?: number;
+  /**
+   * Instead of `query`: an IndiaMART search link, e.g.
+   * https://dir.indiamart.com/search.mp?ss=steel+pipe (its keyword is used).
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.indiamartProduct}.
+ */
+export interface IndiamartProductOptions {
+  /**
+   * IndiaMART product id, e.g. '2854548650133' (the number at the end of a /proddetail/ link; search
+   * results give it as `productId`).
+   */
+  productId?: string;
+  /**
+   * Instead of `product_id`: an IndiaMART product link, e.g.
+   * https://www.indiamart.com/proddetail/stainless-steel-347h-pipes-2854548650133.html.
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.bedbathandbeyondSearch}.
+ */
+export interface BedbathandbeyondSearchOptions {
+  /**
+   * Order: relevance, on_sale, best_selling, price_low, price_high, rating, newest. API default:
+   * relevance.
+   */
+  sort?: string;
+  /**
+   * 1-based results page to start from (1-100). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-300); the site serves about 60 per page and each page
+   * fetched is billed as one request. API default: 60.
+   */
+  maxResults?: number;
+  /**
+   * Instead of `query`: a Bed Bath & Beyond search link, e.g.
+   * https://www.bedbathandbeyond.com/search?keywords=towels (its sort and page are used).
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.petcoSearch}.
+ */
+export interface PetcoSearchOptions {
+  /**
+   * Order: relevance, price_low, price_high, rating, popular, newest, name_asc, name_desc. API
+   * default: relevance.
+   */
+  sort?: string;
+  /**
+   * 1-based results page to start from (1-200), 48 products per page as on petco.com. API default:
+   * 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-480); each page of 48 fetched is billed as one request. API
+   * default: 48.
+   */
+  maxResults?: number;
+  /**
+   * Only this brand, as petco.com names it (e.g. 'Purina Pro Plan'; the `brands` list of a search
+   * shows the names).
+   */
+  brand?: string;
+  /**
+   * Only products offered this way: delivery, autoship, pickup, same_day.
+   */
+  fulfillment?: string;
+  /**
+   * Lowest price to include (USD).
+   */
+  minPrice?: number;
+  /**
+   * Highest price to include (USD).
+   */
+  maxPrice?: number;
+  /**
+   * Instead of `query`: a petco.com search link, e.g.
+   * https://www.petco.com/shop/en/petcostore/search?query=dog%20food.
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.lowesSearch}.
+ */
+export interface LowesSearchOptions {
+  /**
+   * 1-based results page to start from (1-30, 24 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-72); each page fetched is billed as one request. API
+   * default: 24.
+   */
+  maxResults?: number;
+  /**
+   * Lowe's store number whose prices and stock to return, e.g. '1845'. Give this or `zip`; with
+   * neither, store 1845 (Chicago-Brickyard, IL) is used. The store used is named in `store`.
+   */
+  storeId?: string;
+  /**
+   * US ZIP code; the nearest Lowe's store is used, e.g. '60639'.
+   */
+  zip?: string;
+  /**
+   * Only items Lowe's delivers for free. API default: false.
+   */
+  freeDelivery?: boolean;
+  /**
+   * Instead of `query`: a Lowe's search link, e.g.
+   * https://www.lowes.com/search?searchTerm=garden+hose (its offset and storeId are used).
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.lowesProduct}.
+ */
+export interface LowesProductOptions {
+  /**
+   * Instead of `product_id`: a Lowe's product link, e.g. https://www.lowes.com/pd/CRAFTSMAN-20-volt-
+   * Max-Drill/5016412045.
+   */
+  url?: string;
+  /**
+   * Lowe's store number whose prices and stock to return, e.g. '1845'. Give this or `zip`; with
+   * neither, store 1845 (Chicago-Brickyard, IL) is used. The store used is named in `store`.
+   */
+  storeId?: string;
+  /**
+   * US ZIP code; the nearest Lowe's store is used, e.g. '60639'.
+   */
+  zip?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.menardsSearch}.
+ */
+export interface MenardsSearchOptions {
+  /**
+   * Order: relevance, price_low, price_high, title_asc, title_desc, brand_asc, brand_desc. API
+   * default: relevance.
+   */
+  sort?: string;
+  /**
+   * 1-based results page to start from (1-100, 40 products per page). API default: 1.
+   */
+  page?: number;
+  /**
+   * Products to collect across pages (1-120); each page fetched is billed as one request. API
+   * default: 40.
+   */
+  maxResults?: number;
+  /**
+   * Lowest price to include (USD).
+   */
+  minPrice?: number;
+  /**
+   * Highest price to include (USD).
+   */
+  maxPrice?: number;
+  /**
+   * Menards store number whose prices and stock to return, e.g. '3181'. Give this or `zip`; with
+   * neither, Menards' default (online) prices are returned and `stockAtStore` is 0. The store used
+   * is named in `store`.
+   */
+  storeId?: string;
+  /**
+   * US ZIP code; the nearest Menards store is used, e.g. '55401'.
+   */
+  zip?: string;
+  /**
+   * Only items in stock today at the store (needs `store_id` or `zip`). API default: false.
+   */
+  inStockToday?: boolean;
+  /**
+   * Only items eligible for delivery. API default: false.
+   */
+  deliveryEligible?: boolean;
+  /**
+   * Only items eligible for in-store pickup. API default: false.
+   */
+  pickupEligible?: boolean;
+}
+
+/**
+ * Options for {@link PluginMethods.menardsProduct}.
+ */
+export interface MenardsProductOptions {
+  /**
+   * A Menards product link, e.g. https://www.menards.com/main/electrical/electrical-tools-
+   * accessories/electrical-hand-tools/southwire-reg-7-1-2-mc-rotary-
+   * cutter/mccut/p-60893668339-c-6455.htm (the `url` of a search result).
+   */
+  url?: string;
+  /**
+   * Instead of `url`: the Menards SKU shown on the product page and in search results, e.g.
+   * '3646903'.
+   */
+  sku?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.graingerSearch}.
+ */
+export interface GraingerSearchOptions {
+  /**
+   * Items to return (1-25); Grainger's first result rows for the keyword. API default: 25.
+   */
+  maxResults?: number;
+  /**
+   * Instead of `query`: a Grainger search link, e.g.
+   * https://www.grainger.com/search?searchQuery=hex+bolt.
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.graingerProduct}.
+ */
+export interface GraingerProductOptions {
+  /**
+   * Instead of `sku`: a Grainger product link, e.g. https://www.grainger.com/product/Hex-Head-Cap-
+   * Screw-Stainless-1XE66.
+   */
+  url?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.ebayProduct}.
+ */
+export interface EbayProductOptions {
+  /**
+   * eBay item number, e.g. '335761219642' (the number in ebay.com/itm/335761219642).
+   */
+  itemId?: string;
+  /**
+   * Instead of `item_id`: a listing link on any supported eBay site, e.g.
+   * https://www.ebay.de/itm/860089403886. The site is taken from the link.
+   */
+  url?: string;
+  /**
+   * eBay site to open `item_id` on (prices, currency and language follow it). One of: ebay.com,
+   * ebay.co.uk, ebay.de, ebay.fr, ebay.it, ebay.es, ebay.nl, ebay.pl, ebay.at, ebay.ch, ebay.be,
+   * ebay.ie, ebay.ca, ebay.com.au, ebay.in, ebay.com.sg, ebay.com.my, ebay.com.hk. Default ebay.com.
+   */
+  marketplace?: string;
+  /**
+   * Also fetch the seller's description text (a second, light request). Set false for a faster call
+   * without `description`. API default: true.
+   */
+  includeDescription?: boolean;
+  /**
+   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). eBay quotes shipping, delivery
+   * dates and, on EU sites, VAT-inclusive prices for the visitor's country, so set it to get them
+   * for one country.
+   */
+  proxyCountry?: string;
 }
 
 /**
@@ -1918,8 +2505,8 @@ export interface GoogleTrendsOptions {
  */
 export interface MapsPlaceDetailsOptions {
   /**
-   * A Google Maps place URL (share link or /maps/place/... URL). The feature id or place_id is read
-   * out of it.
+   * A Google Maps place URL: a /maps/place/... URL, a maps.app.goo.gl share link or a maps?cid=
+   * link. The place is read out of it.
    */
   url?: string;
   /**
@@ -1955,8 +2542,8 @@ export interface MapsPlaceDetailsOptions {
  */
 export interface MapsReviewsOptions {
   /**
-   * A Google Maps place URL (share link or /maps/place/... URL). The feature id or place_id is read
-   * out of it.
+   * A Google Maps place URL: a /maps/place/... URL, a maps.app.goo.gl share link or a maps?cid=
+   * link. The place is read out of it.
    */
   url?: string;
   /**
@@ -2244,6 +2831,17 @@ export interface GeminiOptions {
    * Two-letter country code to ask from, e.g. US, GB, DE. Gemini answers for where it locates the
    * visitor (local results, currency, language defaults); `locationCountry` in the answer says where
    * it placed this call. Leave blank for any European location.
+   */
+  country?: string;
+}
+
+/**
+ * Options for {@link PluginMethods.chatgpt}.
+ */
+export interface ChatgptOptions {
+  /**
+   * Two-letter country code to ask from, e.g. US, GB, DE. ChatGPT tailors local results to where the
+   * visitor is. Leave blank for any location.
    */
   country?: string;
 }
@@ -3762,7 +4360,7 @@ export interface YoutubeTranscriptOptions {
    */
   lang?: string;
   /**
-   * Output shape: text, segments. 'segments' returns timestamps; 'text' returns only the joined
+   * Output shape: segments, text. 'segments' returns timestamps; 'text' returns only the joined
    * plaintext. API default: segments.
    */
   format?: string;
@@ -4002,8 +4600,8 @@ export abstract class PluginMethods {
    * on amazon.com), `reviewsGated` is `true` and `reviews` is empty; the rating, histogram and
    * customers-say data, including its review excerpts, are still returned. Every field is always
    * present and is `null` when the page does not show it. `proxy_country` defaults to the
-   * marketplace's home country; the proxy that served the request is reported as `exitCountry` (its
-   * country) and `exitProvider` (its type: `isp`, `residential` or `datacenter`).
+   * marketplace's home country; the country of the proxy that served the request is reported as
+   * `exitCountry`.
    * Calls `POST /marketplace/amazon-reviews`.
    */
   amazonReviews(options: AmazonReviewsOptions = {}): Promise<unknown> {
@@ -4031,8 +4629,8 @@ export abstract class PluginMethods {
    * 5 pages in one call with `pages`. Filter with `condition`, `free_shipping` and `prime`.
    * `shippingPrice` is 0 for free delivery and null when Amazon shows no delivery promise for the
    * location. `proxy_country` defaults to the marketplace's home country so prices and delivery are
-   * the ones a local shopper sees; the proxy that served the request is reported as `exitCountry`
-   * and `exitProvider`.
+   * the ones a local shopper sees; the country of the proxy that served the request is reported as
+   * `exitCountry`.
    * Calls `POST /marketplace/amazon-offers`.
    */
   amazonOffers(options: AmazonOffersOptions = {}): Promise<unknown> {
@@ -4098,6 +4696,32 @@ export abstract class PluginMethods {
   }
 
   /**
+   * Scrape one Walmart product's full detail.
+   *
+   * Fetches one Walmart product page (by `item_id` or `url`) and returns it as JSON: `itemId`,
+   * `title`, `brand`, `model`, `upc`, `price`, `wasPrice`, `listPrice`, `unitPrice` (e.g. per ounce,
+   * where Walmart shows one), `currency`, `rollback` / `clearance`, `availability` and `inStock`,
+   * `condition`, `seller` (name, Walmart or marketplace seller, its rating and review count),
+   * `additionalSellerCount`, `fulfillment` (shipping, pickup and delivery: available or not, date,
+   * fee, store or place), `returnPolicy`, `rating`, `reviewCount`, `reviewSummary` (star histogram,
+   * recommend percentage, aspect scores), the first `reviews`, `categories`, `shortDescription`,
+   * `description`, `highlights`, `specifications`, `warranty`, `variantOptions` and every `variants`
+   * entry (its own item id, attributes, price, stock), `images` and `videos`. Fulfillment dates and
+   * the store are what Walmart quotes for the US location it assigns to the request (`location`
+   * names it), not a ZIP code or store you choose. Other sellers' offers are not on the product
+   * page: only their count (`additionalSellerCount`) is returned. Companion to
+   * `/marketplace/walmart-search`.
+   * Calls `POST /marketplace/walmart-product`.
+   */
+  walmartProduct(options: WalmartProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/walmart-product", {
+      item_id: options.itemId,
+      url: options.url,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
    * Scrape Target product search.
    *
    * Searches Target for `query` and returns the products as JSON: `tcin`, `title`, `brand`, `price`
@@ -4115,6 +4739,57 @@ export abstract class PluginMethods {
       max_price: options.maxPrice,
       max_results: options.maxResults,
       proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape a Target category listing.
+   *
+   * Lists the products of one Target category (by id or category link; a brand page's id or link
+   * works too) as JSON: `category` (id, name, link, and `type`: category or brand), `breadcrumbs`,
+   * `totalResults`, `totalPages`, and `products` with `tcin`, `title`, `brand`, `price` (`priceMax`
+   * for a family priced as a range), `originalPrice` and `priceType` when on sale, `formattedPrice`,
+   * `currency`, `rating`, `ratingCount`, `promotions`, `image` and `url`. Sort with `sort`, start at
+   * `page` and collect up to `max_results` across pages (Target serves at most 50 pages of 24).
+   * Filters in a category link (...Z<facet>) are not applied. Each page fetched is billed as one
+   * request (`pagesFetched`).
+   * @param category Target category: its id (e.g. '5xtro', the part after N- in a category link) or
+   * a target.com category link, e.g. https://www.target.com/c/coffee-makers-tea-espresso-kitchen-
+   * appliances-dining/-/N-5xtro. A brand page (/b/<brand>/-/N-<id>) lists that brand.
+   * Calls `POST /marketplace/target-category`.
+   */
+  targetCategory(category: string, options: TargetCategoryOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/target-category", {
+      category: category,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape one Target product.
+   *
+   * Returns one Target product by `tcin` or `url` as JSON: `tcin` (and `parentTcin` when it is one
+   * variant of a product family), `title`, `brand`, `url`, `dpci`, `upc`, `productType`, `price`
+   * (`priceMax` for a family priced as a range), `originalPrice` / `savings` / `savingsPercent` /
+   * `priceType` when on sale, `priceNote` (e.g. 'When purchased online'), `currency` (USD),
+   * `promotions`, `rating`, `ratingCount`, `reviewCount`, `ratingDistribution`,
+   * `recommendedPercent`, `questionCount`, `description`, `highlights`, `specifications`, `image` /
+   * `images`, `category` / `categories`, `selectedVariant` and `variants` (every colour / size with
+   * its own TCIN, price, link, image and shipping / store availability), `fulfillment` (sold out,
+   * shipping status and delivery dates to `zip`, pickup status, date and quantity at `store_id`,
+   * aisle) and `packageDimensions`. Prices are target.com's online prices. Companion to
+   * `/marketplace/target-search`, whose `tcin` it takes. One unit per call.
+   * @param tcin Target item number (TCIN), e.g. '52580270' (the number after A- in a product link).
+   * Calls `POST /marketplace/target-product`.
+   */
+  targetProduct(tcin?: string, options: TargetProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/target-product", {
+      tcin: tcin,
+      url: options.url,
+      store_id: options.storeId,
+      zip: options.zip,
     });
   }
 
@@ -4137,6 +4812,29 @@ export abstract class PluginMethods {
       max_results: options.maxResults,
       page: options.page,
       proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one Best Buy product.
+   *
+   * Returns one Best Buy (US) product by `sku` or `url` as JSON: `sku`, `title`, `brand`, `model`,
+   * `upc`, `productType`, `condition`, `url`, `price`, `originalPrice` / `savings` /
+   * `savingsPercent` (when on sale), `currency` (USD), `available` with `availableForShipping` /
+   * `availableForPickup` / `availableForDelivery` (nationwide, not for one store or ZIP code),
+   * `rating`, `reviewCount`, `description`, `features`, `includedItems`, `specifications` (group /
+   * name / value), `image` and `images` (full size), `category` and `categories` (root to leaf),
+   * `seller` (Best Buy or a Marketplace seller id), `openBoxOffers` (Excellent / Good / Fair with
+   * their prices and links), `dimensions` and `releaseDate`. Companion to `/marketplace/bestbuy-
+   * search`, whose `sku` it takes. One unit per call.
+   * @param sku Best Buy SKU, e.g. '6613868' (the number after /sku/ in a product link, or its
+   * skuId=).
+   * Calls `POST /marketplace/bestbuy-product`.
+   */
+  bestbuyProduct(sku?: string, options: BestbuyProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/bestbuy-product", {
+      sku: sku,
+      url: options.url,
     });
   }
 
@@ -4235,6 +4933,32 @@ export abstract class PluginMethods {
   }
 
   /**
+   * Scrape one Etsy listing's full detail.
+   *
+   * Fetches one Etsy listing (by `listing_id` or `url`) and returns it as JSON: `listingId`,
+   * `title`, `price` (the lowest price when variations differ, `priceMax` the highest),
+   * `originalPrice` / `onSale` / `discountPercent` / `saleEnds` during a sale, `currency` and
+   * `shopperRegion`, `availability` and `quantityAvailable`, `rating` and `reviewCount`,
+   * `reviewSummary` (item quality, shipping and service scores, recommend percentage, review tags
+   * and categories), the first `reviews`, `shop` (name, id, owner, location, rating, review count,
+   * sales, years on Etsy, Star Seller), `variations` (each menu with its options and their prices),
+   * `description`, `materials`, `highlights`, `category`, `shipping` (cost, origin, ships from,
+   * estimated delivery, processing time, returns), `images` and `video`. Prices, shipping cost and
+   * VAT follow the shopper location Etsy assigns to the request, which can differ from
+   * `proxy_country`: `currency` and `shopperRegion` say which one a response used (e.g. EUR / BE),
+   * so read them before comparing prices. Shop review and sales counts are Etsy's rounded figures
+   * ("4.7k sales" is 4700). Companion to `/marketplace/etsy-search`.
+   * Calls `POST /marketplace/etsy-product`.
+   */
+  etsyProduct(options: EtsyProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/etsy-product", {
+      listing_id: options.listingId,
+      url: options.url,
+      proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
    * Scrape SHEIN product search.
    *
    * Searches SHEIN (US store) for `query` and returns the products as JSON: `id`, `sku`, `title`,
@@ -4294,6 +5018,31 @@ export abstract class PluginMethods {
       max_results: options.maxResults,
       page: options.page,
       proxy_country: options.proxyCountry,
+    });
+  }
+
+  /**
+   * Scrape one AliExpress product.
+   *
+   * Returns one AliExpress item by `product_id` or `url`, priced in `currency` and shipped to
+   * `country`, as JSON: `productId`, `url`, `title`, `price` (the default SKU), `priceMin` /
+   * `priceMax` across SKUs, `priceFormatted`, `originalPrice` / `originalPriceMax`, `discount` and
+   * `discountPercent`, `currency`, `rating`, `reviewCount`, `soldText` and `orders`, `inStock`,
+   * `store` (name, ids, link, country, open since, positive feedback, ratings), `shipping` (each
+   * option: method, fee, free, ships from / to, delivery days and dates, deliverable),
+   * `skuProperties` (e.g. colour, size, ships from, with images), `variants` (every SKU with its
+   * attributes, price, original price, availability, stock and image), `specifications`, `images`,
+   * `categoryId` and `descriptionUrl` (the seller's HTML description). One unit per call.
+   * @param productId AliExpress item id, e.g. '1005010503016514' (the number in /item/<id>.html;
+   * `productId` from /goods/aliexpress-search).
+   * Calls `POST /goods/aliexpress-product`.
+   */
+  aliexpressProduct(productId?: string, options: AliexpressProductOptions = {}): Promise<unknown> {
+    return this.postJson("/goods/aliexpress-product", {
+      product_id: productId,
+      url: options.url,
+      country: options.country,
+      currency: options.currency,
     });
   }
 
@@ -4901,6 +5650,581 @@ export abstract class PluginMethods {
     return this.postJson("/marketplace/magazineluiza-product", {
       product_id: options.productId,
       url: options.url,
+    });
+  }
+
+  /**
+   * Scrape MediaMarkt search.
+   *
+   * Searches a MediaMarkt shop (`country` de, at, ch, nl, be, es, it = MediaWorld, pl, hu, tr;
+   * `banner=saturn` for Saturn Germany) for `query` and returns `products`, each with `position`,
+   * `productId`, `offerId` (marketplace offers), `title`, `brand`, `ean`, `url`, `image`,
+   * `breadcrumbs`, `price`, `strikePrice` and `strikePriceType` (RRP = manufacturer's recommended
+   * price, LOP = lowest price of the last 30 days), `discountPercent`, `currency`, `installment`,
+   * `marketplace`, `seller` (marketplace seller with rating), `rating`, `reviewCount`,
+   * `availability` (online status, deliverable, store pickup, delivery window and shipping cost),
+   * `energyEfficiency`, `highlights` (key features), `badges`, `refurbishedFrom` and `sponsored`.
+   * Also `total`, `lastPage`, `nextPage` and `listingUrl` (the category or brand listing MediaMarkt
+   * sends this query to, when it does). `sort` orders the results; `page` and `max_results` page
+   * through them (MediaMarkt shows 12 per page and 30 pages at most). One unit per results page
+   * used.
+   * @param query What to search for, e.g. 'iphone 17' or 'waschmaschine'.
+   * Calls `POST /marketplace/mediamarkt-search`.
+   */
+  mediamarktSearch(query: string, options: MediamarktSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/mediamarkt-search", {
+      query: query,
+      country: options.country,
+      banner: options.banner,
+      language: options.language,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape a MediaMarkt product.
+   *
+   * Returns one MediaMarkt / Saturn / MediaWorld product by `product_id` (with `country` / `banner`)
+   * or `url`: `productId`, `title`, `rawTitle`, `brand`, `ean`, `url`, `breadcrumbs`, `kind`,
+   * `price`, `strikePrice`, `strikePriceType`, `discountPercent`, `currency`, `vatRate`,
+   * `installment`, `marketplace`, `seller`, `rating`, `reviewCount`, `ratingBreakdown` (1-5 stars),
+   * `availability` (online status, deliverable, store pickup, delivery window and shipping cost),
+   * `energyEfficiency` (class, label and data sheet), `highlights`, `specifications` (group / name /
+   * value / unit), `images`, `variants` (dimension, value, product id, price, online status),
+   * `badges`, `refurbishedFrom`, `description` and the latest `reviews`. Store-level stock needs a
+   * chosen store and is not included. One unit per call.
+   * @param productId MediaMarkt product number, e.g. 3071615 (the number at the end of a product
+   * link, or `productId` from the search results).
+   * Calls `POST /marketplace/mediamarkt-product`.
+   */
+  mediamarktProduct(productId?: string, options: MediamarktProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/mediamarkt-product", {
+      product_id: productId,
+      url: options.url,
+      country: options.country,
+      banner: options.banner,
+      language: options.language,
+    });
+  }
+
+  /**
+   * Scrape Cdiscount search.
+   *
+   * Searches Cdiscount (France) for `query` and returns `products`, each with `position`,
+   * `productId` (the SKU), `offerId`, `title`, `url`, `image`, `images`, `price`, `strikePrice` (the
+   * crossed-out reference price, only when Cdiscount shows one), `discountPercent`, `currency`
+   * (EUR), `rating`, `reviewCount`, `seller` (id, name, `isCdiscount`), `marketplace`,
+   * `fulfilledByCdiscount`, `cdiscountAVolonte`, `freeShipping`, `deliveryLabel`, `condition`,
+   * `highlights` (key specs), `badges` (promotions) and `brandId`. Also `total`, `lastPage` and
+   * `nextPage`. Search results show the brand only as an id; the product endpoint has the brand
+   * name. `page` and `max_results` page through the results. One unit per Cdiscount page read.
+   * @param query What to search for, e.g. 'iphone 15' or 'machine a laver'.
+   * Calls `POST /marketplace/cdiscount-search`.
+   */
+  cdiscountSearch(query: string, options: CdiscountSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/cdiscount-search", {
+      query: query,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape a Cdiscount product.
+   *
+   * Returns one Cdiscount (France) product by `sku` or `url`: `productId`, `offerId`, `title`,
+   * `brand`, `ean`, `manufacturerReference`, `url`, `breadcrumbs`, `price`, `priceWithoutVat`,
+   * `strikePrice` and `strikePriceType`, `discountPercent`, `ecoParticipation`, `currency`,
+   * `available`, `maxQuantity`, `preorder`, `condition`, `seller` (Cdiscount or the marketplace
+   * seller), `marketplace`, `fulfilledByCdiscount`, `cdiscountAVolonte`, `delivery` (free shipping,
+   * label, ships from), `offers` (count of new and used offers and the lowest price of each),
+   * `rating`, `reviewCount`, `ratingBreakdown` (1-5 stars), `criteriaRatings`, `highlights`,
+   * `specifications` (group / name / value), `description`, `images`, `videos`, `variants`
+   * (attributes, price, url), `energyClass`, `repairabilityIndex`, `installments`, `badges`,
+   * `documents` and the latest `reviews`. The individual marketplace offers and their sellers'
+   * ratings are not included. One unit per call.
+   * @param sku Cdiscount product id (SKU), e.g. ip17256black - the part after f-<number>- in a
+   * product link, or `productId` from the search results.
+   * Calls `POST /marketplace/cdiscount-product`.
+   */
+  cdiscountProduct(sku?: string, options: CdiscountProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/cdiscount-product", {
+      sku: sku,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape idealo search.
+   *
+   * Searches idealo (price comparison; `country` de, at, uk, fr, it or es) for `query` and returns
+   * `products`, each with `position`, `type` (product = a price comparison of many shops, offer = a
+   * single shop offer idealo has not matched to a product), `productId`, `offerId`, `title`,
+   * `subtitle`, `characteristics`, `url` (the product's price comparison, or the shop link of a
+   * single offer), `image`, `lowestPrice`, `basePrice` (unit price text, when idealo shows one),
+   * `offerCount`, `usedOnly`, `cheapestShop` (id, name, shipping cost, delivery, free-return days),
+   * `rating` (stars, rounded to half a star by idealo), `reviewCount`, `testGrade` (the average
+   * press test grade, where 1 is best), `energyClass`, `bargainSavingPercent`, `bestsellerRank`,
+   * `categoryId` and `variantOf`. Also `total`, `productCount`, `lastPage` and `nextPage`, and
+   * `currency`. `sort` orders the results (relevance or price_asc); `page` and `max_results` page
+   * through them. Use `/marketplace/idealo-offers` for all shop offers of one product. One unit per
+   * idealo page read.
+   * @param query What to search for, e.g. 'iphone 17' or 'kaffeevollautomat'.
+   * Calls `POST /marketplace/idealo-search`.
+   */
+  idealoSearch(query: string, options: IdealoSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/idealo-search", {
+      query: query,
+      country: options.country,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape idealo offers of a product.
+   *
+   * Returns one idealo price comparison by `product_id` or `url` (`country` de, at, uk, fr, it or
+   * es): the product (`productId`, `title`, `brand`, `url`, `images`, `lowestPrice`, `highestPrice`,
+   * `currency`, `offerCount`, `rating`, `reviewCount`, `pros`, `cons`, `variants` with their own
+   * price range and offer count) and `offers`, cheapest first, each with `position`, `offerKey`,
+   * `title` (the shop's own product title), `price`, `shippingCost`, `totalPrice`, `delivery` (the
+   * shop's delivery estimate as idealo prints it), `carriers`, `freeReturns`, `paymentMethods`,
+   * `shop` (id, name, rating, rating count, marketplace and the marketplace seller), `variantId`,
+   * `variantName` and `url` (idealo's click-out link). Offers are the new-item offers idealo lists
+   * by default; `max_results` collects more than the first 20. One unit for the product and its
+   * first 20 offers, plus one per further block of 20.
+   * @param productId idealo product id, e.g. 207643424 (the number in a price comparison link, or
+   * `productId` from the search results).
+   * Calls `POST /marketplace/idealo-offers`.
+   */
+  idealoOffers(productId?: string, options: IdealoOffersOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/idealo-offers", {
+      product_id: productId,
+      url: options.url,
+      country: options.country,
+      max_results: options.maxResults,
+    });
+  }
+
+  /**
+   * Scrape Rakuten Ichiba (Japan) product search.
+   *
+   * Searches Rakuten Ichiba (rakuten.co.jp) for `query` and returns `products`, each with
+   * `position`, `itemId`, `itemCode`, `shopId` / `shopCode` / `shopName`, `title`, `subtitle`,
+   * `url`, `price` (yen, tax included; `priceMax` when variants are priced differently), `points`
+   * (Rakuten points a signed-out shopper earns) and `pointMultiplier`, `rating`, `reviewCount`,
+   * `shippingFee` / `freeShipping`, `deliveryEstimate`, `nextDayDelivery`, `unitPrice` /
+   * `unitPriceText` / `packCount`, `subscriptionPrice`, `saleEnds`, `ranking` (daily genre rank),
+   * `soldOut`, `used`, `preOrder`, `superDeal`, `hasVariants`, `genreId` / `genres`, `tags` and
+   * `image` / `images`. Rakuten's sponsored results come back in `sponsored` (same fields). Also
+   * `totalResults`, `reachableResults` (how far Rakuten lets the search be paged), `relatedKeywords`
+   * and `nextPage`. Sort with `sort`, filter with `min_price` / `max_price` / `genre_id`, start at
+   * `page` and collect up to `max_results` across pages (45 per page, each page billed as one
+   * request, see `pagesFetched`). `url` takes a Rakuten search link instead of `query`.
+   * @param query What to search, in Japanese or English, e.g. 'iphone', 'コーヒー' or 'ナイキ スニーカー'.
+   * Calls `POST /marketplace/rakuten-search`.
+   */
+  rakutenSearch(query?: string, options: RakutenSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/rakuten-search", {
+      query: query,
+      sort: options.sort,
+      page: options.page,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
+      genre_id: options.genreId,
+      max_results: options.maxResults,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one Rakuten Ichiba (Japan) item's full detail.
+   *
+   * Fetches one Rakuten Ichiba item (by `product_id` '<shopCode>/<itemCode>' or `url`) and returns
+   * it as JSON: `itemId`, `itemCode`, `shopId` / `shopCode` / `shopName`, `url`, `title`, `tagline`,
+   * `description`, `condition`, `price` / `priceMax` (yen, tax included), `freeShipping`,
+   * `available`, `stockQuantity` (when the shop shares it), `deliveryMessage`, `orderLimit`,
+   * `rating`, `reviewCount`, `reviewsUrl`, `genreId`, `breadcrumbs`, `shopCategories`, `attributes`
+   * (name / value / unit), `variantOptions`, `variants` (every SKU with its options, price,
+   * availability, stock, JAN code and image) and `images`. The top-level price and stock are those
+   * of `variant_id` when given. Rakuten points are shown on search results (`/marketplace/rakuten-
+   * search`), not here. Companion to `/marketplace/rakuten-search`.
+   * Calls `POST /marketplace/rakuten-product`.
+   */
+  rakutenProduct(options: RakutenProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/rakuten-product", {
+      product_id: options.productId,
+      url: options.url,
+      variant_id: options.variantId,
+    });
+  }
+
+  /**
+   * Scrape IndiaMART B2B product search.
+   *
+   * Searches IndiaMART for `query` and returns `products`, each with `position`, `productId`,
+   * `title`, `url` (the IndiaMART product page, or the supplier's catalogue page when
+   * `hasProductPage` is false - only products with a page can be fetched with
+   * `/marketplace/indiamart-product`), `price` (number, null when the supplier asks for a quote) and
+   * `priceText`, `currency`, `unit` (the price is per this unit), `minOrderQuantity`, `category` /
+   * `categoryId`, `specifications` (name / value), `description`, `image`, `brochureUrl`, `supplier`
+   * (`id`, `name`, `city`, `district`, `state`, `country`, `businessType`, `verifiedExporter`,
+   * `trustSeal`, `gstVerified`, `iecVerified`, `rating`, `ratingCount`, `memberSince`,
+   * `exporterSince`, `exportsTo`, `website`) and `moreFromSupplier` (the supplier's other matching
+   * products). IndiaMART shows visitors outside India its export catalogue, so results are
+   * IndiaMART's verified exporters, 10 a page and 2 pages (up to 20 products per search);
+   * `totalResults` is IndiaMART's own count of all matches. Supplier phone numbers, e-mails and
+   * contact names are not returned. `url` takes an IndiaMART search link instead of `query`.
+   * @param query What to search, e.g. 'steel pipe', 'cotton t shirt' or 'solar panel'.
+   * Calls `POST /marketplace/indiamart-search`.
+   */
+  indiamartSearch(query?: string, options: IndiamartSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/indiamart-search", {
+      query: query,
+      page: options.page,
+      max_results: options.maxResults,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one IndiaMART product and its supplier.
+   *
+   * Fetches one IndiaMART product (by `product_id` or `url`) and returns it as JSON: `productId`,
+   * `title`, `name`, `url`, `price` (null when the supplier asks for a quote) / `priceText`,
+   * `currency`, `unit`, `minOrderQuantity`, `description`, `specifications` (name / value),
+   * `category` / `categoryId` / `parentCategory` / `group`, `deliveryTime`, `packagingDetails`,
+   * `productionCapacity`, `portOfDispatch`, `paymentTerms`, `image` / `images`, `brochureUrl` and
+   * `supplier` (`id`, `name`, `city`, `state`, `country`, `businessType`, `additionalBusiness`,
+   * `yearEstablished`, `employees`, `annualTurnover`, `legalStatus`, `gstVerified`, `trustSeal`,
+   * `mobileVerified`, `emailVerified`, `rating`, `ratingCount`, `memberSince`, `topExportCountries`,
+   * `website`, `logo`). Supplier phone numbers, e-mails, people's names and street addresses are not
+   * returned. Companion to `/marketplace/indiamart-search`.
+   * Calls `POST /marketplace/indiamart-product`.
+   */
+  indiamartProduct(options: IndiamartProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/indiamart-product", {
+      product_id: options.productId,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape Bed Bath & Beyond product search.
+   *
+   * Searches Bed Bath & Beyond (bedbathandbeyond.com, US) for `query` and returns the products as
+   * JSON: `productId`, `sku`, `title`, `url`, `image`, `price` (the lowest option price) and
+   * `priceMax` (the top of the range when options differ), `priceText`, `priceType` (SALE or
+   * STANDARD), `currency` (USD), `comparePrice` with `compareType` (MSRP, COMPARE_AT or WAS),
+   * `discountPercent`, `regularPrice`, `hasOptions`, `optionCount`, `rating`, `reviewCount`, `badge`
+   * (e.g. Best Seller), `onSale`, `fastDelivery`, `rewards` (Welcome Rewards dollars) and
+   * `sponsored`. Sort with `sort`, start at `page`, and collect up to `max_results` across pages
+   * (about 60 per page, each page billed as one request, see `pagesFetched`). Keywords the site maps
+   * to a department (e.g. 'rugs') return that department's listing, named in `redirectedTo`. `url`
+   * takes a search link instead of `query`.
+   * @param query What to search, e.g. 'bath towels', 'office chair' or 'table lamp'.
+   * Calls `POST /marketplace/bedbathandbeyond-search`.
+   */
+  bedbathandbeyondSearch(query?: string, options: BedbathandbeyondSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/bedbathandbeyond-search", {
+      query: query,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one Bed Bath & Beyond product's full detail.
+   *
+   * Fetches one Bed Bath & Beyond product (by id or link) and returns it as JSON: `productId`,
+   * `sku`, `url`, `title`, `brand`, `brandUrl`, `manufacturerPartNumber`, `price` with `priceLabel`
+   * (e.g. 'Sale Starts at' when options are priced differently), `comparePrice` with `compareLabel`
+   * (MSRP, Was, At other retailer), `savings`, `savingsPercent`, `currency` (USD), `inStock`,
+   * `rating`, `reviewCount`, `ratingHistogram`, `badge`, `shortDescription`, `description`,
+   * `countryOfOrigin`, `freeShipping`, `internationalShipping`, `firstListed`, `breadcrumbs`,
+   * `specifications` (group / name / value), `optionCount`, `defaultOptionId`, `options` (up to 100:
+   * option id, title, size / colour attributes, price, regular price, compare price, on-sale flag,
+   * stock and quantity on hand), `images` and `videos`. Prices are those shown to a signed-out
+   * shopper. Companion to `/marketplace/bedbathandbeyond-search`.
+   * @param product A Bed Bath & Beyond product id (e.g. '5296998', the number before /product.html)
+   * or a product link.
+   * Calls `POST /marketplace/bedbathandbeyond-product`.
+   */
+  bedbathandbeyondProduct(product: string): Promise<unknown> {
+    return this.postJson("/marketplace/bedbathandbeyond-product", {
+      product: product,
+    });
+  }
+
+  /**
+   * Scrape Petco product search.
+   *
+   * Searches Petco (petco.com, US) for `query` and returns the products as JSON: `sku`, `productId`,
+   * `title`, `familyName`, `brand`, `url`, `image`, `price`, `listPrice`, `autoshipPrice` (the
+   * Repeat Delivery price), `onSale`, `currency` (USD), `rating`, `reviewCount`, `description`,
+   * `category`, `autoshipEligible`, `pickupEligible`, `sameDayDeliveryEligible`, `inStoreOnly`,
+   * `prescriptionFood`, `attributes` (brand, flavour, life stage...) and `variations` (every size /
+   * colour with its SKU, url and prices). Sort with `sort`, narrow with `brand`, `fulfillment`
+   * (delivery, autoship, pickup, same_day) and `min_price` / `max_price`, start at `page` and
+   * collect up to `max_results` (48 per page, each page billed as one request, see `pagesFetched`).
+   * A term Petco sends to a brand or category page (e.g. a brand name) returns that page's listing,
+   * named in `redirectedTo`. Prices are the online prices a signed-out shopper sees; store-specific
+   * stock and member (Vital Care) prices are not included.
+   * @param query What to search, e.g. 'dog food', 'cat litter' or 'fish tank'.
+   * Calls `POST /marketplace/petco-search`.
+   */
+  petcoSearch(query?: string, options: PetcoSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/petco-search", {
+      query: query,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+      brand: options.brand,
+      fulfillment: options.fulfillment,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one Petco product's full detail.
+   *
+   * Fetches one Petco product (by SKU or link) and returns it as JSON: `sku`, `catEntryId`,
+   * `parentSku`, `url`, `title`, `brand`, `upc`, `price`, `listPrice`, `autoshipPrice`,
+   * `pickupPrice`, `onSale`, `currency` (USD), `availability`, `inStock`, `availableQuantity`
+   * (online stock), `rating`, `reviewCount`, `ratingHistogram`, `recommendedPercent`, `description`,
+   * `highlights`, `ingredients`, `directions`, `specifications` (group / name / value), `attributes`
+   * (size / weight / colour of this variant), `dimensions`, `petType`, `category`, `breadcrumbs`,
+   * fulfillment flags (`autoshipEligible`, `pickupEligible`, `sameDayDeliveryEligible`,
+   * `onlineOnly`, `inStoreOnly`), `prescriptionRequired`, `discontinued`, `images`, `variants`
+   * (every size / colour with its SKU, url, prices and stock) and the first `reviews` (up to 10). A
+   * link's own variant is returned; a SKU picks that variant. Prices are the online prices a signed-
+   * out shopper sees (no member or store prices). Companion to `/marketplace/petco-search`.
+   * @param product A Petco SKU (the number a product link ends in, e.g. '3748364') or a petco.com
+   * product link.
+   * Calls `POST /marketplace/petco-product`.
+   */
+  petcoProduct(product: string): Promise<unknown> {
+    return this.postJson("/marketplace/petco-product", {
+      product: product,
+    });
+  }
+
+  /**
+   * Scrape one Neobits product.
+   *
+   * Fetches one product from Neobits (neobits.com, US B2B electronics and IT reseller) by item
+   * number or link and returns it as JSON: `itemNumber`, `url`, `title`, `brand`, `brandUrl`,
+   * `mfrPartNumber`, `price`, `listPrice`, `savings`, `discountPercent`, `priceDrop`, `currency`
+   * (USD), `stockStatus` (e.g. In Stock, SHIPS SOON), `inStock`, `stockNote`, `leadTime` (the
+   * brand's average lead time when shown), `rating`, `reviewCount`, `questionCount`, `description`,
+   * `specifications` (name / value), `breadcrumbs` and `images`. Neobits search is not offered: the
+   * site gates its search and listing pages behind a reCAPTCHA for automated traffic.
+   * @param product A Neobits item number (the 'Item #' on a product page, e.g. '27956233') or a
+   * neobits.com product link (ending in _p<item>.html).
+   * Calls `POST /marketplace/neobits-product`.
+   */
+  neobitsProduct(product: string): Promise<unknown> {
+    return this.postJson("/marketplace/neobits-product", {
+      product: product,
+    });
+  }
+
+  /**
+   * Scrape Lowe's product search.
+   *
+   * Searches Lowe's (lowes.com, US) for `query` at one store and returns `products`: `productId`
+   * (Lowe's item id), `itemNumber`, `modelNumber`, `brand`, `title`, `url`, `image`, `rating`,
+   * `reviewCount`, `price`, `wasPrice`, `savings`, `savingsPercent` and `saleEnds` (promotions),
+   * `clearance`, `minPrice` / `maxPrice` (items with options), `priceType` (store, network = Lowe's
+   * online price, sos = special order), `currency`, `availability` (`pickup` with the units on hand
+   * at the store, `parcel`, `delivery`, `expeditedDelivery`), `sponsored`, `marketplace`, `bullets`
+   * and `specifications`, plus `store` (the store the prices and stock are for) and paging totals.
+   * Set the store with `store_id` or `zip` (default: store 1845, Chicago-Brickyard, IL). Results
+   * come in Lowe's own order; `free_delivery` keeps free-delivery items only. Start at `page` and
+   * collect up to `max_results` across pages (24 per page, each page billed as one request, see
+   * `pagesFetched`). A broad keyword Lowe's sends to a category landing page (e.g. patio furniture)
+   * is answered from the landing page's first category tile that names the keyword; `category` names
+   * it (null for a plain search). A landing page without such a tile answers 404: search a more
+   * specific term.
+   * @param query What to search, e.g. 'cordless drill', 'garden hose' or 'interior paint'.
+   * Calls `POST /marketplace/lowes-search`.
+   */
+  lowesSearch(query?: string, options: LowesSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/lowes-search", {
+      query: query,
+      page: options.page,
+      max_results: options.maxResults,
+      store_id: options.storeId,
+      zip: options.zip,
+      free_delivery: options.freeDelivery,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one Lowe's product.
+   *
+   * Fetches one Lowe's product (by `product_id` or `url`) priced for one store and returns it as
+   * JSON: `productId`, `itemNumber`, `modelNumber`, `upc`, `brand`, `title`, `url`, `rating`,
+   * `reviewCount`, `price`, `wasPrice`, `savings`, `savingsPercent`, `saleEnds`, `clearance`,
+   * `priceType`, `currency`, `storeId`, `availability` (`pickup` with the units on hand at the store
+   * and at `nearbyStores`, `parcel`, `delivery`, `expeditedDelivery` with lead times),
+   * `description`, `bullets`, `specifications` (name / value / group), `images`, `videos`,
+   * `documents`, `category`, `dimensions`, `weightLbs`, `buyable` and `status`, plus `store`. Set
+   * the store with `store_id` or `zip` (default: store 1845, Chicago-Brickyard, IL). Companion to
+   * `/marketplace/lowes-search`.
+   * @param productId Lowe's item id, e.g. '5016412045' (the number at the end of a product link; the
+   * `productId` of a search result).
+   * Calls `POST /marketplace/lowes-product`.
+   */
+  lowesProduct(productId?: string, options: LowesProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/lowes-product", {
+      product_id: productId,
+      url: options.url,
+      store_id: options.storeId,
+      zip: options.zip,
+    });
+  }
+
+  /**
+   * Scrape Menards product search.
+   *
+   * Searches Menards (menards.com, US) for `query` and returns `products`: `itemId`, `sku` (the
+   * Menards SKU), `modelNumber` (when Menards lists it), `title`, `brand`, `url`, `image`, `price`
+   * (shelf price before the mail-in rebate), `regularPrice` (everyday low price), `onSale`, `rebate`
+   * and `rebateLabel` (Menards' rebate, usually 11%), `priceAfterRebate` (null when the maker's
+   * advertised-price policy moves it to checkout: `priceInCheckout` true, `minimumAdvertisedPrice`),
+   * `unitOfMeasure`, `currency`, `availability` (`pickup`, `delivery`, `stockAtStore`,
+   * `stockMessage`, `deliveryMessage`), `variationCount` and `categoryId`, plus `totalResults`,
+   * `facets` and `store` (the store the prices and stock are for). Set the store with `store_id` or
+   * `zip`; without one Menards shows its default online prices and no store stock. Sort with `sort`,
+   * filter with `min_price` / `max_price`, `in_stock_today`, `delivery_eligible` and
+   * `pickup_eligible`, start at `page` and collect up to `max_results` across pages (40 per page,
+   * each page billed as one request, see `pagesFetched`). A keyword Menards sends to a category
+   * returns that category's products (`redirectedTo`); a Menards SKU returns no products and the
+   * product link in `redirectedTo`. A keyword Menards sends to a page of category tiles (e.g.
+   * interior paint) or one with no matches answers 404.
+   * @param query What to search, e.g. 'cordless drill', 'garden hose' or '2x4 lumber'.
+   * Calls `POST /marketplace/menards-search`.
+   */
+  menardsSearch(query: string, options: MenardsSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/menards-search", {
+      query: query,
+      sort: options.sort,
+      page: options.page,
+      max_results: options.maxResults,
+      min_price: options.minPrice,
+      max_price: options.maxPrice,
+      store_id: options.storeId,
+      zip: options.zip,
+      in_stock_today: options.inStockToday,
+      delivery_eligible: options.deliveryEligible,
+      pickup_eligible: options.pickupEligible,
+    });
+  }
+
+  /**
+   * Scrape one Menards product.
+   *
+   * Fetches one Menards product (by `url` or `sku`) and returns it as JSON: `itemId`, `sku`,
+   * `modelNumber`, `title`, `brand`, `url`, `price` (shelf price), `regularPrice` (everyday low
+   * price), `onSale` and `saleEnds`, `minimumAdvertisedPrice` and `priceInCheckout` (items whose
+   * maker lets Menards show its price only in checkout: `price` is then null), `rebate`,
+   * `rebateLabel`, `rebateEnds`, `priceAfterRebate`, `offerPrice`, `currency`, `availability`,
+   * `storeId`, `description`, `features`, `specifications` (name / value), `images` and
+   * `breadcrumbs`. Prices are Menards' default online prices (the store in `storeId`); for one
+   * store's prices and stock use `/marketplace/menards-search` with `store_id` or `zip`.
+   * Calls `POST /marketplace/menards-product`.
+   */
+  menardsProduct(options: MenardsProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/menards-product", {
+      url: options.url,
+      sku: options.sku,
+    });
+  }
+
+  /**
+   * Scrape Grainger product search.
+   *
+   * Searches Grainger (grainger.com, US industrial supplies) for `query` and returns Grainger's
+   * first result rows (up to 25 items, in Grainger's order) as `products`: `position`, `sku`
+   * (Grainger item number), `productId`, `title`, `brand`, `manufacturerModel`, `url`, `image`,
+   * `price` (Grainger's signed-out Web Price), `priceLabel`, `priceType`, `wasPrice`,
+   * `quantityPricing`, `currency`, `status` (e.g. Sellable) and `specifications` (name / value, e.g.
+   * thread size, voltage, material). Grainger answers a keyword with the product category that
+   * matches it best: `category` names it, `totalResults` counts that category's matches, and
+   * `categories` lists the other matching categories with counts and links (search one of them by
+   * passing its link as `url`). A keyword that leads to a department page (subcategory tiles, no
+   * products) is answered from the subcategory holding the product line that matches it most often:
+   * `category` names that subcategory, `totalAcrossCategories` counts the department and
+   * `categories` lists its subcategories. Only the first result rows are returned (no paging). Stock
+   * is not included: Grainger checks it per ZIP code after the page loads.
+   * @param query What to search, e.g. 'safety glasses', 'hex bolt', 'cordless drill' or a
+   * manufacturer model.
+   * Calls `POST /marketplace/grainger-search`.
+   */
+  graingerSearch(query?: string, options: GraingerSearchOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/grainger-search", {
+      query: query,
+      max_results: options.maxResults,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one Grainger product.
+   *
+   * Fetches one Grainger item (by `sku`, the Grainger item number, or `url`) and returns it as JSON:
+   * `sku`, `productId`, `title`, `brand`, `manufacturerModel`, `url`, `price` (signed-out Web
+   * Price), `priceLabel`, `priceType`, `wasPrice`, `unitOfMeasure` (e.g. 'pkg. of 100'),
+   * `quantityPricing`, `currency`, `status`, `discontinued`, `sellInfo`, `shippingWeight`,
+   * `description`, `specifications` (name / value, including UNSPSC and country of origin),
+   * `images`, `documents` (spec sheets, drawings), `alternateSkus` and `breadcrumbs`. Stock is not
+   * included: Grainger checks it per ZIP code after the page loads.
+   * @param sku Grainger item number, e.g. '1XE66' or '22TA59' (the `sku` of a search result).
+   * Calls `POST /marketplace/grainger-product`.
+   */
+  graingerProduct(sku?: string, options: GraingerProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/grainger-product", {
+      sku: sku,
+      url: options.url,
+    });
+  }
+
+  /**
+   * Scrape one eBay listing's full detail.
+   *
+   * Fetches one eBay listing (by `item_id` + `marketplace`, or `url`) on any supported eBay site and
+   * returns it as JSON: `itemId`, `title`, `status` (active / ended), `price` + `currency`,
+   * `originalPrice` (list or was price), `listingFormat` (buy_it_now, auction,
+   * auction_with_buy_it_now) with `buyItNowPrice`, `currentBid`, `bidCount`, `reserveMet` and
+   * `endsAt`, `listingPrice` / `listingCurrency` when the seller lists in another currency,
+   * `condition` (with `conditionCode` and the seller's `conditionNotes`), `availability`,
+   * `quantityAvailable`, `quantitySold`, `watchers`, `seller` (username, store name, feedback score,
+   * positive percentage, business or private), `shippingRates` (cost per destination country),
+   * `shipping`, `itemLocation`, `delivery`, `importFees`, `returns`, `brand`, `mpn`, `gtin`,
+   * `itemSpecifics`, `categories`, `paymentMethods`, `variationOptions` and `variations` (each with
+   * its own price and stock), `images` and the seller's `description` as text. Labels and texts
+   * follow the site's language (ebay.de answers in German). Shipping, delivery dates and, on EU
+   * sites, VAT-inclusive prices are quoted for the country the request comes from: pass
+   * `proxy_country` to fix it. Companion to `/marketplace/ebay-search`.
+   * Calls `POST /marketplace/ebay-product`.
+   */
+  ebayProduct(options: EbayProductOptions = {}): Promise<unknown> {
+    return this.postJson("/marketplace/ebay-product", {
+      item_id: options.itemId,
+      url: options.url,
+      marketplace: options.marketplace,
+      include_description: options.includeDescription,
+      proxy_country: options.proxyCountry,
     });
   }
 
@@ -6145,6 +7469,30 @@ export abstract class PluginMethods {
    */
   gemini(prompt: string, options: GeminiOptions = {}): Promise<unknown> {
     return this.postJson("/ai/gemini", {
+      prompt: prompt,
+      country: options.country,
+    });
+  }
+
+  /**
+   * Ask ChatGPT and get its answer and cited sites.
+   *
+   * Asks ChatGPT (chatgpt.com, signed out) one question and returns its finished answer: `answer`
+   * (plain text) and `answerMarkdown`, `citations` (the source pills ChatGPT attaches to claims:
+   * `position`, `siteName`, `domain`, `moreSources` - how many further sources the pill groups - and
+   * `citedText`, the answer text it backs), `links` (links written into the answer: `position`,
+   * `title`, `url`, `domain`), `sources` (every site cited or linked, once), `webSearch` (whether
+   * ChatGPT searched the web), `model` (null: signed-out ChatGPT does not show it) and
+   * `conversationId`. Signed-out ChatGPT shows the full URL of a cited page only on hover, so
+   * citations carry the site and domain, not the page URL. `country` asks from that country. Answers
+   * take 15-60 s and vary between identical calls, as they do for people. One unit per call; a 503
+   * when ChatGPT capacity is busy is not billed.
+   * @param prompt The question to ask ChatGPT, as a user would type it, e.g. 'best CRM for small
+   * business' (max 2000 characters). Each call starts a new conversation.
+   * Calls `POST /ai/chatgpt`.
+   */
+  chatgpt(prompt: string, options: ChatgptOptions = {}): Promise<unknown> {
+    return this.postJson("/ai/chatgpt", {
       prompt: prompt,
       country: options.country,
     });

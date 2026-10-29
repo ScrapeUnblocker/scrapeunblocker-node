@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.0 (2026-10-29)
+
+- 23 new plugin methods on `ScrapeUnblockerClient`:
+  - Groceries: `krogerSearch(query)` and `krogerProduct(product)` (Kroger and its 18 banner stores such as Ralphs and Fred Meyer, priced for one store), `instacartSearch(query, { retailer })` and `instacartProduct(product)` (any retailer on Instacart, priced for a ZIP code), `publixSearch(query)` and `publixProduct(product)`.
+  - E-commerce: `amazonOffers(options)` (every seller's offer for a product, by `asin` or `url`), `amazonSeller(options)` (a seller's public profile and feedback, by `sellerId` or `url`), `costcoSearch(query)` and `costcoProduct(product)`, `flipkartSearch(query)` and `flipkartProduct(productId)`, `lazadaSearch(query)` and `lazadaProduct(itemId)` (six markets, `country` option), `allegroSearch(query)` and `allegroProduct(offerId)`, `falabellaSearch(query)` and `falabellaProduct(options)` (Chile, Colombia and Peru), `magazineluizaSearch(query)` and `magazineluizaProduct(options)`.
+  - Google: `googleAiMode(q)` (the AI Mode answer with the pages it cites) and `googleLens(url)` (Google Lens visual matches for an image URL).
+  - AI: `gemini(prompt)` (Google Gemini's answer with its citations and sources).
+- The first argument of `flipkartProduct`, `lazadaProduct`, `allegroProduct`, `falabellaSearch` and `magazineluizaSearch` is optional, for calls that pass the `url` option instead. `falabellaProduct` and `magazineluizaProduct` take `productId` or `url`.
+- `instacartSearch` needs the `retailer` option (the retailer's Instacart slug, e.g. `"costco"`); the API answers 400 without it. `instacartProduct` takes it too, unless `product` is a link that names the retailer.
+- `sheinSearch` docs: results also carry `reviewCountText`, and the price filters apply to `price`.
+
+No breaking changes.
+
 ## 0.14.1 (2026-10-25)
 
 - `serp({ captchaPause })` docs: the API ignores `captcha_pause`; `captchaPause` is kept and marked `@deprecated` for compatibility. CAPTCHAs are handled server-side by retrying from other exits.

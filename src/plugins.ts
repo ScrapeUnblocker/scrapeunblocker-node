@@ -1951,6 +1951,56 @@ export interface MapsPlaceDetailsOptions {
 }
 
 /**
+ * Options for {@link PluginMethods.mapsReviews}.
+ */
+export interface MapsReviewsOptions {
+  /**
+   * A Google Maps place URL (share link or /maps/place/... URL). The feature id or place_id is read
+   * out of it.
+   */
+  url?: string;
+  /**
+   * A Google place_id, e.g. 'ChIJN1t_tDeuEmsRUsoyG83frY4'.
+   */
+  placeId?: string;
+  /**
+   * A Maps feature id '0xHEX:0xHEX', e.g. '0x4776901a5d4813b3:0x2a497c8b414893c'. Fastest - no
+   * resolve step.
+   */
+  featureId?: string;
+  /**
+   * Review order: 'relevant' (Google's default), 'newest', 'highest' or 'lowest'. SerpApi's
+   * 'qualityScore', 'newestFirst', 'ratingHigh' and 'ratingLow' are accepted too. API default:
+   * relevant.
+   */
+  sort?: string;
+  /**
+   * How many reviews to return, 1-200. Reviews come in pages of 20; each page fetched is one billed
+   * unit. API default: 20.
+   */
+  maxReviews?: number;
+  /**
+   * Continue from a previous answer's `nextPageToken` (same place and sort). When `max_reviews` is
+   * not a multiple of 20 the next page can repeat a few reviews - dedupe on `reviewId`.
+   */
+  nextPageToken?: string;
+  /**
+   * Language for Google's labels and the review translation (`translatedText`), e.g. 'en', 'de'. The
+   * original text is always returned in `text`. API default: en.
+   */
+  hl?: string;
+  /**
+   * Google country, ISO-2 lowercase, e.g. 'us'. API default: us.
+   */
+  gl?: string;
+  /**
+   * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). Reviews are the same from any
+   * country. API default: us.
+   */
+  proxyCountry?: string;
+}
+
+/**
  * Options for {@link PluginMethods.googleHotels}.
  */
 export interface GoogleHotelsOptions {
@@ -3712,7 +3762,7 @@ export interface YoutubeTranscriptOptions {
    */
   lang?: string;
   /**
-   * Output shape: segments, text. 'segments' returns timestamps; 'text' returns only the joined
+   * Output shape: text, segments. 'segments' returns timestamps; 'text' returns only the joined
    * plaintext. API default: segments.
    */
   format?: string;
@@ -5862,6 +5912,32 @@ export abstract class PluginMethods {
       gl: options.gl,
       proxy_country: options.proxyCountry,
       raw: options.raw,
+    });
+  }
+
+  /**
+   * Scrape Google Maps reviews.
+   *
+   * Returns one Google Maps place's reviews as JSON, sorted the way Google sorts them: `relevant`,
+   * `newest`, `highest` or `lowest`. Each review has `rating` (1-5), `date` (exact ISO 8601, UTC) +
+   * `timestamp`, `relativeDate`, `text` (original) + `language`, `translatedText` (into `hl`, when
+   * the review is in another language), `author`, `photos`, `details` (guided answers such as
+   * 'Rooms: 5'), `ownerResponse` and `reviewUrl`. The answer also carries a `place` summary and
+   * `nextPageToken` for paging. Identify the place with `feature_id` (0xHEX:0xHEX), `place_id`
+   * (ChIJ...) or a Maps `url`. Reviews come in pages of 20; each page fetched is one billed unit.
+   * Calls `POST /maps/reviews`.
+   */
+  mapsReviews(options: MapsReviewsOptions = {}): Promise<unknown> {
+    return this.postJson("/maps/reviews", {
+      url: options.url,
+      place_id: options.placeId,
+      feature_id: options.featureId,
+      sort: options.sort,
+      max_reviews: options.maxReviews,
+      next_page_token: options.nextPageToken,
+      hl: options.hl,
+      gl: options.gl,
+      proxy_country: options.proxyCountry,
     });
   }
 

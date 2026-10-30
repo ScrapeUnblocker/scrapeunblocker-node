@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.1 (2026-10-30)
+
+- 2 new plugin methods on `ScrapeUnblockerClient`: `bodegaaurreraSearch(query)` and `bodegaaurreraProduct(options)` (Bodega Aurrera, Walmart de Mexico's discount chain; prices in MXN). The search's first argument is optional for calls that pass the `url` option instead; the product method takes `productId` or `url`.
+
+No breaking changes.
+
 ## 0.17.0 (2026-10-30)
 
 - 29 new plugin methods on `ScrapeUnblockerClient`:

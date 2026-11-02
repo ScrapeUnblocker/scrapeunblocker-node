@@ -191,7 +191,10 @@ const data = await su.plugin("/marketplace/target-search", { query: "tv", max_re
 ## Google search (SERP)
 
 ```ts
-const serp = await su.serp("web scraping api", { pagesToCheck: 2, proxyCountry: "US" });
+const serp: any = await su.serp("web scraping api", { pagesToCheck: 2, proxyCountry: "US" });
+for (const r of serp.organic) console.log(r.position, r.title, r.url, r.date);
+// The first page's other blocks (empty when Google shows none):
+console.log(serp.peopleAlsoAsk, serp.relatedSearches, serp.knowledgeGraph, serp.topStories, serp.videos);
 ```
 
 ## Google Local (Maps)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.18.0 (2026-11-02)
+
+- 6 new plugin methods on `ScrapeUnblockerClient` for SofaScore (live scores, fixtures, results and stats for 26 sports): `sofascoreEvents(options)` (a sport's matches on a day in your time zone, or `live: true` for those in progress; `sport` defaults to football), `sofascoreMatch(match)` (one match with the `include` sections: statistics, lineups, incidents, head-to-head, odds, momentum, shot map and more), `sofascoreSearch(query)`, `sofascoreTeam(team)`, `sofascorePlayer(player)` and `sofascoreTournament(tournament)`. Teams, players and competitions take an id, a sofascore.com link or a name. `include` takes a comma-separated string or an array.
+
+No breaking changes.
+
 ## 0.17.1 (2026-10-30)
 
 - 2 new plugin methods on `ScrapeUnblockerClient`: `bodegaaurreraSearch(query)` and `bodegaaurreraProduct(options)` (Bodega Aurrera, Walmart de Mexico's discount chain; prices in MXN). The search's first argument is optional for calls that pass the `url` option instead; the product method takes `productId` or `url`.

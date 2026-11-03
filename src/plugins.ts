@@ -7745,10 +7745,13 @@ export abstract class PluginMethods {
    * Search Bing.
    *
    * Searches Bing for `keyword` in a real browser and returns the results page as JSON: `topAds`,
-   * `bottomAds`, `organic` (each with `position`, `title`, `url`, `displayedUrl`, `domain`,
-   * `description`), `relatedSearches` and `totalResults`. Same parameters and response shape as
-   * `/serpApi`. `proxy_country` sets both the market and the location the search is sent from, which
-   * decides the ads.
+   * `bottomAds` (each with `advertiser`, `favicon` and `sitelinks`), `organic` (each with
+   * `position`, `title`, `url`, `displayedUrl`, `domain`, `description`, `source`, `favicon`,
+   * `date`, `sitelinks`, `rating`, `richSnippet`, `thumbnail`), `relatedSearches`,
+   * `relatedSearchLinks`, `aiOverview` (Bing's AI summary), `spellingCorrection` and `totalResults`.
+   * Same parameters as `/serpApi`. When page 1 is crowded by ads and holds few organic results, a
+   * one-page call also takes page 2's organic results at no extra charge. `proxy_country` sets both
+   * the market and the location the search is sent from, which decides the ads.
    * @param keyword Search terms.
    * Calls `POST /search/bing`.
    */

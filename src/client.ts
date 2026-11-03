@@ -29,7 +29,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.18.1";
+const VERSION = "0.18.2";
 
 type Params = PluginParams;
 
@@ -304,9 +304,10 @@ export class ScrapeUnblockerClient extends PluginMethods {
   /**
    * Run a Google search and return the parsed SERP as JSON: `organic` results
    * and `topAds` / `bottomAds` (title, real url, description, position,
-   * displayedUrl, domain; organic adds source and date, ads advertiser),
-   * `aiOverview`, `totalResults`, and the first page's other blocks:
-   * peopleAlsoAsk, relatedSearches, knowledgeGraph, topStories, videos,
+   * displayedUrl, domain, favicon, sitelinks; organic adds source, date,
+   * rating, richSnippet and thumbnail, ads advertiser), `aiOverview`,
+   * `totalResults`, and the first page's other blocks: peopleAlsoAsk,
+   * relatedSearches, relatedSearchLinks, knowledgeGraph, topStories, videos,
    * localResults, shoppingResults and spellingCorrection (each empty or null
    * when Google shows none).
    */

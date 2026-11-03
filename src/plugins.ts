@@ -3702,6 +3702,12 @@ export interface WellfoundJobsOptions {
    */
   maxResults?: number;
   /**
+   * With a role (default true): keep the jobs whose title carries the role's words, then the ones
+   * Wellfound files under that role, and drop the other jobs Wellfound lists on the role's page.
+   * false: every job of the listing as Wellfound shows it. API default: true.
+   */
+  titleMatch?: boolean;
+  /**
    * Proxy country the request is sent from (ISO-2, e.g. 'US', 'DE'). Leave blank for the country
    * chosen for the site.
    */
@@ -8342,13 +8348,19 @@ export abstract class PluginMethods {
    * `remotePolicy` (`ONSITE`, `REMOTE`, `ONSITE_OR_REMOTE`, `HYBRID`), `acceptedRemoteLocations`,
    * `yearsExperienceMin`/`Max`, `postedAt` and the hiring `company` (`name`, `slug`, `url`,
    * `tagline`, `companySize`, `stage`, `badges`). A listing page holds 20 companies with up to 3
-   * matching jobs each; by default the call returns one page, with `max_results` it pages through up
-   * to that many jobs. Totals: `totalJobs`, `totalCompanies`, `pageCount`, `nextPage`.
-   * `mode=job&job=<url>` returns one job in full: description (text and HTML), salary with period,
-   * the same `jobType` and `remotePolicy` values (the page's wording in `remotePolicyText`, plus
-   * `wfhFlexible`), skills, `visaSponsorship`, `relocation`, `hiresRemotelyIn`, preferred timezones,
-   * hiring contact, posting date, and the company's size, markets, badges, funding and founders.
-   * Billed one unit per page fetched (`pagesFetched`).
+   * jobs each; by default the call returns one page, with `max_results` it pages through up to that
+   * many jobs. With a `role`, the jobs whose title carries the role's words come first, then the
+   * ones Wellfound files under the role, and the companies' other jobs Wellfound lists on the role's
+   * page are left out (`titleMatches` counts the first kind; `title_match=false` keeps the listing
+   * as Wellfound shows it). When `max_results` is given with a `location` and the role's page has
+   * too few title matches, the location's whole listing and then the role's remote jobs open to that
+   * location fill in, at no extra charge. Totals: `totalJobs`, `totalCompanies`, `pageCount`,
+   * `nextPage` (continues the role's listing). `mode=job&job=<url>` returns one job in full:
+   * description (text and HTML), salary with period, the same `jobType` and `remotePolicy` values
+   * (the page's wording in `remotePolicyText`, plus `wfhFlexible`), skills, `visaSponsorship`,
+   * `relocation`, `hiresRemotelyIn`, preferred timezones, hiring contact, posting date, and the
+   * company's size, markets, badges, funding and founders. Billed one unit per page fetched
+   * (`pagesFetched`).
    * @param role Role to search, as text or Wellfound slug: 'software engineer', 'product-manager',
    * 'data-scientist'.
    * Calls `POST /jobs/wellfound`.
@@ -8362,6 +8374,7 @@ export abstract class PluginMethods {
       url: options.url,
       page: options.page,
       max_results: options.maxResults,
+      title_match: options.titleMatch,
       proxy_country: options.proxyCountry,
     });
   }
@@ -8376,13 +8389,19 @@ export abstract class PluginMethods {
    * `remotePolicy` (`ONSITE`, `REMOTE`, `ONSITE_OR_REMOTE`, `HYBRID`), `acceptedRemoteLocations`,
    * `yearsExperienceMin`/`Max`, `postedAt` and the hiring `company` (`name`, `slug`, `url`,
    * `tagline`, `companySize`, `stage`, `badges`). A listing page holds 20 companies with up to 3
-   * matching jobs each; by default the call returns one page, with `max_results` it pages through up
-   * to that many jobs. Totals: `totalJobs`, `totalCompanies`, `pageCount`, `nextPage`.
-   * `mode=job&job=<url>` returns one job in full: description (text and HTML), salary with period,
-   * the same `jobType` and `remotePolicy` values (the page's wording in `remotePolicyText`, plus
-   * `wfhFlexible`), skills, `visaSponsorship`, `relocation`, `hiresRemotelyIn`, preferred timezones,
-   * hiring contact, posting date, and the company's size, markets, badges, funding and founders.
-   * Billed one unit per page fetched (`pagesFetched`).
+   * jobs each; by default the call returns one page, with `max_results` it pages through up to that
+   * many jobs. With a `role`, the jobs whose title carries the role's words come first, then the
+   * ones Wellfound files under the role, and the companies' other jobs Wellfound lists on the role's
+   * page are left out (`titleMatches` counts the first kind; `title_match=false` keeps the listing
+   * as Wellfound shows it). When `max_results` is given with a `location` and the role's page has
+   * too few title matches, the location's whole listing and then the role's remote jobs open to that
+   * location fill in, at no extra charge. Totals: `totalJobs`, `totalCompanies`, `pageCount`,
+   * `nextPage` (continues the role's listing). `mode=job&job=<url>` returns one job in full:
+   * description (text and HTML), salary with period, the same `jobType` and `remotePolicy` values
+   * (the page's wording in `remotePolicyText`, plus `wfhFlexible`), skills, `visaSponsorship`,
+   * `relocation`, `hiresRemotelyIn`, preferred timezones, hiring contact, posting date, and the
+   * company's size, markets, badges, funding and founders. Billed one unit per page fetched
+   * (`pagesFetched`).
    * @param job mode=job: the job URL (https://wellfound.com/jobs/4787364-software-engineer) or
    * '<id>-<slug>', as returned in `jobs[].url` by mode=search.
    * Calls `POST /jobs/wellfound`.
@@ -8714,16 +8733,21 @@ export abstract class PluginMethods {
    * with `name`, `slug`, `url`, `type` and `image` like every other company or person reference),
    * `investors`, `acquisitions`, `investments`, `exits`, `subOrganizations`, `keyPeople` (title,
    * start date), `boardMembers`, `similarCompanies`, `products`, `contactEmail`, `phone`,
-   * `socialLinks`, `webTraffic` (`monthlyVisits`, and `monthlyVisitsChange`, the month-over-month
-   * change as a fraction: 0.069 = +6.9%, -0.2 = -20%), `technology`, `predictions`, `events`
-   * (product launches, partnerships, awards, layoffs, key employee changes, legal proceedings, each
-   * with its press source), `offices` and recent `news`. Every one of the record's 73 keys is always
-   * present. Data Crunchbase shows only to paying users (founded / closed / IPO dates, funding
-   * totals, round dates and amounts, acquisition prices, exits, valuation) is null, and
-   * `paywalledFields` names the ones Crunchbase holds for this organization. With `query` instead,
-   * searches organizations by name and returns up to `max_results` (max 25) matches with `name`,
-   * `slug`, `url`, `shortDescription` and `logo`, plus the total `count` of matches. No Crunchbase
-   * login required.
+   * `socialLinks` (`linkedin`, `twitter`, `facebook`, `instagram`, `youtube`, `github`),
+   * `linkedinId` (the company's LinkedIn handle), `webTraffic` (`monthlyVisits`, and
+   * `monthlyVisitsChange`, the month-over-month change as a fraction: 0.069 = +6.9%, -0.2 = -20%),
+   * `technology`, `predictions`, `events` (product launches, partnerships, awards, layoffs, key
+   * employee changes, legal proceedings, each with its press source), `offices` and recent `news`.
+   * What Crunchbase leaves empty is filled from the company's own homepage when it states it:
+   * `seoDescription` (its meta description), `coverImage` (its share image), `foundedOn`,
+   * `employeeCount`, `headquarters.street` and `headquarters.postalCode` (its schema.org block), the
+   * social links, `contactEmail` and `phone`; `fromWebsite` lists the keys that came from the
+   * homepage. Every one of the record's 78 keys is always present. Data Crunchbase shows only to
+   * paying users (founded / closed / IPO dates, funding totals, round dates and amounts, acquisition
+   * prices, exits, valuation) is null, and `paywalledFields` names the ones Crunchbase holds for
+   * this organization. With `query` instead, searches organizations by name and returns up to
+   * `max_results` (max 25) matches with `name`, `slug`, `url`, `shortDescription` and `logo`, plus
+   * the total `count` of matches. No Crunchbase login required.
    * @param organization Crunchbase organization slug (the part after /organization/ in its profile
    * URL, e.g. 'stripe' or 'tesla-motors') or the full profile URL. Either organization or query is
    * required.
@@ -8752,16 +8776,21 @@ export abstract class PluginMethods {
    * with `name`, `slug`, `url`, `type` and `image` like every other company or person reference),
    * `investors`, `acquisitions`, `investments`, `exits`, `subOrganizations`, `keyPeople` (title,
    * start date), `boardMembers`, `similarCompanies`, `products`, `contactEmail`, `phone`,
-   * `socialLinks`, `webTraffic` (`monthlyVisits`, and `monthlyVisitsChange`, the month-over-month
-   * change as a fraction: 0.069 = +6.9%, -0.2 = -20%), `technology`, `predictions`, `events`
-   * (product launches, partnerships, awards, layoffs, key employee changes, legal proceedings, each
-   * with its press source), `offices` and recent `news`. Every one of the record's 73 keys is always
-   * present. Data Crunchbase shows only to paying users (founded / closed / IPO dates, funding
-   * totals, round dates and amounts, acquisition prices, exits, valuation) is null, and
-   * `paywalledFields` names the ones Crunchbase holds for this organization. With `query` instead,
-   * searches organizations by name and returns up to `max_results` (max 25) matches with `name`,
-   * `slug`, `url`, `shortDescription` and `logo`, plus the total `count` of matches. No Crunchbase
-   * login required.
+   * `socialLinks` (`linkedin`, `twitter`, `facebook`, `instagram`, `youtube`, `github`),
+   * `linkedinId` (the company's LinkedIn handle), `webTraffic` (`monthlyVisits`, and
+   * `monthlyVisitsChange`, the month-over-month change as a fraction: 0.069 = +6.9%, -0.2 = -20%),
+   * `technology`, `predictions`, `events` (product launches, partnerships, awards, layoffs, key
+   * employee changes, legal proceedings, each with its press source), `offices` and recent `news`.
+   * What Crunchbase leaves empty is filled from the company's own homepage when it states it:
+   * `seoDescription` (its meta description), `coverImage` (its share image), `foundedOn`,
+   * `employeeCount`, `headquarters.street` and `headquarters.postalCode` (its schema.org block), the
+   * social links, `contactEmail` and `phone`; `fromWebsite` lists the keys that came from the
+   * homepage. Every one of the record's 78 keys is always present. Data Crunchbase shows only to
+   * paying users (founded / closed / IPO dates, funding totals, round dates and amounts, acquisition
+   * prices, exits, valuation) is null, and `paywalledFields` names the ones Crunchbase holds for
+   * this organization. With `query` instead, searches organizations by name and returns up to
+   * `max_results` (max 25) matches with `name`, `slug`, `url`, `shortDescription` and `logo`, plus
+   * the total `count` of matches. No Crunchbase login required.
    * @param query Company name to search for, e.g. 'Revolut'. Returns the matching organizations with
    * their slugs instead of one full profile.
    * Calls `POST /companies/crunchbase`.

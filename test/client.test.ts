@@ -66,6 +66,20 @@ describe("ScrapeUnblockerClient", () => {
     expect(init.headers["x-scrapeunblocker-key"]).toBe("test-key");
   });
 
+  it("sends the SDK's User-Agent", async () => {
+    const fetchFn = mockFetch(new Response("ok", { status: 200 }));
+    await client().getPageSource("https://example.com");
+    expect(fetchFn.mock.calls[0][1].headers["User-Agent"]).toMatch(/^scrapeunblocker-node\/\d+\.\d+\.\d+$/);
+  });
+
+  it("adds the app's userAgent token after the SDK's", async () => {
+    const fetchFn = mockFetch(new Response("ok", { status: 200 }));
+    await client({ userAgent: " my-app/1.2.0\r\nX-Evil: 1 " }).getPageSource("https://example.com");
+    expect(fetchFn.mock.calls[0][1].headers["User-Agent"]).toMatch(
+      /^scrapeunblocker-node\/\d+\.\d+\.\d+ my-app\/1\.2\.0 X-Evil: 1$/,
+    );
+  });
+
   it("omits undefined params", async () => {
     const fetchFn = mockFetch(new Response("ok", { status: 200 }));
     await client().getPageSource("https://example.com");

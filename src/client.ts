@@ -29,7 +29,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.18.3";
+const VERSION = "0.18.4";
 
 type Params = PluginParams;
 
@@ -96,11 +96,21 @@ class SouthwestNamespace {
  * const html = await su.getPageSource("https://example.com");
  * ```
  */
+
+/** The User-Agent: the SDK's token, then the app's own when it gives one (control characters,
+ * which would break the header, are turned into spaces). */
+function userAgentFor(appToken: string | undefined): string {
+  const own = `scrapeunblocker-node/${VERSION}`;
+  const app = (appToken ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
+  return app ? `${own} ${app}` : own;
+}
+
 export class ScrapeUnblockerClient extends PluginMethods {
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly timeout: number;
   private readonly maxRetries: number;
+  private readonly userAgent: string;
 
   /** Skyscanner plugin endpoints (flights, hotels, car hire). */
   readonly skyscanner: SkyscannerNamespace;
@@ -121,6 +131,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
     this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
     this.timeout = options.timeout ?? DEFAULT_TIMEOUT;
     this.maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
+    this.userAgent = userAgentFor(options.userAgent);
     this.skyscanner = new SkyscannerNamespace(this);
     this.southwest = new SouthwestNamespace(this);
   }
@@ -137,7 +148,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
           method: "POST",
           headers: {
             [API_KEY_HEADER]: this.apiKey,
-            "User-Agent": `scrapeunblocker-node/${VERSION}`,
+            "User-Agent": this.userAgent,
             Accept: "*/*",
           },
           signal: controller.signal,

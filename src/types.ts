@@ -8,6 +8,11 @@ export interface ClientOptions {
   timeout?: number;
   /** Retries for transient failures (429/5xx and network errors). Default 2. */
   maxRetries?: number;
+  /**
+   * Product token of the app built on this client, e.g. `"my-app/1.2.0"`. Sent after the SDK's
+   * own token in the User-Agent (`scrapeunblocker-node/<version> my-app/1.2.0`).
+   */
+  userAgent?: string;
 }
 
 /** How a step's `selector` is interpreted. Defaults to "css". */

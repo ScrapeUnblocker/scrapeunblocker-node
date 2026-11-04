@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.18.4 (2026-11-04)
+
+- New `userAgent` client option: an app built on the SDK can add its own product token, e.g. `new ScrapeUnblockerClient({ userAgent: "my-app/1.2.0" })` sends `User-Agent: scrapeunblocker-node/0.18.4 my-app/1.2.0`.
+
+No breaking changes.
+
 ## 0.18.3 (2026-11-03)
 
 - `crunchbaseCompany()` documents the fields the API now fills from the company's own homepage when Crunchbase leaves them empty: `seoDescription`, `coverImage`, `employeeCount`, `linkedinId`, `headquarters.street` / `postalCode`, the `instagram`, `youtube` and `github` social links, and `fromWebsite` naming the keys that came from the homepage.

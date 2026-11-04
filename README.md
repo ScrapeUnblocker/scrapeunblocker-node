@@ -454,6 +454,7 @@ new ScrapeUnblockerClient({
   baseUrl: "https://api.scrapeunblocker.com",
   timeout: 180000,     // ms; protected pages can be slow
   maxRetries: 2,
+  userAgent: undefined, // your app's product token, e.g. "my-app/1.2.0", sent after the SDK's
 });
 ```
 

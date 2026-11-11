@@ -234,6 +234,20 @@ describe("ScrapeUnblockerClient", () => {
     expect(url).toContain(`${BASE}/serpApi`);
     expect(url).toContain("keyword=hello");
     expect(url).toContain("pages_to_check=2");
+    expect(url).not.toContain("full_urls");
+  });
+
+  it("serp sends full_urls only when fullUrls is true", async () => {
+    const fetchFn = mockFetch(
+      new Response(JSON.stringify({ organic: [] }), { status: 200 }),
+      new Response(JSON.stringify({ organic: [] }), { status: 200 }),
+    );
+    await client().serp("hello world", { fullUrls: true });
+    await client().serp("hello world", { fullUrls: false });
+    const first = new URL(fetchFn.mock.calls[0][0] as string);
+    const second = new URL(fetchFn.mock.calls[1][0] as string);
+    expect(first.searchParams.get("full_urls")).toBe("true");
+    expect(second.searchParams.has("full_urls")).toBe(false);
   });
 
   it("googleLocal targets /maps/google-local", async () => {

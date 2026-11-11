@@ -29,7 +29,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.18.6";
+const VERSION = "0.19.0";
 
 type Params = PluginParams;
 
@@ -321,6 +321,9 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * relatedSearches, relatedSearchLinks, knowledgeGraph, topStories, videos,
    * localResults, shoppingResults and spellingCorrection (each empty or null
    * when Google shows none).
+   *
+   * Set `fullUrls: true` to wait until Google gives out every result's real
+   * URL (the call takes up to about 40 seconds longer, billed the same).
    */
   async serp(keyword: string, options: SerpOptions = {}): Promise<unknown> {
     return this.postJson("/serpApi", {
@@ -329,6 +332,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       pages_to_check: options.pagesToCheck ?? 1,
       wait_after_load: options.waitAfterLoad || undefined,
       captcha_pause: options.captchaPause || undefined,
+      full_urls: options.fullUrls ? true : undefined,
     });
   }
 

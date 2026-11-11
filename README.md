@@ -197,6 +197,17 @@ for (const r of serp.organic) console.log(r.position, r.title, r.url, r.date, r.
 console.log(serp.peopleAlsoAsk, serp.relatedSearchLinks, serp.knowledgeGraph, serp.topStories, serp.videos);
 ```
 
+Google gives out a results page's real result links a few at a time, the last
+ones up to about 40 seconds after the search. By default `serp()` returns
+sooner, and a result whose link has not come yet has the site's home page as
+its `url` (or a Google redirect link when Google shows no site). Pass
+`fullUrls: true` to wait until (nearly) every result has its real URL: the call
+then takes up to about 40 seconds longer and is billed the same.
+
+```ts
+const full: any = await su.serp("best hiking boots", { fullUrls: true });
+```
+
 ## Google Local (Maps)
 
 ```ts

@@ -212,6 +212,15 @@ export interface SerpOptions {
   waitAfterLoad?: number;
   /** @deprecated Kept for compatibility; the API ignores it. */
   captchaPause?: number;
+  /**
+   * Wait until Google gives out every result's real URL (maps to `full_urls`).
+   * Google releases a results page's links a few at a time, the last ones up
+   * to about 40 seconds after the search. Without this flag the call returns
+   * sooner, and a result whose link has not come yet has the site's home page
+   * as its `url` (or a Google redirect link when Google shows no site). With
+   * it, the call takes up to about 40 seconds longer. Billed the same.
+   */
+  fullUrls?: boolean;
 }
 
 /** Options for {@link ScrapeUnblockerClient.googleLocal}. */

@@ -693,4 +693,36 @@ describe("ScrapeUnblockerClient", () => {
     expect(u2).toBe(`${BASE}/goods/temu-product?url=${encodeURIComponent(productUrl)}`);
   });
 
+  it("getPageWithXhr returns the page's captured XHR/fetch calls", async () => {
+    const payload = {
+      html: "<html>results</html>",
+      xhr: [
+        { url: "https://api.example.com/v2/items?page=1", method: "GET", status: 200,
+          content_type: "application/json", body: '{"items":[1,2]}' },
+        { url: "https://api.example.com/v2/items?page=2", method: "GET", status: 403,
+          content_type: null, body: null, body_omitted: "binary" },
+      ],
+      xhr_truncated: false,
+      proxy: "us",
+    };
+    const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));
+    const steps = [{ action: "click" as const, selector: "#more" }];
+    const page = await client().getPageWithXhr("https://example.com/search", "/v2/items", {
+      steps,
+      proxyCountry: "us",
+    });
+    expect(page.html).toBe("<html>results</html>");
+    expect(page.proxy).toBe("us");
+    expect(page.xhrTruncated).toBe(false);
+    expect(page.xhr).toHaveLength(2);
+    expect(JSON.parse(page.xhr[0].body!)).toEqual({ items: [1, 2] });
+    expect(page.xhr[0].contentType).toBe("application/json");
+    expect(page.xhr[1].body).toBeUndefined();
+    expect(page.xhr[1].bodyOmitted).toBe("binary");
+
+    const params = new URL(fetchFn.mock.calls[0][0]).searchParams;
+    expect(params.get("capture_xhr")).toBe("/v2/items");
+    expect(JSON.parse(params.get("steps")!)).toEqual(steps);
+    expect(params.has("get_cookies")).toBe(false);
+  });
 });

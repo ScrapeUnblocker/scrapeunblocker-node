@@ -307,6 +307,29 @@ const page = await su.getPageWithCookies("https://example.com");
 console.log(page.html, page.cookies, page.proxy);
 ```
 
+## The page's own API calls (XHR/fetch)
+
+Many sites render from a JSON API the page calls itself, and that API often
+refuses direct requests. `getPageWithXhr()` renders the page in a real browser
+and returns every XHR/fetch response whose URL contains the fragment you pass,
+in the order the page received them. Add `steps` to make the page fire the
+call (a search, "load more").
+
+```ts
+const page = await su.getPageWithXhr("https://quotes.toscrape.com/scroll", "/api/quotes", {
+  steps: [{ action: "scroll", value: "bottom" }, { action: "wait", value: 1500 }],
+});
+for (const call of page.xhr) {
+  if (call.status === 200) console.log(call.url, JSON.parse(call.body!).quotes[0].text);
+}
+```
+
+Each call has `url`, `method`, `status`, `contentType`, `body` (text) and
+`bodyOmitted` (why there is no body). Up to 20 responses and 10 MB of bodies;
+`page.xhrTruncated` is `true` when more matched. When the site answers every
+matching call with 403 or 429, the request fails like a block
+and is not billed.
+
 ## Images
 
 ```ts

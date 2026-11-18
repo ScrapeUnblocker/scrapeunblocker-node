@@ -7,6 +7,8 @@ import type {
   ParsedOptions,
   ParsedPage,
   PageResult,
+  CapturedPage,
+  XhrCaptureOptions,
   SerpOptions,
   GoogleLocalOptions,
   GoogleImagesOptions,
@@ -29,7 +31,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.19.0";
+const VERSION = "0.20.0";
 
 type Params = PluginParams;
 
@@ -308,6 +310,46 @@ export class ScrapeUnblockerClient extends PluginMethods {
       html: (payload.html ?? payload.page_source ?? payload.content) as string | undefined,
       cookies: payload.cookies,
       proxy: (payload.proxy ?? payload.proxy_address) as string | undefined,
+      raw: payload,
+    };
+  }
+
+  /**
+   * Fetch a URL and return the page's own XHR/fetch responses with it.
+   *
+   * Many sites render from a JSON API the page calls itself, and that API
+   * often refuses direct requests (the page signs each call). The page is
+   * rendered in a real browser and every XHR/fetch response whose URL
+   * contains `captureXhr` comes back in the order the page received it: up to
+   * 20 responses and 10 MB of bodies. Pass `steps` to make the page fire the
+   * call. A failed step surfaces as a {@link ValidationError} (HTTP 422) whose
+   * `body` holds the `step_failed` JSON, including `xhr`.
+   */
+  async getPageWithXhr(
+    url: string,
+    captureXhr: string,
+    options: XhrCaptureOptions = {},
+  ): Promise<CapturedPage> {
+    const response = await this.request("/getPageSource", {
+      url,
+      capture_xhr: captureXhr,
+      proxy_country: options.proxyCountry,
+      steps: options.steps ? JSON.stringify(options.steps) : undefined,
+    });
+    const payload = (await response.json()) as Record<string, unknown>;
+    const calls = Array.isArray(payload.xhr) ? (payload.xhr as Record<string, unknown>[]) : [];
+    return {
+      html: typeof payload.html === "string" ? payload.html : undefined,
+      xhr: calls.map((c) => ({
+        url: String(c.url ?? ""),
+        method: String(c.method ?? "GET"),
+        status: Number(c.status ?? 0),
+        contentType: typeof c.content_type === "string" ? c.content_type : undefined,
+        body: typeof c.body === "string" ? c.body : undefined,
+        bodyOmitted: typeof c.body_omitted === "string" ? c.body_omitted : undefined,
+      })),
+      xhrTruncated: payload.xhr_truncated === true,
+      proxy: typeof payload.proxy === "string" ? payload.proxy : undefined,
       raw: payload,
     };
   }

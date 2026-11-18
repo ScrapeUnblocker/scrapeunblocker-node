@@ -197,6 +197,47 @@ export interface ParsedPage {
   raw: Record<string, unknown>;
 }
 
+/** Options for {@link ScrapeUnblockerClient.getPageWithXhr}. */
+export interface XhrCaptureOptions {
+  /** ISO country code to route through (e.g. "US"). */
+  proxyCountry?: string;
+  /**
+   * Browser actions that make the page fire the call (a search, "load more");
+   * same format as {@link PageOptions.steps}.
+   */
+  steps?: BrowserStep[];
+}
+
+/** One XHR/fetch response the page received (`getPageWithXhr`). */
+export interface XhrCall {
+  /** The URL the page requested. */
+  url: string;
+  /** The HTTP method, e.g. "GET". */
+  method: string;
+  /** The status the site answered; 0 when the request failed without a response. */
+  status: number;
+  /** The response's Content-Type. */
+  contentType?: string;
+  /** The response body as text; undefined when not returned (see `bodyOmitted`). */
+  body?: string;
+  /** Why `body` is missing: "binary", "size_limit", "in_flight", "redirect", "unavailable" or "request_failed". */
+  bodyOmitted?: string;
+}
+
+/** A page plus the XHR/fetch responses it received (`getPageWithXhr`). */
+export interface CapturedPage {
+  /** The rendered page. */
+  html?: string;
+  /** The matching responses in the order the page received them. */
+  xhr: XhrCall[];
+  /** True when more responses matched than were returned. */
+  xhrTruncated: boolean;
+  /** Country of the exit that served the request. */
+  proxy?: string;
+  /** The full JSON payload as returned by the API. */
+  raw: Record<string, unknown>;
+}
+
 /** HTML plus the cookies and proxy that served it (`getPageWithCookies`). */
 export interface PageResult {
   html?: string;

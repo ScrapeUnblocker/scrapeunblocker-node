@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.0 (2026-11-23)
+
+- New `getPageWithHeaders(url, { getCookies, proxyCountry, timeSleep })` for the API's `get_headers` parameter: the page comes back as a `PageHeaders` with `html`, `statusCode` (the target's own status), `finalUrl` (after redirects), `headers` (the target's response headers with lowercase names; a repeated header is joined with ", ", except `set-cookie`, which is always a list of strings), `requestHeaders` (the headers sent to the target), `proxy` and the full payload on `raw`. `statusCode`, `finalUrl`, `headers`, `requestHeaders` and `proxy` are `null` when they could not be observed. `getCookies: true` adds `cookies`. A target's own 401, 451 or 5xx page is returned with that status in `statusCode`; a 404 or 410 throws `TargetNotFoundError` as before, with the full JSON on `.body`. New exported types: `PageHeaders`, `PageHeadersOptions`.
+
+No breaking changes.
+
 ## 0.20.0 (2026-11-18)
 
 - New `getPageWithXhr(url, captureXhr, { steps, proxyCountry })` for the API's `capture_xhr` parameter: the page is rendered in a real browser and every XHR/fetch response whose URL contains the fragment comes back as a `CapturedPage` (`html`, `xhr` - `XhrCall` objects with `url`, `method`, `status`, `contentType`, `body`, `bodyOmitted` -, `xhrTruncated`, `proxy`). Useful when a site renders from a JSON API that refuses direct requests. New exported types: `CapturedPage`, `XhrCall`, `XhrCaptureOptions`.

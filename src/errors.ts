@@ -128,11 +128,12 @@ export class NotFoundError extends APIError {}
  * The target page itself does not exist (HTTP 404 or 410).
  *
  * Raised by `getPageSource()` / `getParsed()` / `getPageWithCookies()` /
- * `getImage()` when the site you asked for answered 404 or 410 on its own. The API passes that
- * status through and marks it with the `X-Origin-Status` header, which is how
- * this is told apart from an API-side 404. It is the target's final answer,
- * not a block, so it is never retried - and the call is billed, because the
- * page was fetched and delivered.
+ * `getPageWithHeaders()` / `getImage()` when the site you asked for answered
+ * 404 or 410 on its own. The API passes that status through and marks it
+ * with the `X-Origin-Status` header, which is how this is told apart from an
+ * API-side 404. It is the target's final answer, not a block, so it is never
+ * retried - and the call is billed, because the page was fetched and
+ * delivered.
  */
 export class TargetNotFoundError extends NotFoundError {
   /** The status the target answered with (404 or 410). */

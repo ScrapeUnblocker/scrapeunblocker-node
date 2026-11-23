@@ -725,4 +725,94 @@ describe("ScrapeUnblockerClient", () => {
     expect(JSON.parse(params.get("steps")!)).toEqual(steps);
     expect(params.has("get_cookies")).toBe(false);
   });
+
+  const withHeaders = {
+    html: "<!DOCTYPE html><html>hi</html>",
+    status_code: 200,
+    final_url: "https://www.example.com/",
+    headers: {
+      "content-type": "text/html",
+      "set-cookie": ["a=1; Path=/", "b=2"],
+      vary: "Accept, Cookie",
+    },
+    request_headers: { "user-agent": "Mozilla/5.0", accept: "text/html" },
+    proxy: "us",
+  };
+
+  it("getPageWithHeaders returns the target's status, final URL and headers", async () => {
+    const fetchFn = mockFetch(new Response(JSON.stringify(withHeaders), { status: 200 }));
+    const page = await client().getPageWithHeaders("https://example.com");
+    expect(page.html).toBe("<!DOCTYPE html><html>hi</html>");
+    expect(page.statusCode).toBe(200);
+    expect(page.finalUrl).toBe("https://www.example.com/");
+    expect(page.headers?.["content-type"]).toBe("text/html");
+    expect(page.headers?.["set-cookie"]).toEqual(["a=1; Path=/", "b=2"]);
+    expect(page.headers?.vary).toBe("Accept, Cookie");
+    expect(page.requestHeaders).toEqual({ "user-agent": "Mozilla/5.0", accept: "text/html" });
+    expect(page.proxy).toBe("us");
+    expect(page.cookies).toBeUndefined();
+    expect(page.raw).toEqual(withHeaders);
+
+    const [url, init] = fetchFn.mock.calls[0];
+    expect(init.method).toBe("POST");
+    const params = new URL(url).searchParams;
+    expect([...params.keys()].sort()).toEqual(["get_headers", "url"]);
+    expect(params.get("url")).toBe("https://example.com");
+    expect(params.get("get_headers")).toBe("true");
+  });
+
+  it("getPageWithHeaders sends get_cookies and the render options when asked", async () => {
+    const payload = { ...withHeaders, cookies: [{ name: "a", value: "1" }] };
+    const fetchFn = mockFetch(new Response(JSON.stringify(payload), { status: 200 }));
+    const page = await client().getPageWithHeaders("https://example.com", {
+      getCookies: true,
+      proxyCountry: "US",
+      timeSleep: 2,
+    });
+    expect(page.cookies).toEqual([{ name: "a", value: "1" }]);
+    const params = new URL(fetchFn.mock.calls[0][0]).searchParams;
+    expect(params.get("get_headers")).toBe("true");
+    expect(params.get("get_cookies")).toBe("true");
+    expect(params.get("proxy_country")).toBe("US");
+    expect(params.get("time_sleep")).toBe("2");
+  });
+
+  it("getPageWithHeaders maps fields that could not be observed to null", async () => {
+    const payload = {
+      html: "<html>hi</html>",
+      status_code: null,
+      final_url: null,
+      headers: null,
+      request_headers: null,
+      proxy: null,
+    };
+    mockFetch(new Response(JSON.stringify(payload), { status: 200 }));
+    const page = await client().getPageWithHeaders("https://example.com");
+    expect(page.html).toBe("<html>hi</html>");
+    expect(page.statusCode).toBeNull();
+    expect(page.finalUrl).toBeNull();
+    expect(page.headers).toBeNull();
+    expect(page.requestHeaders).toBeNull();
+    expect(page.proxy).toBeNull();
+  });
+
+  it("getPageWithHeaders returns a target's own error page with its status", async () => {
+    // A target's 5xx page is a delivered page: HTTP 200 from the API, the
+    // target's status inside the JSON.
+    mockFetch(new Response(JSON.stringify({ ...withHeaders, status_code: 503 }), { status: 200 }));
+    const page = await client().getPageWithHeaders("https://example.com");
+    expect(page.statusCode).toBe(503);
+  });
+
+  it("exposes the html of a target 404 fetched with headers", async () => {
+    const body = JSON.stringify({ ...withHeaders, status_code: 404, html: "<html>gone</html>" });
+    mockFetch(new Response(body, { status: 404, headers: { "X-Origin-Status": "404" } }));
+    const err = (await client()
+      .getPageWithHeaders("https://example.com/gone")
+      .catch((e: unknown) => e)) as TargetNotFoundError;
+    expect(err).toBeInstanceOf(TargetNotFoundError);
+    expect(err.html).toBe("<html>gone</html>");
+    expect(err.body).toBe(body);
+    expect(JSON.parse(err.body!).headers["set-cookie"]).toEqual(["a=1; Path=/", "b=2"]);
+  });
 });

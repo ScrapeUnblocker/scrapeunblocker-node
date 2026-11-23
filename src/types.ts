@@ -246,6 +246,40 @@ export interface PageResult {
   raw: Record<string, unknown>;
 }
 
+/** Options for {@link ScrapeUnblockerClient.getPageWithHeaders}. */
+export interface PageHeadersOptions {
+  /** Also return the cookies set during the visit (maps to `get_cookies`). */
+  getCookies?: boolean;
+  /** ISO country code to route through (e.g. "US"). */
+  proxyCountry?: string;
+  /** Extra seconds to wait after load before capture. */
+  timeSleep?: number;
+}
+
+/** A page plus the target's status, final URL and headers (`getPageWithHeaders`). */
+export interface PageHeaders {
+  /** The rendered page. */
+  html?: string;
+  /** The status the target answered with; null when it could not be observed. */
+  statusCode: number | null;
+  /** The URL after redirects; null when it could not be observed. */
+  finalUrl: string | null;
+  /**
+   * The target's response headers with lowercase names. A repeated header is
+   * joined with ", ", except `set-cookie`, which is always a list of strings.
+   * Null when the render path could not observe the headers.
+   */
+  headers: Record<string, string | string[]> | null;
+  /** The headers actually sent to the target (lowercase name -> value); null when not observed. */
+  requestHeaders: Record<string, string> | null;
+  /** Country of the exit that served the request (lowercase ISO-2); null when not known. */
+  proxy: string | null;
+  /** The cookies set during the visit, sent only with `getCookies: true`. */
+  cookies?: unknown;
+  /** The full JSON payload as returned by the API. */
+  raw: Record<string, unknown>;
+}
+
 /** Options for {@link ScrapeUnblockerClient.serp}. */
 export interface SerpOptions {
   proxyCountry?: string;

@@ -307,6 +307,22 @@ const page = await su.getPageWithCookies("https://example.com");
 console.log(page.html, page.cookies, page.proxy);
 ```
 
+## Target status, final URL and headers
+
+```ts
+const page = await su.getPageWithHeaders("https://example.com");
+console.log(page.statusCode, page.finalUrl);       // e.g. 200 "https://www.example.com/"
+console.log(page.headers?.["content-type"]);       // response headers, lowercase names
+console.log(page.headers?.["set-cookie"]);         // always a list of strings
+console.log(page.requestHeaders?.["user-agent"]);  // the headers sent to the target
+```
+
+`statusCode` is the target's own status: a target's 401, 451 or 5xx page comes
+back like any other page, with that status here (a 404 or 410 throws
+`TargetNotFoundError`, see below). `statusCode`, `finalUrl`, `headers`,
+`requestHeaders` and `proxy` are `null` when they could not be observed. Pass
+`{ getCookies: true }` to get `page.cookies` as well.
+
 ## The page's own API calls (XHR/fetch)
 
 Many sites render from a JSON API the page calls itself, and that API often
@@ -429,7 +445,7 @@ try {
 
 `TargetNotFoundError` extends `NotFoundError`, so `instanceof NotFoundError` matches it too. A 404 without `X-Origin-Status` is the API's own and stays a plain `NotFoundError`.
 
-With `getParsed()` the body is the parsed-data JSON (`{"data": {"page_type": "not_found", ...}}`), so `html` is `undefined` there; the raw JSON is on `.body`. With `getMarkdown()` the not-found page on `.html` is Markdown.
+With `getParsed()` the body is the parsed-data JSON (`{"data": {"page_type": "not_found", ...}}`), so `html` is `undefined` there; the raw JSON is on `.body`. With `getMarkdown()` the not-found page on `.html` is Markdown. With `getPageWithHeaders()` the not-found page is on `.html` and the full JSON, with the target's headers, on `.body`.
 
 ### No structured data on the page
 

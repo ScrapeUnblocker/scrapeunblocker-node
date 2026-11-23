@@ -7,6 +7,8 @@ import type {
   ParsedOptions,
   ParsedPage,
   PageResult,
+  PageHeaders,
+  PageHeadersOptions,
   CapturedPage,
   XhrCaptureOptions,
   SerpOptions,
@@ -31,7 +33,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.20.0";
+const VERSION = "0.21.0";
 
 type Params = PluginParams;
 
@@ -48,6 +50,11 @@ function buildQuery(params: Params): string {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** True for a plain JSON object (not null, not an array). */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 /**
  * Skyscanner plugin endpoints (flights, hotels, car hire). Each method takes
@@ -310,6 +317,46 @@ export class ScrapeUnblockerClient extends PluginMethods {
       html: (payload.html ?? payload.page_source ?? payload.content) as string | undefined,
       cookies: payload.cookies,
       proxy: (payload.proxy ?? payload.proxy_address) as string | undefined,
+      raw: payload,
+    };
+  }
+
+  /**
+   * Fetch a URL and also return the target's status, final URL and headers.
+   *
+   * The page is rendered as usual and comes back with the status the target
+   * answered with (`statusCode`), the URL after redirects (`finalUrl`), the
+   * target's response headers (`headers`, lowercase names; `set-cookie` is
+   * always a list) and the headers that were sent to it (`requestHeaders`).
+   * Each of these, and `proxy`, is null when it could not be observed. A
+   * target's own 401, 451 or 5xx page is returned like any other page, with
+   * that status in `statusCode`. Pass `getCookies: true` to get `cookies` too.
+   *
+   * Throws {@link TargetNotFoundError} when the target page itself answers
+   * 404 or 410 (billed; the not-found page is on `.html` and the full JSON,
+   * headers included, on `.body`).
+   */
+  async getPageWithHeaders(url: string, options: PageHeadersOptions = {}): Promise<PageHeaders> {
+    const response = await this.request("/getPageSource", {
+      url,
+      get_headers: true,
+      get_cookies: options.getCookies ? true : undefined,
+      proxy_country: options.proxyCountry,
+      time_sleep: options.timeSleep,
+    });
+    const payload = (await response.json()) as Record<string, unknown>;
+    return {
+      html: typeof payload.html === "string" ? payload.html : undefined,
+      statusCode: typeof payload.status_code === "number" ? payload.status_code : null,
+      finalUrl: typeof payload.final_url === "string" ? payload.final_url : null,
+      headers: isRecord(payload.headers)
+        ? (payload.headers as Record<string, string | string[]>)
+        : null,
+      requestHeaders: isRecord(payload.request_headers)
+        ? (payload.request_headers as Record<string, string>)
+        : null,
+      proxy: typeof payload.proxy === "string" ? payload.proxy : null,
+      cookies: payload.cookies,
       raw: payload,
     };
   }

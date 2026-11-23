@@ -22,6 +22,8 @@ export type {
   ParsedOptions,
   ParsedPage,
   PageResult,
+  PageHeaders,
+  PageHeadersOptions,
   CapturedPage,
   XhrCall,
   XhrCaptureOptions,

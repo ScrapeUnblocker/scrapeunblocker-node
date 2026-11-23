@@ -33,7 +33,7 @@ const DEFAULT_TIMEOUT = 180_000;
 const DEFAULT_MAX_RETRIES = 2;
 const API_KEY_HEADER = "x-scrapeunblocker-key";
 const RETRYABLE = new Set([429, 502, 503, 504]);
-const VERSION = "0.21.0";
+const VERSION = "0.22.0";
 
 type Params = PluginParams;
 
@@ -50,6 +50,14 @@ function buildQuery(params: Params): string {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * True when the API answered a `session` call through a different IP than the
+ * session's (the `X-Session-Changed: true` response header).
+ */
+function isSessionChanged(response: Response): boolean {
+  return (response.headers.get("x-session-changed") ?? "").trim().toLowerCase() === "true";
+}
 
 /** True for a plain JSON object (not null, not an array). */
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -217,6 +225,9 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * non-idempotent, and a failed step surfaces as a {@link ValidationError}
    * (HTTP 422) whose `body` holds the `step_failed` JSON. Pass
    * `listElements: true` to get `{ url, count, elements }` JSON instead of HTML.
+   * Pass `session` to send calls with the same id through the same proxy IP
+   * (see {@link PageOptions.session}); the returned page does not say whether
+   * the IP changed.
    *
    * Throws {@link TargetNotFoundError} when the target page itself answers
    * 404 or 410 (billed; the not-found page is on `.html`).
@@ -234,6 +245,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       method_timeout: options.methodTimeout,
       steps: options.steps ? JSON.stringify(options.steps) : undefined,
       list_elements: options.listElements ? true : undefined,
+      session: options.session,
     });
     if (options.listElements) {
       return (await response.json()) as ListElementsResult;
@@ -253,7 +265,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
    * `mainContentOnly` (default `true`) keeps only the page's main content,
    * without navigation, the site header, footer and sidebars; pass `false` to
    * convert the whole page. Takes the same `proxyCountry`, `timeSleep`,
-   * `method` / `value` / `methodTimeout` and `steps` options as
+   * `method` / `value` / `methodTimeout`, `steps` and `session` options as
    * `getPageSource()`.
    *
    * Throws {@link TargetNotFoundError} when the target page itself answers
@@ -270,6 +282,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       value: options.value,
       method_timeout: options.methodTimeout,
       steps: options.steps ? JSON.stringify(options.steps) : undefined,
+      session: options.session,
     });
     return response.text();
   }
@@ -290,6 +303,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       time_sleep: options.timeSleep,
       refresh_rules: options.refreshRules ? true : undefined,
       rules_hint: options.rulesHint,
+      session: options.session,
     });
     const payload = (await response.json()) as Record<string, unknown>;
     const inner = (payload.data ?? payload) as Record<string, unknown>;
@@ -301,6 +315,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       html: typeof payload.html === "string" ? payload.html : undefined,
       detail: typeof payload.detail === "string" ? payload.detail : undefined,
       raw: payload,
+      sessionChanged: isSessionChanged(response),
     };
   }
 
@@ -311,6 +326,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       get_cookies: true,
       proxy_country: options.proxyCountry,
       time_sleep: options.timeSleep,
+      session: options.session,
     });
     const payload = (await response.json()) as Record<string, unknown>;
     return {
@@ -318,6 +334,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       cookies: payload.cookies,
       proxy: (payload.proxy ?? payload.proxy_address) as string | undefined,
       raw: payload,
+      sessionChanged: isSessionChanged(response),
     };
   }
 
@@ -343,6 +360,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       get_cookies: options.getCookies ? true : undefined,
       proxy_country: options.proxyCountry,
       time_sleep: options.timeSleep,
+      session: options.session,
     });
     const payload = (await response.json()) as Record<string, unknown>;
     return {
@@ -358,6 +376,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       proxy: typeof payload.proxy === "string" ? payload.proxy : null,
       cookies: payload.cookies,
       raw: payload,
+      sessionChanged: isSessionChanged(response),
     };
   }
 
@@ -382,6 +401,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       capture_xhr: captureXhr,
       proxy_country: options.proxyCountry,
       steps: options.steps ? JSON.stringify(options.steps) : undefined,
+      session: options.session,
     });
     const payload = (await response.json()) as Record<string, unknown>;
     const calls = Array.isArray(payload.xhr) ? (payload.xhr as Record<string, unknown>[]) : [];
@@ -398,6 +418,7 @@ export class ScrapeUnblockerClient extends PluginMethods {
       xhrTruncated: payload.xhr_truncated === true,
       proxy: typeof payload.proxy === "string" ? payload.proxy : undefined,
       raw: payload,
+      sessionChanged: isSessionChanged(response),
     };
   }
 

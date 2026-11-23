@@ -346,6 +346,31 @@ Each call has `url`, `method`, `status`, `contentType`, `body` (text) and
 matching call with 403 or 429, the request fails like a block
 and is not billed.
 
+## Sticky sessions
+
+Pass the same `session` id to keep a run of calls on one proxy IP, e.g. a
+listing page and then its detail pages. Any id of 1-64 letters, digits, `_`,
+`.` or `-` works (anything else throws `ValidationError`); a session is private
+to your API key and expires after 10 minutes without calls. It combines with
+every other option (`proxyCountry`, `steps`, `getCookies`, ...) on every page
+method: `getPageSource`, `getMarkdown`, `getParsed`, `getPageWithCookies`,
+`getPageWithHeaders` and `getPageWithXhr`.
+
+```ts
+const first = await su.getPageWithCookies("https://example.com/search?q=shoes", { session: "run-42" });
+const detail = await su.getPageWithCookies("https://example.com/item/1", { session: "run-42" });
+if (detail.sessionChanged) console.log("answered through a new IP; the session now uses it");
+```
+
+When the session's IP cannot get the page, the call is answered through another
+IP and the session moves to it. Up to 4 calls of a session run on its IP at
+once; more parallel calls are answered through other IPs. A call with a
+different `proxyCountry` than the session's gets a new IP in that country. In
+each of these cases the result's `sessionChanged` is `true`. It is on the
+results of `getParsed`, `getPageWithCookies`, `getPageWithHeaders` and
+`getPageWithXhr`; `getPageSource` and `getMarkdown` return the page as a plain
+string, so they do not report it.
+
 ## Images
 
 ```ts

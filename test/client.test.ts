@@ -816,3 +816,60 @@ describe("ScrapeUnblockerClient", () => {
     expect(JSON.parse(err.body!).headers["set-cookie"]).toEqual(["a=1; Path=/", "b=2"]);
   });
 });
+
+describe("sticky sessions", () => {
+  const jsonBody = JSON.stringify({ html: "<html>hi</html>", data: { page_type: "product", data: {} } });
+
+  // Every method that calls /getPageSource, with the body its mock answers.
+  const methods: [string, (c: ScrapeUnblockerClient, session?: string) => Promise<unknown>, string][] = [
+    ["getPageSource", (c, session) => c.getPageSource("https://example.com", { session }), "<html>hi</html>"],
+    ["getMarkdown", (c, session) => c.getMarkdown("https://example.com", { session }), "# hi"],
+    ["getParsed", (c, session) => c.getParsed("https://example.com", { session }), jsonBody],
+    ["getPageWithCookies", (c, session) => c.getPageWithCookies("https://example.com", { session }), jsonBody],
+    ["getPageWithHeaders", (c, session) => c.getPageWithHeaders("https://example.com", { session }), jsonBody],
+    ["getPageWithXhr", (c, session) => c.getPageWithXhr("https://example.com", "/api/", { session }), jsonBody],
+  ];
+
+  // The methods whose result object carries sessionChanged.
+  const resultMethods = methods.filter(([name]) => name !== "getPageSource" && name !== "getMarkdown");
+
+  it.each(methods)("%s sends session only when given", async (_name, call, body) => {
+    const fetchFn = mockFetch(
+      new Response(body, { status: 200 }),
+      new Response(body, { status: 200 }),
+    );
+    const c = client();
+    await call(c);
+    await call(c, "cart_1.a-b");
+    const without = new URL(fetchFn.mock.calls[0][0]).searchParams;
+    const withSession = new URL(fetchFn.mock.calls[1][0]).searchParams;
+    expect(without.has("session")).toBe(false);
+    expect(withSession.get("session")).toBe("cart_1.a-b");
+    expect(withSession.get("url")).toBe("https://example.com");
+    expect(new URL(fetchFn.mock.calls[1][0]).pathname).toBe("/getPageSource");
+  });
+
+  it.each(resultMethods)("%s reads sessionChanged from X-Session-Changed", async (_name, call, body) => {
+    mockFetch(
+      new Response(body, { status: 200, headers: { "X-Session-Changed": "true" } }),
+      new Response(body, { status: 200, headers: { "X-Session-Changed": "false" } }),
+      new Response(body, { status: 200 }),
+    );
+    const c = client();
+    const changed = (await call(c, "s1")) as { sessionChanged: boolean };
+    const kept = (await call(c, "s1")) as { sessionChanged: boolean };
+    const noHeader = (await call(c, "s1")) as { sessionChanged: boolean };
+    expect(changed.sessionChanged).toBe(true);
+    expect(kept.sessionChanged).toBe(false);
+    expect(noHeader.sessionChanged).toBe(false);
+  });
+
+  it("maps an invalid session id (422) to ValidationError", async () => {
+    mockFetch(
+      new Response(JSON.stringify({ detail: [{ loc: ["query", "session"] }] }), { status: 422 }),
+    );
+    await expect(
+      client().getPageSource("https://example.com", { session: "no spaces" }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+});

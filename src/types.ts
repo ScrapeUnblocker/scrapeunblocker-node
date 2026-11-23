@@ -151,6 +151,19 @@ export interface PageOptions {
    * `getPageSource` resolves to a {@link ListElementsResult}.
    */
   listElements?: boolean;
+  /**
+   * Send calls that pass the same id through the same proxy IP (maps to
+   * `session`): 1-64 letters, digits, `_`, `.` or `-`; anything else is a 422
+   * {@link ValidationError}. The session is private to your API key and
+   * expires after 10 minutes without calls. When its IP cannot get the page,
+   * the call is answered through another IP and the session moves to it. Up
+   * to 4 calls of a session run on its IP at once; more parallel calls are
+   * answered through other IPs. A different `proxyCountry` gets a new IP in
+   * that country. The results of `getParsed`, `getPageWithCookies`,
+   * `getPageWithHeaders` and `getPageWithXhr` report this in `sessionChanged`;
+   * `getPageSource` and `getMarkdown` return a plain string and do not.
+   */
+  session?: string;
 }
 
 /**
@@ -173,6 +186,8 @@ export interface ParsedOptions {
   refreshRules?: boolean;
   /** Free-text steer for regeneration, e.g. "price is missing". */
   rulesHint?: string;
+  /** Send calls that pass the same id through the same proxy IP; see {@link PageOptions.session}. */
+  session?: string;
 }
 
 /** Structured data extracted from a page (`getParsed`). */
@@ -195,6 +210,12 @@ export interface ParsedPage {
   detail?: string;
   /** The full JSON payload as returned by the API. */
   raw: Record<string, unknown>;
+  /**
+   * True when the call named a `session` and was answered through a different
+   * IP than the session's (the `X-Session-Changed: true` response header).
+   * Always false without a session.
+   */
+  sessionChanged: boolean;
 }
 
 /** Options for {@link ScrapeUnblockerClient.getPageWithXhr}. */
@@ -206,6 +227,8 @@ export interface XhrCaptureOptions {
    * same format as {@link PageOptions.steps}.
    */
   steps?: BrowserStep[];
+  /** Send calls that pass the same id through the same proxy IP; see {@link PageOptions.session}. */
+  session?: string;
 }
 
 /** One XHR/fetch response the page received (`getPageWithXhr`). */
@@ -236,6 +259,12 @@ export interface CapturedPage {
   proxy?: string;
   /** The full JSON payload as returned by the API. */
   raw: Record<string, unknown>;
+  /**
+   * True when the call named a `session` and was answered through a different
+   * IP than the session's (the `X-Session-Changed: true` response header).
+   * Always false without a session.
+   */
+  sessionChanged: boolean;
 }
 
 /** HTML plus the cookies and proxy that served it (`getPageWithCookies`). */
@@ -244,6 +273,12 @@ export interface PageResult {
   cookies?: unknown;
   proxy?: string;
   raw: Record<string, unknown>;
+  /**
+   * True when the call named a `session` and was answered through a different
+   * IP than the session's (the `X-Session-Changed: true` response header).
+   * Always false without a session.
+   */
+  sessionChanged: boolean;
 }
 
 /** Options for {@link ScrapeUnblockerClient.getPageWithHeaders}. */
@@ -254,6 +289,8 @@ export interface PageHeadersOptions {
   proxyCountry?: string;
   /** Extra seconds to wait after load before capture. */
   timeSleep?: number;
+  /** Send calls that pass the same id through the same proxy IP; see {@link PageOptions.session}. */
+  session?: string;
 }
 
 /** A page plus the target's status, final URL and headers (`getPageWithHeaders`). */
@@ -278,6 +315,12 @@ export interface PageHeaders {
   cookies?: unknown;
   /** The full JSON payload as returned by the API. */
   raw: Record<string, unknown>;
+  /**
+   * True when the call named a `session` and was answered through a different
+   * IP than the session's (the `X-Session-Changed: true` response header).
+   * Always false without a session.
+   */
+  sessionChanged: boolean;
 }
 
 /** Options for {@link ScrapeUnblockerClient.serp}. */
